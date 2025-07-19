@@ -16,7 +16,7 @@ import {
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
-import { sampleStaffSeedData } from '@/lib/data';
+import { staffData } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
@@ -121,7 +121,7 @@ export default function HeadTeacherPage() {
       // Simulate fetching all teachers for the school
       let teachersForSchool: Teacher[] = [];
       if (schoolId) {
-          teachersForSchool = sampleStaffSeedData
+          teachersForSchool = staffData
             .filter(staff => staff.schoolId === schoolId && (staff.role.toLowerCase() === 'teacher' || staff.role.toLowerCase() === 'assistant-head-teacher'))
             .map(staff => ({ id: staff.id, name: staff.name }));
       }
@@ -132,7 +132,7 @@ export default function HeadTeacherPage() {
           title: "Showing Mock Data",
           description: "No teachers found for your current context. Displaying sample data.",
         });
-        teachersForSchool = sampleStaffSeedData
+        teachersForSchool = staffData
           .filter(staff => staff.schoolId === 'SCH-001' && (staff.role.toLowerCase() === 'teacher' || staff.role.toLowerCase() === 'assistant-head-teacher'))
           .slice(0, 5) // Show up to 5 mock teachers
           .map(staff => ({ id: staff.id, name: staff.name }));
@@ -775,7 +775,7 @@ export default function HeadTeacherPage() {
                                   <TooltipContent><p>Outdoor Duties Log</p></TooltipContent>
                                 </Tooltip>
                               </TableHead>
-                              <TableHead className="text-center">
+                               <TableHead className="text-center">
                                 <Tooltip>
                                   <TooltipTrigger className="cursor-help font-semibold">OHS</TooltipTrigger>
                                   <TooltipContent><p>OHS Incident Reporting</p></TooltipContent>
@@ -887,3 +887,4 @@ export default function HeadTeacherPage() {
     </TooltipProvider>
   );
 }
+design

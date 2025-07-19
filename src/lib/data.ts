@@ -1,3 +1,4 @@
+import type { StaffMember } from './schemas/staff';
 
 export const schoolData = [
   { id: 'SCH-001', name: 'Suva Grammar School', address: 'Suva, Fiji' },
@@ -5,19 +6,19 @@ export const schoolData = [
   { id: 'SCH-003', name: 'Adi Cakobau School', address: 'Sawani, Fiji' },
 ];
 
-export const staffData = [
-  { id: 'STF-001', name: 'Dr. Evelyn Reed', role: 'Principal', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'e.reed@suvagrammar.ac.fj', phone: '+679 123 4567', staffId: 'T001', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-002', name: 'Mr. Samuel Greene', role: 'Mathematics Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.greene@suvagrammar.ac.fj', phone: '+679 123 4568', staffId: 'T002', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-003', name: 'Ms. Clara Bell', role: 'School Counselor', position: 'Student Support', status: 'On Leave', schoolId: 'SCH-002', email: 'c.bell@natabuahigh.ac.fj', phone: '+679 234 5678', staffId: 'T003', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-004', name: 'Mr. David Chen', role: 'Librarian', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'd.chen@adiscakobau.ac.fj', phone: '+679 345 6789', staffId: 'T004', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-005', name: 'Mrs. Helen Chu', role: 'Science Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 'h.chu@natabuahigh.ac.fj', phone: '+679 234 5679', staffId: 'T005', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-006', name: 'Mr. Johnathan Lee', role: 'Physical Education', position: 'Sports', status: 'Active', schoolId: 'SCH-001', email: 'j.lee@suvagrammar.ac.fj', phone: '+679 123 4569', staffId: 'T006', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-007', name: 'Ms. Aisha Khan', role: 'Art Teacher', position: 'Arts', status: 'Terminated', schoolId: 'SCH-003', email: 'a.khan@adiscakobau.ac.fj', phone: '+679 345 6780', staffId: 'T007', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-008', name: 'SENIROSI LEDUA', role: 'Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.ledua@suvagrammar.ac.fj', phone: '+679 123 1111', staffId: 'T008', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-009', name: 'GAYLESHNI GAYETRI DEV', role: 'Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 'g.dev@suvagrammar.ac.fj', phone: '+679 123 2222', staffId: 'T009', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-010', name: 'SHIVAM MELVIN RAJ', role: 'Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 's.raj@natabuahigh.ac.fj', phone: '+679 234 3333', staffId: 'T010', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-011', name: 'SEEMA SHARMA', role: 'Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 's.sharma@natabuahigh.ac.fj', phone: '+679 234 4444', staffId: 'T011', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'STF-012', name: 'GRACE WILSON', role: 'Teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'g.wilson@adiscakobau.ac.fj', phone: '+679 345 5555', staffId: 'T012', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+export const staffData: StaffMember[] = [
+  { id: 'STF-001', name: 'Dr. Evelyn Reed', role: 'head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'e.reed@suvagrammar.ac.fj', phone: '+679 123 4567', staffId: 'T001', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-002', name: 'Mr. Samuel Greene', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.greene@suvagrammar.ac.fj', phone: '+679 123 4568', staffId: 'T002', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-003', name: 'Ms. Clara Bell', role: 'teacher', position: 'Student Support', status: 'On Leave', schoolId: 'SCH-002', email: 'c.bell@natabuahigh.ac.fj', phone: '+679 234 5678', staffId: 'T003', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-004', name: 'Mr. David Chen', role: 'librarian', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'd.chen@adiscakobau.ac.fj', phone: '+679 345 6789', staffId: 'T004', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-005', name: 'Mrs. Helen Chu', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 'h.chu@natabuahigh.ac.fj', phone: '+679 234 5679', staffId: 'T005', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-006', name: 'Mr. Johnathan Lee', role: 'teacher', position: 'Sports', status: 'Active', schoolId: 'SCH-001', email: 'j.lee@suvagrammar.ac.fj', phone: '+679 123 4569', staffId: 'T006', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-007', name: 'Ms. Aisha Khan', role: 'teacher', position: 'Arts', status: 'Terminated', schoolId: 'SCH-003', email: 'a.khan@adiscakobau.ac.fj', phone: '+679 345 6780', staffId: 'T007', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-008', name: 'SENIROSI LEDUA', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.ledua@suvagrammar.ac.fj', phone: '+679 123 1111', staffId: 'T008', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-009', name: 'GAYLESHNI GAYETRI DEV', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 'g.dev@suvagrammar.ac.fj', phone: '+679 123 2222', staffId: 'T009', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-010', name: 'SHIVAM MELVIN RAJ', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 's.raj@natabuahigh.ac.fj', phone: '+679 234 3333', staffId: 'T010', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-011', name: 'SEEMA SHARMA', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 's.sharma@natabuahigh.ac.fj', phone: '+679 234 4444', staffId: 'T011', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'STF-012', name: 'GRACE WILSON', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'g.wilson@adiscakobau.ac.fj', phone: '+679 345 5555', staffId: 'T012', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
 ];
 
 export const sampleStaffSeedData = staffData; // Alias for consistency if needed
@@ -95,4 +96,4 @@ export const overviewChartData = [
   { name: 'Dec', total: Math.floor(Math.random() * 5000) + 1000 },
 ];
 
-export const inventoryChartData = inventoryData.map(item => ({ name: item.item, value: item.quantity * item.unitCost }));
+export const inventoryChartData
