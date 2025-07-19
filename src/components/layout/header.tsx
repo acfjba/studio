@@ -64,7 +64,7 @@ const studentServicesLinks = [
     { href: '/dashboard/disciplinary', icon: Gavel, label: 'Disciplinary', description: 'Manage disciplinary records.' }
 ];
 const operationsLinks = [
-  { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory', description: 'Track and forecast inventory.' },
+  { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.' },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
