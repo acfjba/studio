@@ -89,11 +89,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior={false}>
-                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+              <NavigationMenuLink asChild active={pathname === '/dashboard'}>
+                <Link href="/dashboard" className={navigationMenuTriggerStyle()}>
                   Dashboard
-                </NavigationMenuLink>
-              </Link>
+                </Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Management</NavigationMenuTrigger>
@@ -161,11 +161,11 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-              <Link href="/dashboard/settings" legacyBehavior={false}>
-                <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
+               <NavigationMenuLink asChild active={pathname === '/dashboard/settings'}>
+                <Link href="/dashboard/settings" className={navigationMenuTriggerStyle()}>
                   Settings
-                </NavigationMenuLink>
-              </Link>
+                </Link>
+              </NavigationMenuLink>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
