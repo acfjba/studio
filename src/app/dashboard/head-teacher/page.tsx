@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, 'useState', useMemo, useEffect, useCallback } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { 
   BarChart3, Bell, FileText, LogOutIcon, Home, Printer, Download, AlertCircle, Users, MailWarning, CheckCircle, Award, TimerOff, 
-  CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes, Target
+  CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes, Target, MailCheck as MailCheckIcon
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -471,7 +471,7 @@ export default function HeadTeacherPage() {
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailPlus className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invite Teachers</p><p className="text-xs text-muted-foreground">Send invitations to new staff members.</p></div></Button>
                     </Link>
                     <Link href="/dashboard/invitation-logs" passHref>
-                        <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailCheck className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invitation Logs</p><p className="text-xs text-muted-foreground">Track sent teacher invitations.</p></div></Button>
+                        <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailCheckIcon className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invitation Logs</p><p className="text-xs text-muted-foreground">Track sent teacher invitations.</p></div></Button>
                     </Link>
                     <Link href="/dashboard/iwp" passHref>
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><Target className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Individual Work Plan</p><p className="text-xs text-muted-foreground">Manage teacher work plans.</p></div></Button>
