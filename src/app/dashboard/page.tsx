@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -9,12 +10,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { PageHeader } from '@/components/layout/page-header';
 
 export default function DashboardPage() {
-  const [currentDateTime, setCurrentDateTime] = useState<string | null>(null);
+  const [currentDateTime, setCurrentDateTime] = useState(new Date());
   const [schoolId, setSchoolId] = useState<string | null>(null);
 
   useEffect(() => {
     const timer = setInterval(() => {
-      setCurrentDateTime(new Date().toLocaleString());
+      setCurrentDateTime(new Date());
     }, 1000);
     
     if (typeof window !== 'undefined') {
@@ -44,20 +45,32 @@ export default function DashboardPage() {
             </Tooltip>
         </PageHeader>
         
-        <div className="mt-3 inline-block rounded-full bg-muted text-muted-foreground px-4 py-2 text-lg shadow-inner">
-            <div className="flex items-center space-x-3">
-              {schoolId && (
-                <div className="flex items-center">
-                  <Building className="mr-1.5 h-4 w-4" />
-                  <span>School ID: {schoolId}</span>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
+            <div className="md:col-span-1 flex justify-center">
+                 <div className="w-64 h-64 rounded-full border-8 border-primary/20 bg-card shadow-2xl flex flex-col items-center justify-center text-center p-4">
+                    <p className="text-4xl font-bold font-headline text-foreground">
+                        {currentDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                    </p>
+                    <p className="text-lg text-muted-foreground mt-2">
+                        {currentDateTime.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                    </p>
                 </div>
-              )}
-              <div className="flex items-center">
-                <CalendarClock className="mr-1.5 h-4 w-4" />
-                <span>{currentDateTime || 'Loading date/time...'}</span>
-              </div>
+            </div>
+             <div className="md:col-span-2">
+                 {schoolId && (
+                    <div className="inline-block rounded-full bg-muted text-muted-foreground px-4 py-2 text-lg shadow-inner mb-6">
+                        <div className="flex items-center space-x-3">
+                            <Building className="mr-1.5 h-4 w-4" />
+                            <span>School ID: {schoolId}</span>
+                        </div>
+                    </div>
+                 )}
+                <p className="text-lg text-muted-foreground">
+                    Use the quick action cards below to navigate to key sections of the platform.
+                </p>
             </div>
         </div>
+
 
         <section aria-labelledby="quick-actions-heading">
           <h2 id="quick-actions-heading" className="sr-only">Quick Actions</h2>
