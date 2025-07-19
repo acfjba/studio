@@ -44,7 +44,7 @@ import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
 
 const managementLinks = [
-  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.', roles: ['head-teacher', 'system-admin'] },
+  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.', roles: ['head-teacher', 'system-admin', 'assistant-head-teacher', 'primary-admin'] },
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.', roles: ['primary-admin', 'system-admin'] },
   { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
 ];
@@ -91,7 +91,7 @@ const allLinks = [
 ];
 
 const navMenuConfig = [
-  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'primary-admin', 'system-admin', 'assistant-head-teacher', 'teacher'] },
+  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian'] },
@@ -114,7 +114,10 @@ export function Header() {
     return allowedRoles.includes(userRole);
   };
   
-  const accessibleNavMenus = navMenuConfig.filter(menu => hasAccess(menu.roles));
+  const accessibleNavMenus = navMenuConfig.filter(menu => {
+    const hasLinksWithAccess = menu.links.some(link => hasAccess(link.roles));
+    return hasAccess(menu.roles) && hasLinksWithAccess;
+  });
   const accessibleMobileLinks = allLinks.filter(link => hasAccess(link.roles));
 
   return (
@@ -151,11 +154,11 @@ export function Header() {
              
              {hasAccess(['system-admin']) && (
                 <NavigationMenuItem>
-                    <Link href="/dashboard/settings" legacyBehavior passHref>
-                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                        Settings
+                  <Link href="/dashboard/platform-management" legacyBehavior passHref>
+                    <NavigationMenuLink active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
+                        Platform
                     </NavigationMenuLink>
-                    </Link>
+                  </Link>
                 </NavigationMenuItem>
              )}
           </NavigationMenuList>
