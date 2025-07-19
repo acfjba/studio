@@ -18,7 +18,9 @@ export default function PlatformManagementPage() {
             <CardDescription>Add, edit, or remove schools from the platform.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button>Manage Schools</Button>
+            <Link href="/dashboard/platform-management/school-management">
+              <Button>Manage Schools</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>
