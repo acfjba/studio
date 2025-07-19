@@ -39,6 +39,7 @@ import {
   Gavel,
   BookOpen,
     DollarSign,
+    Building,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -77,6 +78,7 @@ const analyticsLinks = [
 ];
 const platformLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
+  { href: '/dashboard/platform-management/school-management', icon: Building, label: 'School Management', description: 'View and manage schools.', roles: ['system-admin'] },
   { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
   { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
 ];
@@ -230,4 +232,3 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
   },
 );
 ListItem.displayName = 'ListItem';
-

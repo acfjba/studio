@@ -13,7 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } fro
 import { 
   LogOut, Home, Users, Mail, Info, AlertTriangle, Loader2, Settings, PlusCircle, Trash2,
   DatabaseZap, RefreshCw, Lock, Edit, Printer, HelpCircle, CircleUserRound, History as HistoryIcon, Upload,
-  KeyRound, ShieldCheck, Bot
+  KeyRound, ShieldCheck, Bot, Wifi, Server, Building
 } from 'lucide-react';
 import {
   Dialog,
@@ -675,6 +675,92 @@ export default function PlatformManagementPage() {
                 )}
                 </CardContent>
             </Card>
+            </section>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8 print:hidden">
+            <section aria-labelledby="school-management" className="lg:col-span-2">
+                 <Card className="shadow-lg h-full">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-xl text-primary flex items-center">
+                            <Building className="mr-2 h-6 w-6" />
+                            School & User Management
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground">
+                            Onboard new schools or invite users to the platform.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="p-4 border rounded-lg bg-background">
+                            <Label htmlFor="school-id-input" className="font-medium text-muted-foreground">Manage a School</Label>
+                            <div className="flex items-center gap-2 mt-2">
+                                <Input 
+                                    id="school-id-input"
+                                    placeholder="Enter School ID"
+                                    value={schoolIdInput}
+                                    onChange={(e) => setSchoolIdInput(e.target.value)}
+                                    disabled={isProcessingSchool}
+                                />
+                            </div>
+                            <div className="flex items-center gap-2 mt-2">
+                                <Button onClick={handleAddSchool} disabled={isProcessingSchool || !schoolIdInput.trim()} className="w-full">
+                                    {isProcessingSchool ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                                    Add
+                                </Button>
+                                <Button variant="destructive" onClick={handleRemoveSchool} disabled={isProcessingSchool || !schoolIdInput.trim()} className="w-full">
+                                     {isProcessingSchool ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                                    Remove
+                                </Button>
+                            </div>
+                        </div>
+                        <div className="p-4 border rounded-lg bg-background flex flex-col justify-between">
+                            <div>
+                                <Label className="font-medium text-muted-foreground">Manage Users</Label>
+                                <p className="text-xs text-muted-foreground mt-2">Add new users individually or in bulk, or manage existing school roles.</p>
+                            </div>
+                            <Link href="/dashboard/invite-teachers" className="mt-4 w-full">
+                                <Button className="w-full">
+                                    <Users className="mr-2 h-4 w-4" /> Go to User Management
+                                </Button>
+                            </Link>
+                        </div>
+                    </CardContent>
+                </Card>
+            </section>
+
+             <section aria-labelledby="network-status">
+                <Card className="shadow-lg h-full">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-xl text-primary flex items-center">
+                            <Server className="mr-2 h-6 w-6" />
+                            Network Status
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground">
+                            Live (simulated) network and server performance.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        {isLoading || !networkStats ? <Skeleton className="h-24 w-full" /> : (
+                            <div className="space-y-4">
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Provider</span>
+                                    <span className="font-semibold">{networkStats.provider}</span>
+                                </div>
+                                <div className="flex justify-between text-sm">
+                                    <span className="text-muted-foreground">Uptime</span>
+                                    <span className="font-semibold text-green-600">{networkStats.uptime}%</span>
+                                </div>
+                                <div>
+                                    <div className="flex justify-between text-sm mb-1">
+                                        <span className="text-muted-foreground">Average Speed</span>
+                                        <span className="font-semibold">{currentAvgSpeed} Mbps</span>
+                                    </div>
+                                    <Progress value={speedProgress} />
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </section>
         </div>
 
