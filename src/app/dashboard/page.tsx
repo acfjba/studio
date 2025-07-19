@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, CalendarClock, Building, HelpCircle, Briefcase } from "lucide-react";
+import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, CalendarClock, Building, HelpCircle, Briefcase, BookOpen } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
