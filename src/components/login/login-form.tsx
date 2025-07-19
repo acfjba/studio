@@ -1,81 +1,97 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { School } from 'lucide-react';
+import { HelpCircle, Image as ImageIcon } from 'lucide-react';
+import Image from 'next/image';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 export function LoginForm() {
   const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real application, you would handle authentication here.
-    // For this demo, we'll just redirect to the dashboard.
     router.push('/dashboard');
   };
 
+  const InfoTooltip = ({ text }: { text: string }) => (
+    <TooltipProvider>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <HelpCircle className="h-4 w-4 text-muted-foreground cursor-pointer" />
+        </TooltipTrigger>
+        <TooltipContent>
+          <p>{text}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  );
+
   return (
-    <Card className="w-full max-w-md mx-auto">
-       <CardHeader className="text-center">
-        <CardTitle className="text-2xl font-headline">
-          Welcome to the Platform
-        </CardTitle>
-        <CardDescription>Empowering schools with a modern solution for performance and efficiency.</CardDescription>
-      </CardHeader>
-      <CardContent>
+    <Card className="w-full max-w-md mx-auto border-2 border-amber-800/20 shadow-2xl">
+      <CardContent className="p-6 sm:p-8">
+        <div className="flex flex-col items-center text-center mb-6">
+            <div className="mb-4 h-16 w-16 flex items-center justify-center rounded-full bg-gray-200">
+                 <ImageIcon className="h-8 w-8 text-gray-400" />
+            </div>
+          <h1 className="text-2xl font-bold text-red-800">TRA Platform Login</h1>
+          <p className="text-muted-foreground">Choose your login type and sign in with your details.</p>
+        </div>
+
         <Tabs defaultValue="school" className="w-full">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="school">School Login</TabsTrigger>
-            <TabsTrigger value="admin">Admin Login</TabsTrigger>
+          <TabsList className="grid w-full grid-cols-2 bg-transparent p-0 mb-6">
+            <TabsTrigger value="school" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-700 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-md !shadow-none">School Login</TabsTrigger>
+            <TabsTrigger value="admin" className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-700 data-[state=active]:to-blue-600 data-[state=active]:text-white rounded-md !shadow-none">System Admin</TabsTrigger>
           </TabsList>
+          
           <TabsContent value="school">
-            <form onSubmit={handleLogin} className="grid gap-4 pt-4">
+            <form onSubmit={handleLogin} className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="school-id">School ID</Label>
-                <Input id="school-id" placeholder="Enter School ID (e.g., 3046)" required />
-                 <p className="text-xs text-muted-foreground">
-                    System Admins can leave School ID blank or enter one.
-                  </p>
+                <Label htmlFor="school-id" className="flex items-center gap-2">School ID <InfoTooltip text="Enter the official ID provided to your school." /></Label>
+                <Input id="school-id" placeholder="e.g. HS123" required className="border-amber-600/50 focus-visible:ring-amber-500" />
               </div>
+
               <div className="grid gap-2">
-                <Label htmlFor="school-email">Email</Label>
-                <Input id="school-email" type="email" placeholder="Enter your email" required />
+                <Label htmlFor="school-email" className="flex items-center gap-2">Email Address <InfoTooltip text="Use your official school-provided email address." /></Label>
+                <Input id="school-email" type="email" placeholder="you@email.com" required className="border-amber-600/50 focus-visible:ring-amber-500"/>
               </div>
+
+              <Alert className="border-l-4 border-red-600 bg-red-50 text-red-900">
+                <AlertDescription>
+                    <strong>Note:</strong> Use your personal email (not generic school) as registered. Contact your school admin if you cannot log in.
+                </AlertDescription>
+              </Alert>
+
               <div className="grid gap-2">
-                 <div className="flex items-center">
-                    <Label htmlFor="school-password">Password</Label>
-                    <a href="#" className="ml-auto inline-block text-sm underline">
-                        Forgot Password?
-                    </a>
-                </div>
-                <Input id="school-password" type="password" required />
+                 <Label htmlFor="school-password" className="flex items-center gap-2">Password <InfoTooltip text="Enter your password." /></Label>
+                <Input id="school-password" type="password" required placeholder="******" className="border-amber-600/50 focus-visible:ring-amber-500"/>
               </div>
-              <Button type="submit" className="w-full mt-2">
+
+              <Button type="submit" className="w-full mt-4 bg-red-700 hover:bg-red-800 text-white">
                 Login
               </Button>
             </form>
           </TabsContent>
+
           <TabsContent value="admin">
-            <form onSubmit={handleLogin} className="grid gap-4 pt-4">
+            <form onSubmit={handleLogin} className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="admin-email">Email</Label>
-                <Input id="admin-email" type="email" placeholder="admin@system.com" required />
+                <Label htmlFor="admin-email" className="flex items-center gap-2">Email Address <InfoTooltip text="System administrator email address." /></Label>
+                <Input id="admin-email" type="email" placeholder="admin@system.com" required className="border-amber-600/50 focus-visible:ring-amber-500"/>
               </div>
+
               <div className="grid gap-2">
-                <div className="flex items-center">
-                    <Label htmlFor="admin-password">Password</Label>
-                    <a href="#" className="ml-auto inline-block text-sm underline">
-                        Forgot Password?
-                    </a>
-                </div>
-                <Input id="admin-password" type="password" required />
+                <Label htmlFor="admin-password" className="flex items-center gap-2">Password <InfoTooltip text="System administrator password." /></Label>
+                <Input id="admin-password" type="password" required placeholder="******" className="border-amber-600/50 focus-visible:ring-amber-500"/>
               </div>
-              <Button type="submit" className="w-full mt-2">
+
+              <Button type="submit" className="w-full mt-4 bg-red-700 hover:bg-red-800 text-white">
                 Login
               </Button>
             </form>
