@@ -1,7 +1,7 @@
 
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -44,57 +44,79 @@ import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
 
 const managementLinks = [
-  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.' },
-  { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.' },
-  { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage the entire platform infrastructure.' },
-  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.' },
+  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.', roles: ['head-teacher', 'system-admin'] },
+  { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.', roles: ['primary-admin', 'system-admin'] },
+  { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage the entire platform infrastructure.', roles: ['system-admin'] },
+  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
 ];
 const academicLinks = [
-  { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
-  { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
-  { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'AI Workbook Plan', description: 'Generate lesson plans with AI.' },
-  { href: '/dashboard/lesson-planner', icon: BookOpen, label: 'Lesson Planner', description: 'Manually create detailed lesson plans.' },
-  { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.' },
-  { href: '/dashboard/academics/exam-summary', icon: BarChart2, label: 'Exam Summary', description: 'View aggregated exam performance.' },
-  { href: '/dashboard/academics/classroom-inventory', icon: Warehouse, label: 'Classroom Inventory', description: 'Manage classroom-level stock.' },
-  { href: '/dashboard/academics/inventory-summary', icon: BarChart2, label: 'Classroom Inventory Summary', description: 'Aggregated view of classroom stock.' },
-
-
+  { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'AI Workbook Plan', description: 'Generate lesson plans with AI.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/lesson-planner', icon: BookOpen, label: 'Lesson Planner', description: 'Manually create detailed lesson plans.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/academics/exam-summary', icon: BarChart2, label: 'Exam Summary', description: 'View aggregated exam performance.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/academics/classroom-inventory', icon: Warehouse, label: 'Classroom Inventory', description: 'Manage classroom-level stock.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/academics/inventory-summary', icon: BarChart2, label: 'Classroom Inventory Summary', description: 'Aggregated view of classroom stock.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
 ];
 const studentServicesLinks = [
-    { href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.' },
-    { href: '/dashboard/disciplinary', icon: Gavel, label: 'Disciplinary', description: 'Manage disciplinary records.' }
+    { href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/disciplinary', icon: Gavel, label: 'Disciplinary', description: 'Manage disciplinary records.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] }
 ];
 const operationsLinks = [
-  { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.' },
-  { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
-  { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
-  { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
-  { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
-  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.' },
+  { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin'] },
+  { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian'] },
+  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
 ];
 const analyticsLinks = [
-    { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' },
+    { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
 ];
 const platformLinks = [
-  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin', description: 'Manage the entire platform.' },
-  { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.' },
-  { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.' },
+  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin', description: 'Manage the entire platform.', roles: ['system-admin'] },
+  { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
+  { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian'] },
 ];
 
 const allLinks = [
-    {category: "Dashboard", href: "/dashboard", icon: LayoutGrid, label: "Dashboard"},
+    {category: "Dashboard", href: "/dashboard", icon: LayoutGrid, label: "Dashboard", roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian']},
     ...managementLinks.map(l => ({...l, category: "Management"})),
     ...academicLinks.map(l => ({...l, category: "Academics"})),
     ...studentServicesLinks.map(l => ({...l, category: "Student Services"})),
     ...operationsLinks.map(l => ({...l, category: "Operations"})),
     ...analyticsLinks.map(l => ({...l, category: "Analytics"})),
     ...platformLinks.map(l => ({...l, category: "Platform"})),
-    {category: "Settings", href: "/dashboard/settings", icon: Settings, label: "Settings"},
-]
+    {category: "Settings", href: "/dashboard/settings", icon: Settings, label: "Settings", roles: ['system-admin']},
+];
+
+const navMenuConfig = [
+  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+  { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian'] },
+  { name: 'Platform', links: [...analyticsLinks, ...platformLinks], roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+];
 
 export function Header() {
   const pathname = usePathname();
+  const [userRole, setUserRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const role = localStorage.getItem('userRole');
+      setUserRole(role);
+    }
+  }, []);
+
+  const hasAccess = (allowedRoles: string[]) => {
+    if (!userRole) return false;
+    return allowedRoles.includes(userRole);
+  };
+  
+  const accessibleNavMenus = navMenuConfig.filter(menu => hasAccess(menu.roles));
+  const accessibleMobileLinks = allLinks.filter(link => hasAccess(link.roles));
 
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
@@ -106,84 +128,37 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior={false} passHref>
+              <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    Dashboard
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Management</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {managementLinks.map((component) => (
-                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Academics</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {academicLinks.map((component) => (
-                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-             <NavigationMenuItem>
-              <NavigationMenuTrigger>Student Services</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {studentServicesLinks.map((component) => (
-                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-            <NavigationMenuItem>
-              <NavigationMenuTrigger>Operations</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                  {operationsLinks.map((component) => (
-                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-             <NavigationMenuItem>
-              <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
-                   {analyticsLinks.map((component) => (
-                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                      {component.description}
-                    </ListItem>
-                  ))}
-                  {platformLinks.map((component) => (
-                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                      {component.description}
-                    </ListItem>
-                  ))}
-                </ul>
-              </NavigationMenuContent>
-            </NavigationMenuItem>
-             <NavigationMenuItem>
-                <Link href="/dashboard/settings" legacyBehavior={false} passHref>
-                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                     Settings
-                  </NavigationMenuLink>
-                </Link>
-            </NavigationMenuItem>
+            
+            {accessibleNavMenus.map(menu => (
+                <NavigationMenuItem key={menu.name}>
+                    <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
+                    <NavigationMenuContent>
+                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                            {menu.links.filter(link => hasAccess(link.roles)).map((component) => (
+                                <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                                    {component.description}
+                                </ListItem>
+                            ))}
+                        </ul>
+                    </NavigationMenuContent>
+                </NavigationMenuItem>
+            ))}
+             
+             {hasAccess(['system-admin']) && (
+                <NavigationMenuItem>
+                    <Link href="/dashboard/settings" legacyBehavior passHref>
+                    <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                        Settings
+                    </NavigationMenuLink>
+                    </Link>
+                </NavigationMenuItem>
+             )}
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
@@ -200,7 +175,7 @@ export function Header() {
               <School className="h-6 w-6 text-primary" />
               <span className="sr-only">School Data Insights</span>
             </Link>
-            {allLinks.map((item) => (
+            {accessibleMobileLinks.map((item) => (
                  <Link key={item.label} href={item.href} className="text-muted-foreground hover:text-foreground">
                     {item.label}
                  </Link>
@@ -230,9 +205,9 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
     return (
       <li>
         <NavigationMenuLink asChild>
-          <a
+          <Link
+            href={href!}
             ref={ref}
-            href={href}
             className={cn(
               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
               className
@@ -244,7 +219,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
                 {title}
             </div>
             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
-          </a>
+          </Link>
         </NavigationMenuLink>
       </li>
     );
