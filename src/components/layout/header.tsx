@@ -38,6 +38,7 @@ import {
   ClipboardList,
   Gavel,
   BookOpen,
+    DollarSign,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -72,6 +73,7 @@ const operationsLinks = [
 ];
 const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/reporting/financials', icon: DollarSign, label: 'Financials Report', description: 'View school financial performance.', roles: ['primary-admin', 'system-admin'] },
 ];
 const platformLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
@@ -130,9 +132,9 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior={false}>
+              <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                   Dashboard
+                   <a>Dashboard</a>
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
@@ -154,9 +156,9 @@ export function Header() {
              
              {hasAccess(['system-admin']) && (
                 <NavigationMenuItem>
-                  <Link href="/dashboard/platform-management" legacyBehavior={false}>
+                  <Link href="/dashboard/platform-management" legacyBehavior passHref>
                     <NavigationMenuLink asChild active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
-                       Platform
+                       <a>Platform</a>
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>

@@ -1,8 +1,10 @@
+
 "use client";
 
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { FileBarChart, BookCheck, Users, DollarSign } from "lucide-react";
+import Link from "next/link";
 
 export function ReportingClient() {
   return (
@@ -17,7 +19,7 @@ export function ReportingClient() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button>Generate Academic Report</Button>
+          <Button disabled>Generate Academic Report</Button>
         </CardContent>
       </Card>
       <Card>
@@ -30,7 +32,7 @@ export function ReportingClient() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button>Generate Inventory Report</Button>
+          <Button disabled>Generate Inventory Report</Button>
         </CardContent>
       </Card>
       <Card>
@@ -43,7 +45,7 @@ export function ReportingClient() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button>Generate Staff Report</Button>
+          <Button disabled>Generate Staff Report</Button>
         </CardContent>
       </Card>
       <Card>
@@ -56,7 +58,9 @@ export function ReportingClient() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Button>Generate Financial Report</Button>
+            <Link href="/dashboard/reporting/financials">
+                <Button>Generate Financial Report</Button>
+            </Link>
         </CardContent>
       </Card>
     </div>
