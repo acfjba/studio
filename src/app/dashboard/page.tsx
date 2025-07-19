@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, CalendarClock, Building, HelpCircle } from "lucide-react";
+import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, CalendarClock, Building, HelpCircle, Briefcase } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -62,6 +62,25 @@ export default function DashboardPage() {
         <section aria-labelledby="quick-actions-heading">
           <h2 id="quick-actions-heading" className="sr-only">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+             <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+              <CardHeader>
+                <CardTitle className="font-headline text-xl text-primary flex items-center">
+                  <Briefcase className="mr-2 h-6 w-6" />
+                  Head Teacher View
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="font-body mb-4">
+                  Access the Head Teacher dashboard for administrative tasks.
+                </CardDescription>
+                <Link href="/dashboard/head-teacher" passHref>
+                  <Button className="w-full">
+                    Go to Head Teacher Dashboard
+                  </Button>
+                </Link>
+              </CardContent>
+            </Card>
+
             <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
               <CardHeader>
                 <CardTitle className="font-headline text-xl text-primary flex items-center">

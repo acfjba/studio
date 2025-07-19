@@ -12,7 +12,14 @@ export const staffData = [
   { id: 'STF-005', name: 'Mrs. Helen Chu', role: 'Science Teacher', department: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 'h.chu@natabuahigh.ac.fj', phone: '+679 234 5679' },
   { id: 'STF-006', name: 'Mr. Johnathan Lee', role: 'Physical Education', department: 'Sports', status: 'Active', schoolId: 'SCH-001', email: 'j.lee@suvagrammar.ac.fj', phone: '+679 123 4569' },
   { id: 'STF-007', name: 'Ms. Aisha Khan', role: 'Art Teacher', department: 'Arts', status: 'Terminated', schoolId: 'SCH-003', email: 'a.khan@adiscakobau.ac.fj', phone: '+679 345 6780' },
+  { id: 'STF-008', name: 'SENIROSI LEDUA', role: 'Teacher', department: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.ledua@suvagrammar.ac.fj', phone: '+679 123 1111' },
+  { id: 'STF-009', name: 'GAYLESHNI GAYETRI DEV', role: 'Teacher', department: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 'g.dev@suvagrammar.ac.fj', phone: '+679 123 2222' },
+  { id: 'STF-010', name: 'SHIVAM MELVIN RAJ', role: 'Teacher', department: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 's.raj@natabuahigh.ac.fj', phone: '+679 234 3333' },
+  { id: 'STF-011', name: 'SEEMA SHARMA', role: 'Teacher', department: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 's.sharma@natabuahigh.ac.fj', phone: '+679 234 4444' },
+  { id: 'STF-012', name: 'GRACE WILSON', role: 'Teacher', department: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'g.wilson@adiscakobau.ac.fj', phone: '+679 345 5555' },
 ];
+
+export const sampleStaffSeedData = staffData; // Alias for consistency if needed
 
 export const inventoryData = [
   { id: 'INV-001', item: 'Laptops', quantity: 50, unitCost: 800, usageRate: 5, reorderPoint: 10, status: 'In Stock' },
