@@ -9,6 +9,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
 export function UserNav() {
   return (
@@ -30,9 +31,13 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem>Profile</DropdownMenuItem>
+          <Link href="/dashboard/profile" passHref>
+            <DropdownMenuItem>Profile</DropdownMenuItem>
+          </Link>
           <DropdownMenuItem>Billing</DropdownMenuItem>
-          <DropdownMenuItem>Settings</DropdownMenuItem>
+          <Link href="/dashboard/settings" passHref>
+            <DropdownMenuItem>Settings</DropdownMenuItem>
+          </Link>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem>Log out</DropdownMenuItem>
