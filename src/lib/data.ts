@@ -1,0 +1,36 @@
+export const staffData = [
+  { id: 'STF-001', name: 'Dr. Evelyn Reed', role: 'Principal', department: 'Administration', status: 'Active' },
+  { id: 'STF-002', name: 'Mr. Samuel Greene', role: 'Mathematics Teacher', department: 'Academics', status: 'Active' },
+  { id: 'STF-003', name: 'Ms. Clara Bell', role: 'School Counselor', department: 'Student Support', status: 'On Leave' },
+  { id: 'STF-004', name: 'Mr. David Chen', role: 'Librarian', department: 'Academics', status: 'Active' },
+  { id: 'STF-005', name: 'Mrs. Helen Chu', role: 'Science Teacher', department: 'Academics', status: 'Active' },
+  { id: 'STF-006', name: 'Mr. Johnathan Lee', role: 'Physical Education', department: 'Sports', status: 'Active' },
+  { id: 'STF-007', name: 'Ms. Aisha Khan', role: 'Art Teacher', department: 'Arts', status: 'Terminated' },
+];
+
+export const inventoryData = [
+  { id: 'INV-001', item: 'Laptops', quantity: 50, unitCost: 800, usageRate: 5, reorderPoint: 10, status: 'In Stock' },
+  { id: 'INV-002', item: 'Projectors', quantity: 15, unitCost: 350, usageRate: 2, reorderPoint: 5, status: 'In Stock' },
+  { id: 'INV-003', item: 'Textbooks - Grade 10 Math', quantity: 150, unitCost: 75, usageRate: 20, reorderPoint: 30, status: 'In Stock' },
+  { id: 'INV-004', item: 'Whiteboard Markers', quantity: 200, unitCost: 1, usageRate: 50, reorderPoint: 100, status: 'Low Stock' },
+  { id: 'INV-005', item: 'Lab Coats', quantity: 40, unitCost: 25, usageRate: 10, reorderPoint: 20, status: 'In Stock' },
+  { id: 'INV-006', item: 'Microscopes', quantity: 8, unitCost: 1200, usageRate: 1, reorderPoint: 2, status: 'Out of Stock' },
+  { id: 'INV-007', item: 'Soccer Balls', quantity: 30, unitCost: 20, usageRate: 5, reorderPoint: 10, status: 'In Stock' },
+];
+
+export const overviewChartData = [
+  { name: 'Jan', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Feb', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Mar', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Apr', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'May', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Jun', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Jul', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Aug', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Sep', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Oct', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Nov', total: Math.floor(Math.random() * 5000) + 1000 },
+  { name: 'Dec', total: Math.floor(Math.random() * 5000) + 1000 },
+];
+
+export const inventoryChartData = inventoryData.map(item => ({ name: item.item, value: item.quantity * item.unitCost }));
