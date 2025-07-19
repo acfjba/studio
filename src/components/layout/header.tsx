@@ -65,7 +65,7 @@ const studentServicesLinks = [
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-  { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin'] },
+  { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin', 'teacher', 'primary-admin', 'assistant-head-teacher', 'kindergarten'] },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
   { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
@@ -91,11 +91,11 @@ const allLinks = [
 ];
 
 const navMenuConfig = [
-  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
+  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-  { name: 'Platform', links: [...analyticsLinks, ...platformLinks], roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+  { name: 'Platform', links: [...analyticsLinks, ...platformLinks], roles: ['system-admin', 'head-teacher', 'primary-admin'] },
 ];
 
 export function Header() {
@@ -116,7 +116,7 @@ export function Header() {
   
   const accessibleNavMenus = navMenuConfig.filter(menu => {
     const hasLinksWithAccess = menu.links.some(link => hasAccess(link.roles));
-    return hasAccess(menu.roles) && hasLinksWithAccess;
+    return hasLinksWithAccess;
   });
   const accessibleMobileLinks = allLinks.filter(link => hasAccess(link.roles));
 
@@ -132,7 +132,7 @@ export function Header() {
             <NavigationMenuItem>
               <Link href="/dashboard" legacyBehavior={false}>
                 <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                   <a>Dashboard</a>
+                   Dashboard
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
@@ -156,7 +156,7 @@ export function Header() {
                 <NavigationMenuItem>
                   <Link href="/dashboard/platform-management" legacyBehavior={false}>
                     <NavigationMenuLink asChild active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
-                       <a>Platform</a>
+                       Platform
                     </NavigationMenuLink>
                   </Link>
                 </NavigationMenuItem>
@@ -228,5 +228,3 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
   },
 );
 ListItem.displayName = 'ListItem';
-
-    
