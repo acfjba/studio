@@ -46,7 +46,7 @@ import { cn } from '@/lib/utils';
 const managementLinks = [
   { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.' },
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.' },
-  { href: '/dashboard/system-admin', icon: Settings, label: 'System Admin', description: 'Manage the entire platform infrastructure.' },
+  { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage the entire platform infrastructure.' },
   { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.' },
 ];
 const academicLinks = [
@@ -67,7 +67,7 @@ const studentServicesLinks = [
 ];
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.' },
-  { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
+  { href: 'src/app/dashboard/platform-management/page.tsx', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
@@ -106,7 +106,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" passHref>
+              <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    <a>Dashboard</a>
                 </NavigationMenuLink>
@@ -178,7 +178,7 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/dashboard/settings" passHref>
+                <Link href="/dashboard/settings" legacyBehavior passHref>
                   <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
                      <a>Settings</a>
                   </NavigationMenuLink>

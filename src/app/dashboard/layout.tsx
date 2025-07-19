@@ -16,9 +16,9 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
-  const isSystemAdminPage = pathname.startsWith('/dashboard/system-admin');
+  const isPlatformManagementPage = pathname.startsWith('/dashboard/platform-management');
 
-  if (isSystemAdminPage) {
+  if (isPlatformManagementPage) {
      return <div className="flex min-h-screen w-full flex-col">{children}</div>;
   }
   
