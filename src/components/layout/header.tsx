@@ -59,7 +59,7 @@ const studentServicesLinks = [
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory', description: 'Track and forecast inventory.' },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
-  { href: '/dashboard/library', icon: Library, label: 'Library', description: 'Manage the library collection.' },
+  { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
   { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel sheets for processing.' },
@@ -97,7 +97,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior={false}>
+              <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                   Dashboard
                 </NavigationMenuLink>
@@ -169,7 +169,7 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-              <Link href="/dashboard/settings" legacyBehavior={false}>
+              <Link href="/dashboard/settings" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
                   Settings
                 </NavigationMenuLink>

@@ -1,0 +1,48 @@
+import type { Book } from './schemas/library';
+
+export const sampleLibraryBooksData: Book[] = [
+  {
+    id: 'book_1',
+    title: 'To Kill a Mockingbird',
+    author: 'Harper Lee',
+    category: 'Fiction',
+    isbn: '978-0-06-112008-4',
+    totalCopies: 5,
+    availableCopies: 3,
+    createdAt: '2023-01-10T00:00:00Z',
+    updatedAt: '2023-01-10T00:00:00Z',
+  },
+  {
+    id: 'book_2',
+    title: '1984',
+    author: 'George Orwell',
+    category: 'Dystopian',
+    isbn: '978-0-452-28423-4',
+    totalCopies: 3,
+    availableCopies: 0,
+    createdAt: '2023-01-11T00:00:00Z',
+    updatedAt: '2023-01-11T00:00:00Z',
+  },
+  {
+    id: 'book_3',
+    title: 'A Brief History of Time',
+    author: 'Stephen Hawking',
+    category: 'Science',
+    isbn: '978-0-553-38016-3',
+    totalCopies: 4,
+    availableCopies: 4,
+    createdAt: '2023-01-12T00:00:00Z',
+    updatedAt: '2023-01-12T00:00:00Z',
+  },
+   {
+    id: 'book_4',
+    title: 'The Great Gatsby',
+    author: 'F. Scott Fitzgerald',
+    category: 'Fiction',
+    isbn: '978-0-7432-7356-5',
+    totalCopies: 6,
+    availableCopies: 5,
+    createdAt: '2023-01-13T00:00:00Z',
+    updatedAt: '2023-01-13T00:00:00Z',
+  },
+];
