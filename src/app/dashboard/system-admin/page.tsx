@@ -31,7 +31,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { staffData as sampleUsersSeedData } from '@/lib/data';
+import { sampleUsersSeedData } from '@/lib/seed-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -109,7 +109,7 @@ const initialPermissionGroups: PermissionGroup[] = [
     id: 'group_hod',
     name: 'Head of Department',
     permissions: ['view_all_workbooks', 'edit_all_workbooks', 'access_kpi_reports'],
-    userIds: sampleUsersSeedData.filter(u => u.role === 'head-teacher').slice(0,1).map(u => u.id),
+    userIds: sampleUsersSeedData.filter(u => u.role === 'head-teacher').slice(0,1).map(u => u.uid),
   },
   {
     id: 'group_discipline_committee',
@@ -644,6 +644,124 @@ export default function SystemAdminDashboardPage() {
                 </Card>
             </section>
             
+            <section aria-labelledby="permission-groups-section" className="mb-8">
+                <Card className="shadow-lg">
+                    <CardHeader>
+                         <CardTitle className="font-headline text-xl text-primary flex items-center">
+                            <Lock className="mr-2 h-6 w-6" />
+                            Permission Group Management
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground">
+                           Create groups with specific permissions and assign users to them.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        <div className="p-4 border rounded-lg bg-background">
+                            <Label htmlFor="new-group-name" className="font-medium text-muted-foreground">Create New Group</Label>
+                            <div className="flex items-center gap-2 mt-2">
+                                <Input 
+                                    id="new-group-name"
+                                    placeholder="e.g., Finance Committee"
+                                    value={newGroupName}
+                                    onChange={(e) => setNewGroupName(e.target.value)}
+                                    disabled={isProcessingGroup}
+                                />
+                                <Button onClick={handleCreateGroup} disabled={isProcessingGroup || !newGroupName.trim()}>
+                                    {isProcessingGroup ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <PlusCircle className="mr-2 h-4 w-4" />}
+                                    Create
+                                </Button>
+                            </div>
+                        </div>
+
+                        <div>
+                             <Label className="font-medium text-muted-foreground">Existing Groups</Label>
+                             <div className="mt-2 space-y-4">
+                                {permissionGroups.map(group => (
+                                    <Card key={group.id} className="bg-muted/30">
+                                        <CardHeader className="p-4 flex flex-row items-center justify-between">
+                                            <div>
+                                                <CardTitle className="text-lg">{group.name}</CardTitle>
+                                                <CardDescription>{group.userIds.length} user(s) | {group.permissions.length} permission(s)</CardDescription>
+                                            </div>
+                                            <div className="flex items-center gap-1">
+                                                <Dialog>
+                                                    <DialogTrigger asChild>
+                                                        <Button variant="outline" size="icon" onClick={() => handleEditGroup(group)}><Edit className="h-4 w-4" /></Button>
+                                                    </DialogTrigger>
+                                                </Dialog>
+                                                <Button variant="destructive" size="icon" onClick={() => handleDeleteGroup(group.id, group.name)}><Trash2 className="h-4 w-4" /></Button>
+                                            </div>
+                                        </CardHeader>
+                                    </Card>
+                                ))}
+                             </div>
+                        </div>
+                    </CardContent>
+                </Card>
+                 {editingGroup && (
+                    <Dialog open={!!editingGroup} onOpenChange={() => setEditingGroup(null)}>
+                        <DialogContent className="sm:max-w-2xl">
+                            <DialogHeader>
+                                <DialogTitle>Edit Group: {editingGroup.name}</DialogTitle>
+                                <DialogDescription>Manage permissions and users for this group.</DialogDescription>
+                            </DialogHeader>
+                            <div className="grid md:grid-cols-2 gap-6 py-4 max-h-[60vh] overflow-y-auto">
+                                <div className="space-y-4">
+                                    <h4 className="font-medium text-foreground">Permissions</h4>
+                                    <div className="space-y-2 p-2 border rounded-md">
+                                        {allAvailablePermissions.map(perm => (
+                                            <div key={perm.id} className="flex items-center space-x-2">
+                                                <Checkbox
+                                                    id={`perm-${perm.id}`}
+                                                    checked={tempPermissions.includes(perm.id)}
+                                                    onCheckedChange={(checked) => {
+                                                        setTempPermissions(prev => checked ? [...prev, perm.id] : prev.filter(p => p !== perm.id));
+                                                    }}
+                                                />
+                                                <Label htmlFor={`perm-${perm.id}`} className="font-normal">{perm.description}</Label>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                                <div className="space-y-4">
+                                     <h4 className="font-medium text-foreground">Manage Users</h4>
+                                     <div className="flex items-center gap-2">
+                                        <Select value={selectedUserToAdd} onValueChange={setSelectedUserToAdd}>
+                                            <SelectTrigger><SelectValue placeholder="Select a user..." /></SelectTrigger>
+                                            <SelectContent>
+                                                {sampleUsersSeedData
+                                                    .filter(u => !tempUserIds.includes(u.uid))
+                                                    .map(user => (
+                                                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                        <Button size="sm" onClick={handleAddUserToGroup}>Add</Button>
+                                     </div>
+                                     <div className="space-y-2 p-2 border rounded-md min-h-[100px]">
+                                        {tempUserIds.length > 0 ? tempUserIds.map(userId => {
+                                            const user = sampleUsersSeedData.find(u => u.uid === userId);
+                                            return (
+                                                <div key={userId} className="flex items-center justify-between text-sm">
+                                                    <span>{user?.displayName || 'Unknown User'}</span>
+                                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveUserFromGroup(userId)}>
+                                                        <Trash2 className="h-3 w-3 text-destructive" />
+                                                    </Button>
+                                                </div>
+                                            )
+                                        }) : <p className="text-xs text-muted-foreground text-center pt-4">No users in this group.</p>}
+                                     </div>
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
+                                <Button type="button" onClick={handleSaveGroupPermissions}>Save Changes</Button>
+                            </DialogFooter>
+                        </DialogContent>
+                    </Dialog>
+                )}
+            </section>
+            
             <section aria-labelledby="platform-management-section" className="mb-8">
               <Card className="shadow-lg">
                 <CardHeader>
@@ -765,4 +883,3 @@ export default function SystemAdminDashboardPage() {
     </TooltipProvider>
   );
 }
-design add

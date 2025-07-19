@@ -22,4 +22,8 @@ export const SingleUserFormSchema = z.object({
 
 export type UserFormData = z.infer<typeof SingleUserFormSchema>;
 
-export type UserWithPassword = UserFormData &
+export type UserWithPassword = UserFormData & {
+  uid: string;
+  displayName: string;
+  password_for_frontend_sim: string;
+};
