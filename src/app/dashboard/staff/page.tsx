@@ -45,12 +45,11 @@ async function getStaffListFromFirestore(): Promise<StaffMember[]> {
     return staffList;
 }
 
-async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'role' | 'schoolId'>): Promise<StaffMember> {
+async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>): Promise<StaffMember> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollectionRef = collection(db, 'staff');
     const fullStaffData = {
         ...staffData,
-        role: 'teacher', // Default role
         schoolId: localStorage.getItem('schoolId') || 'default-school',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
@@ -82,8 +81,8 @@ export default function StaffRecordsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const addForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'role' | 'schoolId'>>({
-    resolver: zodResolver(StaffMemberSchema.omit({ id: true, createdAt: true, updatedAt: true, role: true, schoolId: true })),
+  const addForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>>({
+    resolver: zodResolver(StaffMemberSchema.omit({ id: true, createdAt: true, updatedAt: true, schoolId: true })),
   });
 
   const editForm = useForm<StaffMember>({
@@ -116,7 +115,7 @@ export default function StaffRecordsPage() {
       editForm.setValue("staffId", editingStaff.staffId);
       editForm.setValue("name", editingStaff.name);
       editForm.setValue("role", editingStaff.role);
-      editForm.setValue("department", editingStaff.department);
+      editForm.setValue("position", editingStaff.position);
       editForm.setValue("status", editingStaff.status);
       editForm.setValue("email", editingStaff.email);
       editForm.setValue("phone", editingStaff.phone || ''); 
@@ -125,7 +124,7 @@ export default function StaffRecordsPage() {
       editForm.setValue("createdAt", editingStaff.createdAt);
       editForm.setValue("updatedAt", editingStaff.updatedAt);
     }
-  }, [editingStaff, editForm.setValue]);
+  }, [editingStaff, editForm]);
 
   const filteredStaff = staffList.filter(staff =>
     staff.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -133,9 +132,9 @@ export default function StaffRecordsPage() {
     staff.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'role' | 'schoolId'>> = async (data) => {
+  const handleAddStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>> = async (data) => {
     if (!isFirebaseConfigured) {
-        const newStaffMember: StaffMember = { ...data, id: `mock-${Date.now()}`, role: 'teacher', schoolId: 'SCH-MOCK', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        const newStaffMember: StaffMember = { ...data, id: `mock-${Date.now()}`, schoolId: 'SCH-MOCK', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
         setStaffList(prev => [...prev, newStaffMember]);
         toast({ title: "Staff Added (Simulated)", description: `${data.name} has been added to the local list.` });
         setIsAddModalOpen(false);
@@ -228,10 +227,22 @@ export default function StaffRecordsPage() {
                   {addForm.formState.errors.name && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.name.message}</p>}
 
                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="positionAdd" className="text-right col-span-1">Department</Label>
-                    <Input id="positionAdd" {...addForm.register('department')} className="col-span-3" />
+                    <Label htmlFor="roleAdd" className="text-right col-span-1">Role</Label>
+                    <Input id="roleAdd" {...addForm.register('role')} className="col-span-3" />
                   </div>
-                  {addForm.formState.errors.department && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.department.message}</p>}
+                  {addForm.formState.errors.role && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.role.message}</p>}
+                  
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="positionAdd" className="text-right col-span-1">Position</Label>
+                    <Input id="positionAdd" {...addForm.register('position')} className="col-span-3" />
+                  </div>
+                  {addForm.formState.errors.position && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.position.message}</p>}
+                  
+                   <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="statusAdd" className="text-right col-span-1">Status</Label>
+                    <Input id="statusAdd" {...addForm.register('status')} className="col-span-3" />
+                  </div>
+                  {addForm.formState.errors.status && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.status.message}</p>}
 
                   <div className="grid grid-cols-4 items-center gap-4">
                     <Label htmlFor="emailAdd" className="text-right col-span-1">Email</Label>
@@ -373,10 +384,22 @@ export default function StaffRecordsPage() {
                     {editForm.formState.errors.name && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.name.message}</p>}
 
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="positionEdit" className="text-right col-span-1">Department</Label>
-                      <Input id="positionEdit" {...editForm.register('department')} className="col-span-3" />
+                        <Label htmlFor="roleEdit" className="text-right col-span-1">Role</Label>
+                        <Input id="roleEdit" {...editForm.register('role')} className="col-span-3" />
                     </div>
-                    {editForm.formState.errors.department && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.department.message}</p>}
+                    {editForm.formState.errors.role && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.role.message}</p>}
+                    
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="positionEdit" className="text-right col-span-1">Position</Label>
+                      <Input id="positionEdit" {...editForm.register('position')} className="col-span-3" />
+                    </div>
+                    {editForm.formState.errors.position && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.position.message}</p>}
+                    
+                     <div className="grid grid-cols-4 items-center gap-4">
+                        <Label htmlFor="statusEdit" className="text-right col-span-1">Status</Label>
+                        <Input id="statusEdit" {...editForm.register('status')} className="col-span-3" />
+                    </div>
+                    {editForm.formState.errors.status && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.status.message}</p>}
                     
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="emailEdit" className="text-right col-span-1">Email</Label>
