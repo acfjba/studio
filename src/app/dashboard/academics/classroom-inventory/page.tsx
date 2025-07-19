@@ -242,13 +242,6 @@ export default function ClassroomInventoryPage() {
                 </Select>
               </div>
               <div className="flex flex-wrap gap-2">
-                {canViewSummary && (
-                  <Link href="/dashboard/academics/exam-summary" passHref>
-                    <Button variant="outline">
-                      <BarChart3 className="mr-2 h-4 w-4" /> View Exam Summary
-                    </Button>
-                  </Link>
-                )}
                 <Button onClick={handleExportCsv} variant="outline" disabled={isLoading || isSaving}>
                     <Download className="mr-2 h-4 w-4" /> Export CSV
                 </Button>

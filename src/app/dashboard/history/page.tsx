@@ -32,7 +32,7 @@ async function fetchRatingHistoryFromBackend(): Promise<RatingHistoryItem[]> {
 const DisplayStars = ({ count, starSize = "h-5 w-5" }: { count: number; starSize?: string }) => (
   <div className="flex" aria-label={`${count} out of 5 stars`}>
     {[...Array(5)].map((_, i) => (
-      <Star key={i} className={`${starSize} ${i < count ? 'fill-yellow-400 text-yellow-400' : 'text-muted-foreground'}`} />
+      <Star key={i} className={`${starSize} ${i < count ? 'fill-primary text-primary' : 'text-muted-foreground'}`} />
     ))}
   </div>
 );
