@@ -56,7 +56,7 @@ export function LoginForm() {
       localStorage.setItem('userRole', adminUser.role);
       localStorage.setItem('schoolId', ''); // System admins don't have a school ID
       toast({ title: "Admin Login Successful", description: `Welcome, ${adminUser.displayName}!` });
-      router.push('/dashboard/system-admin');
+      router.push('/dashboard/platform-management');
     } else {
        toast({ variant: "destructive", title: "Login Failed", description: "Invalid admin email or password." });
     }
