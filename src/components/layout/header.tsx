@@ -67,7 +67,7 @@ const studentServicesLinks = [
 ];
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.' },
-  { href: 'src/app/dashboard/platform-management/page.tsx', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
+  { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
@@ -106,7 +106,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior passHref>
+              <Link href="/dashboard" passHref>
                 <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    <a>Dashboard</a>
                 </NavigationMenuLink>
