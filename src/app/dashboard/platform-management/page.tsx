@@ -202,6 +202,20 @@ export default function PlatformManagementPage() {
   const [isExtendingLicense, setIsExtendingLicense] = useState(false);
   const [licenseLog, setLicenseLog] = useState<{ schoolId: string; duration: string; extendedAt: string }[]>([]);
 
+  // Access control
+  const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+
+
+  useEffect(() => {
+    const role = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+    if (role !== 'system-admin') {
+        router.push('/dashboard');
+        setHasAccess(false);
+    } else {
+        setHasAccess(true);
+    }
+  }, [router]);
+
 
   const fetchDataSimulator = useCallback(async () => {
     setIsLoading(true);
@@ -243,8 +257,10 @@ export default function PlatformManagementPage() {
   }, []);
 
   useEffect(() => {
-    fetchDataSimulator();
-  }, [fetchDataSimulator]);
+    if (hasAccess) {
+      fetchDataSimulator();
+    }
+  }, [fetchDataSimulator, hasAccess]);
   
   useEffect(() => {
     let speedInterval: NodeJS.Timeout;
@@ -450,6 +466,18 @@ export default function PlatformManagementPage() {
         <Skeleton className="h-8 w-full" />
     </div>
   );
+
+  if (hasAccess === null) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+  }
+  
+  if (!hasAccess) {
+      return null;
+  }
 
   return (
     <TooltipProvider>

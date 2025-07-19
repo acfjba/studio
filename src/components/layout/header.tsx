@@ -46,7 +46,6 @@ import { cn } from '@/lib/utils';
 const managementLinks = [
   { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.', roles: ['head-teacher', 'system-admin'] },
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.', roles: ['primary-admin', 'system-admin'] },
-  { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage the entire platform infrastructure.', roles: ['system-admin'] },
   { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
 ];
 const academicLinks = [
@@ -75,7 +74,7 @@ const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
 ];
 const platformLinks = [
-  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin', description: 'Manage the entire platform.', roles: ['system-admin'] },
+  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
   { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
   { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian'] },
 ];
@@ -92,7 +91,7 @@ const allLinks = [
 ];
 
 const navMenuConfig = [
-  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'primary-admin', 'system-admin', 'assistant-head-teacher', 'teacher'] },
   { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian'] },
