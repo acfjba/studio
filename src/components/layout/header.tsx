@@ -130,8 +130,8 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior passHref>
-                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+              <Link href="/dashboard">
+                <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    Dashboard
                 </NavigationMenuLink>
               </Link>
@@ -154,8 +154,8 @@ export function Header() {
              
              {hasAccess(['system-admin']) && (
                 <NavigationMenuItem>
-                  <Link href="/dashboard/platform-management" legacyBehavior passHref>
-                    <NavigationMenuLink active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
+                  <Link href="/dashboard/platform-management">
+                    <NavigationMenuLink asChild active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
                         Platform
                     </NavigationMenuLink>
                   </Link>
