@@ -8,17 +8,11 @@ import { Label } from "@/components/ui/label";
 import { Building2, Save, AlertCircle, Loader2, Printer, Download, BarChart3, PlusCircle, Trash2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
-import type { PrimaryInventory, PrimaryInventoryItem } from '@/lib/schemas/primaryInventory';
+import type { PrimaryInventory, EditablePrimaryInventoryItem } from '@/lib/schemas/primaryInventory';
 import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
-
-// Define a more flexible type for local state editing to handle empty inputs
-type EditablePrimaryInventoryItem = Omit<PrimaryInventoryItem, 'quantity' | 'value'> & {
-    quantity: number | '';
-    value: number | '';
-};
 
 const initialPrimaryInventoryItems: EditablePrimaryInventoryItem[] = [
     { id: "item-1", itemName: "Student Desks", quantity: 150, value: 75.00, remarks: "Mixed condition" },
@@ -158,6 +152,10 @@ export default function PrimarySchoolInventoryPage() {
     toast({ title: "Item Removed", description: "The item has been removed from your inventory list." });
   };
   
+  const calculateTotalValue = (item: EditablePrimaryInventoryItem) => {
+      return (Number(item.quantity) || 0) * (Number(item.value) || 0);
+  };
+
   return (
     <div className="flex flex-col gap-8 printable-area">
         <PageHeader 
@@ -181,7 +179,8 @@ export default function PrimarySchoolInventoryPage() {
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
                     <Button disabled={isSaving || isLoading || !canEdit}>
-                      <Save className="mr-2 h-4 w-4" /> Save Inventory
+                      {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
+                       {isSaving ? "Saving..." : "Save Inventory"}
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
@@ -194,8 +193,7 @@ export default function PrimarySchoolInventoryPage() {
                     <AlertDialogFooter>
                       <AlertDialogCancel>Cancel</AlertDialogCancel>
                       <AlertDialogAction onClick={handleSaveInventory} disabled={isSaving}>
-                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        {isSaving ? "Saving..." : "Continue & Save"}
+                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Continue & Save"}
                       </AlertDialogAction>
                     </AlertDialogFooter>
                   </AlertDialogContent>
@@ -228,7 +226,7 @@ export default function PrimarySchoolInventoryPage() {
             )}
 
             {!isLoading && !fetchError && (
-              <div className="overflow-x-auto">
+              <div className="overflow-x-auto border rounded-lg">
                 <Table className="min-w-full">
                   <TableHeader>
                     <TableRow>
@@ -246,7 +244,7 @@ export default function PrimarySchoolInventoryPage() {
                         <TableCell><Input value={item.itemName} onChange={(e) => handleInputChange(item.id, 'itemName', e.target.value)} disabled={!canEdit} className="font-medium" /></TableCell>
                         <TableCell><Input type="text" className="text-center" value={item.quantity} onChange={(e) => handleInputChange(item.id, 'quantity', e.target.value)} disabled={!canEdit} /></TableCell>
                         <TableCell><Input type="text" className="text-center" value={item.value} onChange={(e) => handleInputChange(item.id, 'value', e.target.value)} disabled={!canEdit} /></TableCell>
-                        <TableCell className="text-center align-middle font-bold">{(Number(item.quantity) * Number(item.value)).toFixed(2)}</TableCell>
+                        <TableCell className="text-center align-middle font-bold">${calculateTotalValue(item).toFixed(2)}</TableCell>
                         <TableCell><Input value={item.remarks || ''} onChange={(e) => handleInputChange(item.id, 'remarks', e.target.value)} disabled={!canEdit} /></TableCell>
                         <TableCell className="text-center print:hidden">
                             <AlertDialog>

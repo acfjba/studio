@@ -16,3 +16,9 @@ export const PrimaryInventorySchema = z.object({
 
 export type PrimaryInventoryItem = z.infer<typeof PrimaryInventoryItemSchema>;
 export type PrimaryInventory = z.infer<typeof PrimaryInventorySchema>;
+
+// A more flexible type for local state editing to handle empty inputs
+export type EditablePrimaryInventoryItem = Omit<PrimaryInventoryItem, 'quantity' | 'value'> & {
+  quantity: number | '';
+  value: number | '';
+};

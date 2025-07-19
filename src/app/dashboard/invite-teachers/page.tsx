@@ -69,7 +69,7 @@ export default function UserManagementPage() {
                 ...data,
                 uid: `new_user_${Date.now()}`,
                 displayName: data.name,
-                password_for_frontend_sim: data.password,
+                password: data.password,
             };
             setUsers(prevUsers => [newUser, ...prevUsers]);
 
@@ -128,7 +128,7 @@ export default function UserManagementPage() {
                 ...u,
                 uid: `new_user_${Date.now()}_${Math.random()}`,
                 displayName: u.name,
-                password_for_frontend_sim: u.password,
+                password: u.password,
             }));
             setUsers(prevUsers => [...addedUsers, ...prevUsers]);
             toast({
@@ -320,7 +320,7 @@ export default function UserManagementPage() {
                                             <TableCell>{user.phone || 'N/A'}</TableCell>
                                             <TableCell>{user.role}</TableCell>
                                             <TableCell>{user.schoolId || 'N/A'}</TableCell>
-                                            <TableCell className="font-mono">{user.password || user.password_for_frontend_sim}</TableCell>
+                                            <TableCell className="font-mono">{user.password}</TableCell>
                                         </TableRow>
                                     ))}
                                 </TableBody>
