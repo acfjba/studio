@@ -219,7 +219,7 @@ export default function RateTeacherPage() {
             <CardHeader>
               <CardTitle className="font-headline text-destructive flex items-center justify-center">
                 <AlertCircle className="mr-2 h-6 w-6" /> Error
-              </Title>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="font-body text-destructive mb-6">{fetchError}</p>
@@ -326,3 +326,5 @@ export default function RateTeacherPage() {
     </div>
   );
 }
+
+    
