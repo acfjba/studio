@@ -18,7 +18,9 @@ export default function AcademicsPage() {
             <CardDescription>Create, view, and manage lesson plans for your classes.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button disabled>Manage Lesson Plans</Button>
+            <Link href="/dashboard/lesson-planner">
+              <Button>Manage Lesson Plans</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>

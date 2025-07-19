@@ -37,6 +37,7 @@ import {
   UploadCloud,
   ClipboardList,
   Gavel,
+  BookOpen,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -46,7 +47,8 @@ const managementLinks = [{ href: '/dashboard/head-teacher', icon: Briefcase, lab
 const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
-  { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'Workbook Plan', description: 'Manage and submit your workbook plans.' },
+  { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'AI Workbook Plan', description: 'Generate lesson plans with AI.' },
+  { href: '/dashboard/lesson-planner', icon: BookOpen, label: 'Lesson Planner', description: 'Manually create detailed lesson plans.' },
   { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.' },
 
 ];
@@ -95,12 +97,12 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-                <NavigationMenuLink asChild active={pathname === '/dashboard'}>
-                  <Link href="/dashboard" className={navigationMenuTriggerStyle()}>
-                    Dashboard
-                  </Link>
+              <Link href="/dashboard" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                  Dashboard
                 </NavigationMenuLink>
-              </NavigationMenuItem>
+              </Link>
+            </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Management</NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -167,11 +169,11 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-               <NavigationMenuLink asChild active={pathname === '/dashboard/settings'}>
-                 <Link href="/dashboard/settings" className={navigationMenuTriggerStyle()}>
+               <Link href="/dashboard/settings" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
                   Settings
-                </Link>
-              </NavigationMenuLink>
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
