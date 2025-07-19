@@ -74,7 +74,6 @@ const operationsLinks = [
 ];
 const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/reporting/financials', icon: DollarSign, label: 'Financials Report', description: 'View school financial performance.', roles: ['primary-admin', 'system-admin'] },
 ];
 const platformLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },

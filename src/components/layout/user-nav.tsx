@@ -42,13 +42,13 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href="/dashboard/profile">
-            <DropdownMenuItem>Profile</DropdownMenuItem>
-          </Link>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/profile">Profile</Link>
+          </DropdownMenuItem>
           <DropdownMenuItem>Billing</DropdownMenuItem>
-          <Link href="/dashboard/settings">
-            <DropdownMenuItem>Settings</DropdownMenuItem>
-          </Link>
+          <DropdownMenuItem asChild>
+            <Link href="/dashboard/settings">Settings</Link>
+          </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
