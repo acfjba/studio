@@ -48,7 +48,9 @@ export default function PlatformManagementPage() {
             <CardDescription>Configure core application settings and integrations.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button>App Settings</Button>
+            <Link href="/dashboard/platform-management/app-settings">
+              <Button>App Settings</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
