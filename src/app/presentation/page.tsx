@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -29,7 +30,7 @@ export default function PresentationPage() {
                 <h1 className="text-xl font-headline font-bold text-primary-foreground">App Presentation</h1>
                 <Link href="/" passHref>
                     <Button variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90 border-accent">
-                        <Home className="mr-2 h-4 w-4" /> Back to Login
+                        <Home className="mr-2 h-4 w-4" /> Back to Home
                     </Button>
                 </Link>
             </nav>
