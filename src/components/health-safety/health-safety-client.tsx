@@ -52,7 +52,7 @@ async function saveHealthInspectionToBackend(data: {
 }
 
 
-export function HealthSafetyClient() {
+export function HealthInspectionClient() {
   const { toast } = useToast();
   const [term, setTerm] = useState('');
   const [week, setWeek] = useState('');
