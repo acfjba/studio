@@ -6,6 +6,7 @@ import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, Us
 import { cn } from '@/lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
+import React from 'react';
 
 
 const managementLinks = [
