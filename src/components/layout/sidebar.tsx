@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, UserCog, GraduationCap, Library, ShieldCheck, BarChart2, Bot } from 'lucide-react';
+import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, UserCog, GraduationCap, Library, ShieldCheck, BarChart2, Bot, Contact } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
@@ -23,6 +23,7 @@ const operationsLinks = [
     { href: '/dashboard/staff', icon: Users, label: 'Staff Records' },
     { href: '/dashboard/library', icon: Library, label: 'Library' },
     { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety' },
+    { href: '/dashboard/contacts', icon: Contact, label: 'Contacts' },
 ];
 
 const analyticsLinks = [
