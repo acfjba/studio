@@ -468,7 +468,7 @@ export default function HeadTeacherPage() {
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><UsersRound className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Staff Records</p><p className="text-xs text-muted-foreground">View and manage all staff details.</p></div></Button>
                     </Link>
                     <Link href="/dashboard/invite-teachers" passHref>
-                        <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailPlus className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invite Teachers</p><p className="text-xs text-muted-foreground">Send invitations to new staff members.</p></div></Button>
+                        <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailPlus className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">User Management</p><p className="text-xs text-muted-foreground">Invite and manage platform users.</p></div></Button>
                     </Link>
                     <Link href="/dashboard/invitation-logs" passHref>
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailCheckIcon className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invitation Logs</p><p className="text-xs text-muted-foreground">Track sent teacher invitations.</p></div></Button>

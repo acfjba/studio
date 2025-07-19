@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState, type ChangeEvent, useEffect } from 'react';
+import React, { useState, type ChangeEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,7 +15,7 @@ import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles, SingleUserFormSchema, type UserFormData, type UserWithPassword } from "@/lib/schemas/user";
 import { Separator } from '@/components/ui/separator';
-import { staffData } from '@/lib/data';
+import { sampleUsersSeedData } from '@/lib/seed-data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
@@ -43,17 +44,7 @@ async function addMultipleUsersToBackend(users: UserFormData[]): Promise<{ succe
 export default function UserManagementPage() {
     const { toast } = useToast();
     const [file, setFile] = useState<File | null>(null);
-    const [users, setUsers] = useState<UserWithPassword[]>(staffData.map(u => ({
-        uid: u.id,
-        displayName: u.name,
-        email: u.email,
-        phone: u.phone,
-        role: u.role as typeof userRoles[number],
-        schoolId: u.schoolId,
-        password_for_frontend_sim: 'password123', // All mock users have same mock password
-        name: u.name, 
-        password: 'password123',
-    })));
+    const [users, setUsers] = useState<UserWithPassword[]>(sampleUsersSeedData);
 
     const singleUserForm = useForm<UserFormData>({
         resolver: zodResolver(SingleUserFormSchema),
