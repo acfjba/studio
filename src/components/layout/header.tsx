@@ -1,95 +1,226 @@
 'use client';
 
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  NavigationMenu,
+  NavigationMenuContent,
+  NavigationMenuItem,
+  NavigationMenuLink,
+  NavigationMenuList,
+  NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
+} from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
-import { PanelLeft, Search, School, LayoutGrid, FileText, Warehouse, Users, Settings, Briefcase, UserCog, Bot } from 'lucide-react';
-import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  PanelLeft,
+  Search,
+  School,
+  Briefcase,
+  GraduationCap,
+  FileText,
+  HeartHandshake,
+  Warehouse,
+  Users,
+  Library,
+  ShieldCheck,
+  Contact,
+  BarChart2,
+  UserCog,
+  Bot,
+  Settings,
+  LayoutGrid,
+} from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
-import React from 'react';
+import { cn } from '@/lib/utils';
 
-const navItems = [
-  { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
-  { href: '/dashboard/school-management', icon: Briefcase, label: 'School Management' },
-  { href: '/dashboard/summarization', icon: FileText, label: 'Summarization' },
-  { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory' },
-  { href: '/dashboard/staff', icon: Users, label: 'Staff' },
-  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin' },
-  { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant' },
-  { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
+const managementLinks = [{ href: '/dashboard/school-management', icon: Briefcase, label: 'School Management', description: 'Oversee all school-level tasks.' }];
+const academicLinks = [
+  { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
+  { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
 ];
+const studentServicesLinks = [{ href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.' }];
+const operationsLinks = [
+  { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory', description: 'Track and forecast inventory.' },
+  { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
+  { href: '/dashboard/library', icon: Library, label: 'Library', description: 'Manage the library collection.' },
+  { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
+  { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
+];
+const analyticsLinks = [{ href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' }];
+const platformLinks = [
+  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin', description: 'Manage the entire platform.' },
+  { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.' },
+];
+
+const allLinks = [
+    {category: "Dashboard", href: "/dashboard", icon: LayoutGrid, label: "Dashboard"},
+    ...managementLinks.map(l => ({...l, category: "Management"})),
+    ...academicLinks.map(l => ({...l, category: "Academics"})),
+    ...studentServicesLinks.map(l => ({...l, category: "Student Services"})),
+    ...operationsLinks.map(l => ({...l, category: "Operations"})),
+    ...analyticsLinks.map(l => ({...l, category: "Analytics"})),
+    ...platformLinks.map(l => ({...l, category: "Platform"})),
+    {category: "Settings", href: "/dashboard/settings", icon: Settings, label: "Settings"},
+]
 
 export function Header() {
   const pathname = usePathname();
-  const pathSegments = pathname.split('/').filter(Boolean);
 
   return (
-    <header className="sticky top-0 z-30 flex h-14 items-center gap-4 border-b bg-background px-4 sm:static sm:h-auto sm:border-0 sm:bg-transparent sm:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+      <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
+        <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold md:text-base">
+          <School className="h-6 w-6 text-primary" />
+          <span className="sr-only">School Data Insights</span>
+        </Link>
+        <NavigationMenu>
+          <NavigationMenuList>
+             <NavigationMenuItem>
+              <Link href="/dashboard" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                  Dashboard
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Management</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {managementLinks.map((component) => (
+                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Academics</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {academicLinks.map((component) => (
+                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+             <NavigationMenuItem>
+              <NavigationMenuTrigger>Student Services</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {studentServicesLinks.map((component) => (
+                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
+              <NavigationMenuTrigger>Operations</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                  {operationsLinks.map((component) => (
+                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+             <NavigationMenuItem>
+              <NavigationMenuTrigger>Platform</NavigationMenuTrigger>
+              <NavigationMenuContent>
+                <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px] ">
+                   {analyticsLinks.map((component) => (
+                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                  {platformLinks.map((component) => (
+                    <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+             <NavigationMenuItem>
+              <Link href="/dashboard/settings" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
+                  Settings
+                </NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+          </NavigationMenuList>
+        </NavigationMenu>
+      </nav>
       <Sheet>
         <SheetTrigger asChild>
-          <Button size="icon" variant="outline" className="sm:hidden">
+          <Button variant="outline" size="icon" className="shrink-0 md:hidden">
             <PanelLeft className="h-5 w-5" />
-            <span className="sr-only">Toggle Menu</span>
+            <span className="sr-only">Toggle navigation menu</span>
           </Button>
         </SheetTrigger>
-        <SheetContent side="left" className="sm:max-w-xs">
+        <SheetContent side="left">
           <nav className="grid gap-6 text-lg font-medium">
-            <Link
-              href="/dashboard"
-              className="group flex h-10 w-10 shrink-0 items-center justify-center gap-2 rounded-full bg-primary text-lg font-semibold text-primary-foreground md:text-base"
-            >
-              <School className="h-5 w-5 transition-all group-hover:scale-110" />
+            <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
+              <School className="h-6 w-6 text-primary" />
               <span className="sr-only">School Data Insights</span>
             </Link>
-            {navItems.map((item) => (
-              <Link
-                key={item.href}
-                href={item.href}
-                className="flex items-center gap-4 px-2.5 text-muted-foreground hover:text-foreground"
-              >
-                <item.icon className="h-5 w-5" />
-                {item.label}
-              </Link>
+            {allLinks.map((item) => (
+                 <Link key={item.label} href={item.href} className="text-muted-foreground hover:text-foreground">
+                    {item.label}
+                 </Link>
             ))}
           </nav>
         </SheetContent>
       </Sheet>
-      <Breadcrumb className="hidden md:flex">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/dashboard">Dashboard</Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          {pathSegments.slice(1).map((segment, index) => (
-            <React.Fragment key={segment}>
-              <BreadcrumbSeparator />
-              <BreadcrumbItem>
-                {index < pathSegments.length - 2 ? (
-                  <BreadcrumbLink asChild>
-                    <Link href={`/${pathSegments.slice(0, index + 2).join('/')}`}>
-                      {segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')}
-                    </Link>
-                  </BreadcrumbLink>
-                ) : (
-                  <BreadcrumbPage>{segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')}</BreadcrumbPage>
-                )}
-              </BreadcrumbItem>
-            </React.Fragment>
-          ))}
-        </BreadcrumbList>
-      </Breadcrumb>
-      <div className="relative ml-auto flex-1 md:grow-0">
-        <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-        <Input
-          type="search"
-          placeholder="Search..."
-          className="w-full rounded-lg bg-background pl-8 md:w-[200px] lg:w-[336px]"
-        />
+      <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
+        <form className="ml-auto flex-1 sm:flex-initial">
+          <div className="relative">
+            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+            <Input
+              type="search"
+              placeholder="Search..."
+              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+            />
+          </div>
+        </form>
+        <UserNav />
       </div>
-      <UserNav />
     </header>
   );
 }
+
+const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWithoutRef<'a'> & { icon?: React.ElementType }>(
+  ({ className, title, children, icon: Icon, ...props }, ref) => {
+    return (
+      <li>
+        <NavigationMenuLink asChild>
+          <a
+            ref={ref}
+            className={cn(
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              className,
+            )}
+            {...props}
+          >
+            <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                {Icon && <Icon className="h-4 w-4"/>}
+                {title}
+            </div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
+          </a>
+        </NavigationMenuLink>
+      </li>
+    );
+  },
+);
+ListItem.displayName = 'ListItem';
