@@ -18,6 +18,15 @@ export const inventoryData = [
   { id: 'INV-007', item: 'Soccer Balls', quantity: 30, unitCost: 20, usageRate: 5, reorderPoint: 10, status: 'In Stock' },
 ];
 
+export const bookData = [
+    { id: 'BK-001', title: 'To Kill a Mockingbird', author: 'Harper Lee', genre: 'Fiction', status: 'Available' },
+    { id: 'BK-002', title: '1984', author: 'George Orwell', genre: 'Dystopian', status: 'Checked Out' },
+    { id: 'BK-003', title: 'A Brief History of Time', author: 'Stephen Hawking', genre: 'Science', status: 'Available' },
+    { id: 'BK-004', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Fiction', status: 'Overdue' },
+    { id: 'BK-005', title: 'The Diary of a Young Girl', author: 'Anne Frank', genre: 'Biography', status: 'Available' },
+    { id: 'BK-006', title: 'Sapiens: A Brief History of Humankind', author: 'Yuval Noah Harari', genre: 'History', status: 'Checked Out' },
+];
+
 export const overviewChartData = [
   { name: 'Jan', total: Math.floor(Math.random() * 5000) + 1000 },
   { name: 'Feb', total: Math.floor(Math.random() * 5000) + 1000 },
