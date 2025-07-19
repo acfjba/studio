@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -102,6 +103,33 @@ const allAvailablePermissions: Permission[] = [
   { id: 'access_kpi_reports', description: 'Access KPI reports' },
   { id: 'manage_ohs', description: 'Manage OHS records' },
   { id: 'manage_library', description: 'Manage Library services' },
+  { id: 'dashboard_head_teacher', description: 'Access Head Teacher Dashboard' },
+  { id: 'dashboard_primary_admin', description: 'Access Primary Admin Dashboard' },
+  { id: 'dashboard_teacher_panel', description: 'Access Teacher Panel' },
+  { id: 'dashboard_summarization', description: 'Access AI Summarization Page' },
+  { id: 'dashboard_academics', description: 'Access Academics Dashboard' },
+  { id: 'dashboard_workbook_plan', description: 'Access AI Workbook Plan' },
+  { id: 'dashboard_lesson_planner', description: 'Access Lesson Planner' },
+  { id: 'dashboard_exam_summary', description: 'Access Exam Summary' },
+  { id: 'dashboard_classroom_inventory', description: 'Access Classroom Inventory' },
+  { id: 'dashboard_inventory_summary', description: 'Access Inventory Summary' },
+  { id: 'dashboard_counselling', description: 'Access Counselling Dashboard' },
+  { id: 'dashboard_inventory', description: 'Access Primary Inventory Dashboard' },
+  { id: 'dashboard_health_safety', description: 'Access Health & Safety Dashboard' },
+  { id: 'dashboard_contacts', description: 'Access Contacts Directory' },
+  { id: 'dashboard_upload_data', description: 'Access Upload Data Page' },
+  { id: 'dashboard_reporting', description: 'Access Reporting Dashboard' },
+  { id: 'dashboard_reporting_kpi', description: 'Access KPI Reports Page' },
+  { id: 'dashboard_reporting_kpi_self_assessment', description: 'Access KPI Self-Assessment Page' },
+  { id: 'dashboard_platform_management', description: 'Access Platform Management Dashboard' },
+  { id: 'dashboard_ai_assistant', description: 'Access AI Assistant' },
+  { id: 'dashboard_app_settings', description: 'Access App Settings' },
+  { id: 'dashboard_school_management', description: 'Access School Management' },
+  { id: 'dashboard_history', description: 'Access Rating History' },
+  { id: 'dashboard_profile', description: 'Access User Profile' },
+  { id: 'dashboard_settings', description: 'Access Settings Page' },
+  { id: 'dashboard_teachers', description: 'Access Teachers List' },
+  { id: 'dashboard_iwp', description: 'Access Individual Work Plan (IWP)' },
 ];
 
 const initialPermissionGroups: PermissionGroup[] = [
