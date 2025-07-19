@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Gavel, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusCircle, Mail } from "lucide-react";
+import { Gavel, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusCircle, Mail, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,30 +25,49 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 
 
-// Simulated backend data fetch
-async function fetchDisciplinaryRecordsFromBackend(schoolId?: string): Promise<DisciplinaryRecord[]> {
-  console.log("Simulating fetch disciplinary records from backend...", { schoolId });
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  // In a real app, filter by schoolId on the backend if provided
-  return []; // Start with empty data
+// --- Firestore Actions ---
+async function fetchDisciplinaryRecordsFromFirestore(schoolId?: string): Promise<DisciplinaryRecord[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    let q = query(collection(db, 'disciplinary'));
+    if (schoolId) {
+        q = query(collection(db, 'disciplinary'), where("schoolId", "==", schoolId));
+    }
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            ...data,
+            id: doc.id,
+            incidentDate: data.incidentDate,
+            studentDob: data.studentDob,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : new Date(data.createdAt).toISOString(),
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : new Date(data.updatedAt).toISOString(),
+        } as DisciplinaryRecord;
+    });
 }
 
-// Simulated backend actions
-async function saveDisciplinaryRecordToBackend(record: DisciplinaryRecord): Promise<DisciplinaryRecord> {
-  console.log("Simulating save disciplinary record to backend:", record);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // If new, assign ID, createdAt, updatedAt. If existing, update updatedAt.
-  return { ...record, id: record.id || `sim-dr-${Date.now()}`, createdAt: record.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+async function saveDisciplinaryRecordToFirestore(record: Omit<DisciplinaryRecord, 'id' | 'createdAt' | 'updatedAt'>, id?: string): Promise<DisciplinaryRecord> {
+    if (!db) throw new Error("Firestore is not configured.");
+    if (id) {
+        const docRef = doc(db, 'disciplinary', id);
+        const dataToUpdate = { ...record, updatedAt: serverTimestamp() };
+        await updateDoc(docRef, dataToUpdate);
+        return { ...record, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    } else {
+        const dataToAdd = { ...record, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const docRef = await addDoc(collection(db, 'disciplinary'), dataToAdd);
+        return { ...record, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    }
 }
 
-async function deleteDisciplinaryRecordFromBackend(id: string): Promise<{ success: boolean }> {
-  console.log("Simulating delete disciplinary record from backend, ID:", id);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { success: true };
+async function deleteDisciplinaryRecordFromFirestore(id: string): Promise<void> {
+    if (!db) throw new Error("Firestore is not configured.");
+    await deleteDoc(doc(db, 'disciplinary', id));
 }
-
 
 export default function DisciplinaryPage() {
   const { toast } = useToast();
@@ -59,7 +78,6 @@ export default function DisciplinaryPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [schoolId, setSchoolId] = useState<string | null>(null);
 
-  // Search state
   const [searchName, setSearchName] = useState('');
   const [searchDob, setSearchDob] = useState('');
   const [searchResults, setSearchResults] = useState<DisciplinaryRecord[]>([]);
@@ -102,11 +120,14 @@ export default function DisciplinaryPage() {
   const showOtherIssue = watchedIssues.includes('Other');
 
   const loadRecords = useCallback(async () => {
-    if (schoolId === null && typeof window !== 'undefined') return; // Wait for schoolId
+    if (schoolId === null && typeof window !== 'undefined') return;
     setIsLoading(true);
     setFetchError(null);
     try {
-      const fetchedRecords = await fetchDisciplinaryRecordsFromBackend(schoolId || undefined);
+        if (!isFirebaseConfigured) {
+            throw new Error("Firebase is not configured. Displaying no data.");
+        }
+      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId || undefined);
       setRecords(fetchedRecords);
        if (hasSearched) {
           const results = fetchedRecords.filter(record =>
@@ -117,6 +138,7 @@ export default function DisciplinaryPage() {
       }
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setRecords([]);
     } finally {
       setIsLoading(false);
     }
@@ -138,52 +160,33 @@ export default function DisciplinaryPage() {
 
 
   const handleFormSubmitHandler: SubmitHandler<DisciplinaryRecordFormData> = async (data) => {
-    const currentUserId = "adminUserPlaceholder"; // Replace with actual logged-in user ID
+    const currentUserId = "adminUserPlaceholder";
+
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save because Firebase is not configured." });
+        return;
+    }
 
     const recordToSaveBase = {
         ...data,
         userId: currentUserId,
-        ...(schoolId && { schoolId: schoolId }), // Include schoolId if available
+        ...(schoolId && { schoolId: schoolId }),
     };
 
     try {
-        let savedRecord: DisciplinaryRecord;
-        let finalRecords;
-
         if (editingRecordId) {
-            const originalRecord = records.find(r => r.id === editingRecordId);
-            const updatedRecordData: DisciplinaryRecord = { 
-                ...recordToSaveBase, 
-                id: editingRecordId, 
-                createdAt: originalRecord?.createdAt || new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
-            savedRecord = await saveDisciplinaryRecordToBackend(updatedRecordData);
-            finalRecords = records.map(r => r.id === editingRecordId ? savedRecord : r);
+            await saveDisciplinaryRecordToFirestore(recordToSaveBase, editingRecordId);
         } else {
-            const newRecordData: DisciplinaryRecord = {
-                ...recordToSaveBase,
-                id: `sim-dr-${Date.now()}`, // temp ID
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            };
-            savedRecord = await saveDisciplinaryRecordToBackend(newRecordData);
-            finalRecords = [savedRecord, ...records];
+            await saveDisciplinaryRecordToFirestore(recordToSaveBase);
         }
-
-        setRecords(finalRecords);
-
-        if(hasSearched) {
-            setSearchResults(finalRecords.filter(record =>
-                (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
-                (!searchDob || record.studentDob === searchDob)
-            ));
-        }
+        
+        await loadRecords(); // Reload from firestore
 
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Disciplinary record for ${data.studentName} has been processed.` });
         setIsFormModalOpen(false);
         reset();
     } catch (error) {
+        console.error("Error saving record to Firestore:", error);
         toast({ variant: "destructive", title: "Save Failed", description: "Could not save disciplinary record." });
     }
   };
@@ -201,12 +204,18 @@ export default function DisciplinaryPage() {
 
   const handleDeleteRecord = async (recordId: string) => {
     if (!window.confirm("Are you sure you want to delete this disciplinary record?")) return;
+    
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete because Firebase is not configured." });
+        return;
+    }
+
     try {
-        await deleteDisciplinaryRecordFromBackend(recordId);
-        setRecords(prev => prev.filter(r => r.id !== recordId));
-        setSearchResults(prev => prev.filter(r => r.id !== recordId)); 
+        await deleteDisciplinaryRecordFromFirestore(recordId);
+        await loadRecords();
         toast({ title: "Record Deleted", description: "The disciplinary record has been deleted." });
     } catch (error) {
+        console.error("Error deleting record from Firestore:", error);
         toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete record."});
     }
   };
@@ -262,6 +271,22 @@ export default function DisciplinaryPage() {
             </Button>
         </PageHeader>
         
+        {!isFirebaseConfigured && (
+            <Card className="bg-amber-50 border-amber-300">
+                <CardHeader>
+                    <CardTitle className="font-headline text-amber-800 flex items-center">
+                        <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-amber-700">
+                        The connection to the live Firebase database is not configured. This page is currently in read-only mode and displaying no data.
+                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
+                    </p>
+                </CardContent>
+            </Card>
+        )}
+
           <Dialog open={isFormModalOpen} onOpenChange={(isOpen) => {
             setIsFormModalOpen(isOpen);
             if (!isOpen) { 
@@ -442,7 +467,7 @@ export default function DisciplinaryPage() {
             </div>
           )}
 
-          {!isLoading && fetchError && (
+          {!isLoading && fetchError && isFirebaseConfigured && (
             <Card className="mt-6 bg-destructive/10 border-destructive print:hidden">
                 <CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error Loading Data</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent>
@@ -450,7 +475,7 @@ export default function DisciplinaryPage() {
           )}
 
           <div className="printable-area">
-            {!isLoading && !fetchError && displayedRecords.length > 0 && (
+            {!isLoading && displayedRecords.length > 0 && (
                 <Card id="preview-section" className="p-4">
                 <CardHeader>
                     <CardTitle className="text-2xl font-headline">{hasSearched ? `Search Results (${displayedRecords.length})` : `All Disciplinary Records (${displayedRecords.length})`}</CardTitle>

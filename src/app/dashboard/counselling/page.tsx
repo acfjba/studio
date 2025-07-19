@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { HeartHandshake, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusCircle, Save, Mail } from "lucide-react";
+import { HeartHandshake, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusCircle, Save, Mail, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -25,28 +25,54 @@ import {
 } from "@/components/ui/dialog";
 import { Skeleton } from '@/components/ui/skeleton';
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 
 
-// Simulated backend data fetch
-async function fetchCounsellingRecordsFromBackend(schoolId?: string): Promise<CounsellingRecord[]> {
-  console.log("Simulating fetch counselling records from backend...", { schoolId });
-  await new Promise(resolve => setTimeout(resolve, 1000));
-  // In a real app, filter by schoolId on the backend if provided
-  return []; // Start with empty data
+// --- Firestore Actions ---
+async function fetchCounsellingRecordsFromFirestore(schoolId?: string): Promise<CounsellingRecord[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const recordsCollectionRef = collection(db, 'counselling');
+    
+    let q = query(recordsCollectionRef);
+    if (schoolId) {
+        q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
+    }
+    
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            ...data,
+            id: doc.id,
+            sessionDate: data.sessionDate,
+            studentDob: data.studentDob,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+        } as CounsellingRecord;
+    });
 }
 
-// Simulated backend actions
-async function saveCounsellingRecordToBackend(record: CounsellingRecord): Promise<CounsellingRecord> {
-  console.log("Simulating save counselling record to backend:", record);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  // If new, assign ID, createdAt, updatedAt. If existing, update updatedAt.
-  return { ...record, id: record.id || `sim-cr-${Date.now()}`, createdAt: record.createdAt || new Date().toISOString(), updatedAt: new Date().toISOString() };
+async function saveCounsellingRecordToFirestore(record: Omit<CounsellingRecord, 'id' | 'createdAt' | 'updatedAt'>, id?: string): Promise<CounsellingRecord> {
+    if (!db) throw new Error("Firestore is not configured.");
+    
+    if (id) {
+        const docRef = doc(db, 'counselling', id);
+        const dataToUpdate = { ...record, updatedAt: serverTimestamp() };
+        await updateDoc(docRef, dataToUpdate);
+        return { ...record, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    } else {
+        const collectionRef = collection(db, 'counselling');
+        const dataToAdd = { ...record, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const docRef = await addDoc(collectionRef, dataToAdd);
+        return { ...record, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    }
 }
 
-async function deleteCounsellingRecordFromBackend(id: string): Promise<{ success: boolean }> {
-  console.log("Simulating delete counselling record from backend, ID:", id);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { success: true };
+async function deleteCounsellingRecordFromFirestore(id: string): Promise<void> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const docRef = doc(db, 'counselling', id);
+    await deleteDoc(docRef);
 }
 
 
@@ -127,13 +153,21 @@ export default function CounsellingPage() {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const fetchedRecords = await fetchCounsellingRecordsFromBackend(schoolId || undefined);
+      if (!isFirebaseConfigured) {
+        setFetchError("Firebase is not configured. Displaying mock data.");
+        setRecords([]);
+        return;
+      }
+      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId || undefined);
       setRecords(fetchedRecords);
       if (hasSearched) {
           handleSearchRecords(undefined, fetchedRecords);
       }
     } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
+      const msg = err instanceof Error ? err.message : "An unknown error occurred.";
+      setFetchError(msg);
+      console.error("Error loading counselling records:", msg);
+      setRecords([]);
     } finally {
       setIsLoading(false);
     }
@@ -157,6 +191,11 @@ export default function CounsellingPage() {
 
   const handleFormSubmitHandler: SubmitHandler<CounsellingRecordFormData> = async (data) => {
     const currentUserId = "currentUserPlaceholder"; // Replace with actual logged-in user ID
+    
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save record because Firebase is not configured." });
+        return;
+    }
 
     const recordToSaveBase = {
         ...data,
@@ -165,50 +204,27 @@ export default function CounsellingPage() {
     };
 
     try {
-        let savedRecord: CounsellingRecord;
-        let finalRecords: CounsellingRecord[];
-
         if (editingRecordId) {
-            const originalRecord = records.find(r => r.id === editingRecordId);
-            const updatedRecordData = { 
-                ...recordToSaveBase, 
-                id: editingRecordId, 
-                createdAt: originalRecord?.createdAt || new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            } as CounsellingRecord;
-            savedRecord = await saveCounsellingRecordToBackend(updatedRecordData);
-            finalRecords = records.map(r => r.id === editingRecordId ? savedRecord : r);
-            toast({ title: "Record Updated", description: `Counselling record for ${data.studentName} has been updated.` });
+            await saveCounsellingRecordToFirestore(recordToSaveBase, editingRecordId);
         } else {
-            const newRecordData = {
-                ...recordToSaveBase,
-                id: displayRecordId || `COUNSEL-${Date.now()}`,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
-            } as CounsellingRecord;
-            savedRecord = await saveCounsellingRecordToBackend(newRecordData);
-            finalRecords = [savedRecord, ...records];
-            toast({ title: "Record Saved", description: `Counselling record for ${data.studentName} has been saved.` });
+            await saveCounsellingRecordToFirestore(recordToSaveBase);
         }
         
-        setRecords(finalRecords);
-
-        if(hasSearched) {
-            setSearchResults(finalRecords.filter(record =>
-                (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
-                (!searchDob || record.studentDob === searchDob)
-            ));
-        }
+        await loadRecords(); // Reload all records from Firestore
+        
+        toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Counselling record for ${data.studentName} has been processed.` });
+        
         setIsFormModalOpen(false);
         reset();
     } catch (error) {
+        console.error("Error saving record to Firestore:", error);
         toast({ variant: "destructive", title: "Save Failed", description: "Could not save counselling record." });
     }
   };
   
   const openAddModal = () => {
     setEditingRecordId(null);
-    const tempId = `COUNSEL-${Date.now()}`;
+    const tempId = `NEW-${Date.now()}`;
     setDisplayRecordId(tempId);
     reset(); 
     setIsFormModalOpen(true);
@@ -221,12 +237,18 @@ export default function CounsellingPage() {
 
   const handleDeleteRecord = async (recordId: string) => {
     if (!window.confirm("Are you sure you want to delete this counselling record?")) return;
+    
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete record because Firebase is not configured." });
+        return;
+    }
+
     try {
-        await deleteCounsellingRecordFromBackend(recordId);
-        setRecords(prev => prev.filter(r => r.id !== recordId));
-        setSearchResults(prev => prev.filter(r => r.id !== recordId)); 
+        await deleteCounsellingRecordFromFirestore(recordId);
+        await loadRecords(); // Reload to reflect deletion
         toast({ title: "Record Deleted", description: "The counselling record has been deleted." });
     } catch (error) {
+        console.error("Error deleting record from Firestore:", error);
         toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete record."});
     }
   };
@@ -279,6 +301,22 @@ export default function CounsellingPage() {
             </Button>
         </PageHeader>
         
+        {!isFirebaseConfigured && (
+            <Card className="bg-amber-50 border-amber-300">
+                <CardHeader>
+                    <CardTitle className="font-headline text-amber-800 flex items-center">
+                        <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-amber-700">
+                        The connection to the live Firebase database is not configured. This page is currently in read-only mode and displaying no data.
+                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
+                    </p>
+                </CardContent>
+            </Card>
+        )}
+
         <Dialog open={isFormModalOpen} onOpenChange={(isOpen) => {
             setIsFormModalOpen(isOpen);
             if (!isOpen) { 
@@ -456,14 +494,14 @@ export default function CounsellingPage() {
             </div>
           )}
 
-          {!isLoading && fetchError && (
+          {!isLoading && fetchError && isFirebaseConfigured && (
             <Card className="mt-6 bg-destructive/10 border-destructive print:hidden">
                 <CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error Loading Data</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent>
             </Card>
           )}
 
-          {!isLoading && !fetchError && displayedRecords.length > 0 && (
+          {!isLoading && displayedRecords.length > 0 && (
              <div className="printable-area">
                 <Card id="preview-section" className="p-4">
                 <CardHeader>

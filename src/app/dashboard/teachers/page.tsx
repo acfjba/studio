@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Star, Search, AlertCircle, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { sampleStaffSeedData } from '@/lib/data';
+import { staffData as sampleStaffSeedData } from '@/lib/data';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -33,8 +33,8 @@ async function fetchTeachersFromBackend(): Promise<Teacher[]> {
   
   return sampleStaffSeedData
     .map(staff => {
-        const rateablePositions = ["teacher", "head-teacher", "assistant-head-teacher"];
-        const isRateable = rateablePositions.includes((staff.role || "").toLowerCase());
+        const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
+        const isRateable = rateableRoles.includes((staff.role || "").toLowerCase());
         return {
             id: staff.id,
             name: staff.name,

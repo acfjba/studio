@@ -1,10 +1,11 @@
+
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Library, PlusCircle, AlertCircle, Edit2, Trash2, MailWarning, ArrowRightLeft } from "lucide-react";
+import { Library, PlusCircle, AlertCircle, Edit2, Trash2, MailWarning, ArrowRightLeft, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookFormSchema, LibraryTransactionFormSchema, type Book, type BookFormData, type LibraryTransaction, type LibraryTransactionFormData } from "@/lib/schemas/library";
@@ -16,129 +17,229 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, writeBatch, query, where, runTransaction } from 'firebase/firestore';
 
-// --- Simulated Backend Functions ---
-async function fetchBooksFromBackend(schoolId?: string): Promise<Book[]> {
-  console.log("Simulating fetch books from backend...", { schoolId });
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return JSON.parse(JSON.stringify(sampleLibraryBooksData));
+
+// --- Firestore Actions ---
+
+async function fetchBooksFromFirestore(schoolId?: string): Promise<Book[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const booksCollection = collection(db, 'books');
+    const q = schoolId ? query(booksCollection, where("schoolId", "==", schoolId)) : booksCollection;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            ...data,
+            id: doc.id,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+        } as Book;
+    });
 }
+
+async function fetchTransactionsFromFirestore(schoolId?: string): Promise<LibraryTransaction[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const txCollection = collection(db, 'transactions');
+    const q = schoolId ? query(txCollection, where("schoolId", "==", schoolId)) : txCollection;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            ...data,
+            id: doc.id,
+            issuedAt: data.issuedAt instanceof Timestamp ? data.issuedAt.toDate().toISOString() : data.issuedAt,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+        } as LibraryTransaction;
+    });
+}
+
+async function addBookToFirestore(data: BookFormData, schoolId?: string): Promise<Book> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const newBookData = {
+        ...data,
+        availableCopies: data.totalCopies,
+        schoolId: schoolId || 'default-school',
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+    };
+    const docRef = await addDoc(collection(db, 'books'), newBookData);
+    return { ...newBookData, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+}
+
+async function deleteBookFromFirestore(bookId: string): Promise<void> {
+    if (!db) throw new Error("Firestore is not configured.");
+    await deleteDoc(doc(db, 'books', bookId));
+}
+
+async function issueBookTransaction(data: LibraryTransactionFormData, bookTitle: string, schoolId?: string): Promise<LibraryTransaction> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const bookRef = doc(db, 'books', data.bookId);
+    const transactionRef = doc(collection(db, 'transactions'));
+    
+    await runTransaction(db, async (transaction) => {
+        const bookDoc = await transaction.get(bookRef);
+        if (!bookDoc.exists() || bookDoc.data().availableCopies <= 0) {
+            throw new Error("Book is not available for loan.");
+        }
+        
+        transaction.update(bookRef, { availableCopies: bookDoc.data().availableCopies - 1 });
+
+        const newTransaction: Omit<LibraryTransaction, 'id'> = {
+            ...data,
+            bookTitle,
+            schoolId: schoolId || 'default-school',
+            issuedBy: "librarian_placeholder",
+            issuedAt: new Date().toISOString(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+        };
+        transaction.set(transactionRef, newTransaction);
+    });
+
+    return { ...data, id: transactionRef.id, bookTitle, issuedBy: "librarian_placeholder", issuedAt: new Date().toISOString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+}
+
+
+async function returnBookTransaction(transactionId: string, bookId: string): Promise<void> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const bookRef = doc(db, 'books', bookId);
+    const transactionRef = doc(db, 'transactions', transactionId);
+
+    await runTransaction(db, async (transaction) => {
+        const bookDoc = await transaction.get(bookRef);
+        if (!bookDoc.exists()) {
+            // If book doesn't exist, we can't update its count, but we can still remove the transaction
+            console.warn(`Book with id ${bookId} not found, but proceeding to remove transaction.`);
+        } else {
+            transaction.update(bookRef, { availableCopies: (bookDoc.data().availableCopies || 0) + 1 });
+        }
+        transaction.delete(transactionRef);
+    });
+}
+
 
 export default function LibraryServicePage() {
   const { toast } = useToast();
   const [books, setBooks] = useState<Book[]>([]);
   const [transactions, setTransactions] = useState<LibraryTransaction[]>([]);
-  const [isLoadingBooks, setIsLoadingBooks] = useState(true);
+  const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isAddBookModalOpen, setIsAddBookModalOpen] = useState(false);
   const [isTransactionModalOpen, setIsTransactionModalOpen] = useState(false);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
 
-  const addBookForm = useForm<BookFormData>({
-    resolver: zodResolver(BookFormSchema)
-  });
-
-  const transactionForm = useForm<LibraryTransactionFormData>({
-    resolver: zodResolver(LibraryTransactionFormSchema)
-  });
-
+  const addBookForm = useForm<BookFormData>({ resolver: zodResolver(BookFormSchema) });
+  const transactionForm = useForm<LibraryTransactionFormData>({ resolver: zodResolver(LibraryTransactionFormSchema) });
 
   useEffect(() => {
-    const loadBooks = async () => {
-      setIsLoadingBooks(true);
-      setFetchError(null);
-      try {
-        const schoolId = localStorage.getItem('schoolId') || undefined;
-        const fetchedBooks = await fetchBooksFromBackend(schoolId);
+    if (typeof window !== 'undefined') {
+        setSchoolId(localStorage.getItem('schoolId'));
+    }
+  }, []);
+
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+        if (!isFirebaseConfigured) {
+            throw new Error("Firebase is not configured. Displaying mock data.");
+        }
+        const [fetchedBooks, fetchedTransactions] = await Promise.all([
+            fetchBooksFromFirestore(schoolId || undefined),
+            fetchTransactionsFromFirestore(schoolId || undefined),
+        ]);
         setBooks(fetchedBooks);
-      } catch (err) {
+        setTransactions(fetchedTransactions);
+    } catch (err) {
         const errorMsg = err instanceof Error ? err.message : "An unknown error occurred.";
         setFetchError(errorMsg);
         toast({ variant: "destructive", title: "Error", description: errorMsg });
-      } finally {
-        setIsLoadingBooks(false);
-      }
-    };
-    loadBooks();
-  }, [toast]);
+        if (errorMsg.includes("Firebase is not configured")) {
+            setBooks(sampleLibraryBooksData);
+        }
+    } finally {
+        setIsLoading(false);
+    }
+  }, [toast, schoolId]);
+
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   const handleAddBookSubmit: SubmitHandler<BookFormData> = async (data) => {
-    console.log("Adding new book (simulated):", data);
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const newBook: Book = {
-      id: `book_${Date.now()}`,
-      ...data,
-      availableCopies: data.totalCopies,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    };
-
-    setBooks(prevBooks => [newBook, ...prevBooks]);
-    toast({ title: "Book Added", description: `"${data.title}" has been added to the catalogue.`});
-    setIsAddBookModalOpen(false);
-    addBookForm.reset();
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot add book because Firebase is not configured." });
+        return;
+    }
+    try {
+        await addBookToFirestore(data, schoolId || undefined);
+        await loadData();
+        toast({ title: "Book Added", description: `"${data.title}" has been added to the catalogue.`});
+        setIsAddBookModalOpen(false);
+        addBookForm.reset();
+    } catch(err) {
+        toast({ variant: "destructive", title: "Error", description: "Could not add book to the database." });
+    }
   };
   
   const handleTransactionSubmit: SubmitHandler<LibraryTransactionFormData> = async (data) => {
     const bookToLoan = books.find(b => b.id === data.bookId);
 
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot issue book because Firebase is not configured." });
+        return;
+    }
+    
     if (!bookToLoan) {
         toast({ variant: "destructive", title: "Error", description: "Selected book not found." });
         return;
     }
 
-    if (bookToLoan.availableCopies <= 0) {
-        toast({ variant: "destructive", title: "Unavailable", description: `No copies of "${bookToLoan.title}" are available.` });
-        return;
+    try {
+        await issueBookTransaction(data, bookToLoan.title, schoolId || undefined);
+        await loadData();
+        toast({ title: "Transaction Successful", description: `"${bookToLoan.title}" issued to ${data.memberName}.` });
+        setIsTransactionModalOpen(false);
+        transactionForm.reset();
+    } catch(err) {
+        toast({ variant: "destructive", title: "Transaction Failed", description: err instanceof Error ? err.message : "Could not issue book." });
     }
-
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    const newTransaction: LibraryTransaction = {
-        ...data,
-        id: `txn_${Date.now()}`,
-        bookTitle: bookToLoan.title,
-        issuedBy: "librarian_placeholder",
-        issuedAt: new Date().toISOString(),
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-    };
-    
-    setTransactions(prev => [newTransaction, ...prev]);
-
-    setBooks(prevBooks => 
-        prevBooks.map(book => 
-            book.id === data.bookId 
-                ? { ...book, availableCopies: book.availableCopies - 1 }
-                : book
-        )
-    );
-
-    toast({ title: "Transaction Successful", description: `"${bookToLoan.title}" issued to ${data.memberName}.` });
-    setIsTransactionModalOpen(false);
-    transactionForm.reset();
   };
 
-  const handleMarkAsReturned = (transactionId: string, bookId: string) => {
-    setTransactions(prev => prev.filter(t => t.id !== transactionId));
-    setBooks(prevBooks =>
-        prevBooks.map(book => 
-            book.id === bookId
-                ? { ...book, availableCopies: (book.availableCopies || 0) + 1 }
-                : book
-        )
-    );
-    toast({ title: "Book Returned", description: "The book has been marked as returned." });
+  const handleMarkAsReturned = async (transactionId: string, bookId: string) => {
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot return book because Firebase is not configured." });
+        return;
+    }
+    try {
+        await returnBookTransaction(transactionId, bookId);
+        await loadData();
+        toast({ title: "Book Returned", description: "The book has been marked as returned." });
+    } catch(err) {
+         toast({ variant: "destructive", title: "Return Failed", description: "Could not process book return." });
+    }
   };
 
   const handleSimulatedEdit = (title: string) => {
     toast({ title: "Action Simulated", description: `Edit for "${title}" would open a pre-filled form here.` });
   };
 
-  const handleSimulatedDelete = (bookId: string, bookTitle: string) => {
-    if (window.confirm(`Are you sure you want to delete "${bookTitle}"? This is a simulated action.`)) {
-      setBooks(prevBooks => prevBooks.filter(book => book.id !== bookId));
-      toast({ title: "Book Deleted (Simulated)", description: `"${bookTitle}" has been removed from the list.` });
+  const handleSimulatedDelete = async (bookId: string, bookTitle: string) => {
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete book because Firebase is not configured." });
+        return;
+    }
+    if (window.confirm(`Are you sure you want to delete "${bookTitle}"? This is a permanent action.`)) {
+      try {
+        await deleteBookFromFirestore(bookId);
+        await loadData();
+        toast({ title: "Book Deleted", description: `"${bookTitle}" has been removed from the list.` });
+      } catch(err) {
+        toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete book." });
+      }
     }
   };
 
@@ -151,6 +252,22 @@ export default function LibraryServicePage() {
             title="Library Service"
             description="Manage the school's book catalogue and handle loans and returns."
         />
+        
+        {!isFirebaseConfigured && (
+            <Card className="bg-amber-50 border-amber-300">
+                <CardHeader>
+                    <CardTitle className="font-headline text-amber-800 flex items-center">
+                        <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-amber-700">
+                        The connection to the live Firebase database is not configured. This page is currently displaying local sample data. Actions will be simulated.
+                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
+                    </p>
+                </CardContent>
+            </Card>
+        )}
 
         <section id="book-catalogue" className="p-4 border border-border rounded-lg shadow-md bg-card">
           <div className="flex justify-between items-center mb-4">
@@ -206,9 +323,9 @@ export default function LibraryServicePage() {
               </DialogContent>
             </Dialog>
           </div>
-          {isLoadingBooks ? <Skeleton className="h-48 w-full" /> : fetchError ? (
+          {isLoading ? <Skeleton className="h-48 w-full" /> : fetchError && isFirebaseConfigured ? (
             <p className="text-destructive font-body">{fetchError}</p>
-          ) : books.length === 0 ? (
+          ) : books.length === 0 && isFirebaseConfigured ? (
             <Card className="bg-muted/30 border-primary/20 py-6">
               <CardContent className="text-center">
                 <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
@@ -337,7 +454,7 @@ export default function LibraryServicePage() {
               <MailWarning className="mr-2 h-5 w-5" />Send Overdue Reminders
             </Button>
           </div>
-           {isLoadingBooks ? <Skeleton className="h-24 w-full" /> : transactions.length === 0 ? (
+           {isLoading ? <Skeleton className="h-24 w-full" /> : transactions.length === 0 ? (
             <Card className="bg-muted/30 border-primary/20 py-6">
                 <CardContent className="text-center">
                     <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground mb-3" />

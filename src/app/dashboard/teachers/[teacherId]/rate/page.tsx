@@ -1,10 +1,9 @@
 
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { Button } from '@/components/ui/button';
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
@@ -12,7 +11,7 @@ import { Star, Send, AlertCircle, UserSquare2 } from "lucide-react";
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { sampleStaffSeedData } from '@/lib/data';
+import { staffData as sampleStaffSeedData } from '@/lib/data';
 import { PageHeader } from '@/components/layout/page-header';
 
 interface TeacherDetails {
