@@ -106,9 +106,9 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" passHref>
-                <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                   <a>Dashboard</a>
+              <Link href="/dashboard" legacyBehavior={false} passHref>
+                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                   Dashboard
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
@@ -178,9 +178,9 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/dashboard/settings" passHref>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                     <a>Settings</a>
+                <Link href="/dashboard/settings" legacyBehavior={false} passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                     Settings
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
