@@ -43,7 +43,10 @@ import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
 
-const managementLinks = [{ href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.' }];
+const managementLinks = [
+  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.' },
+  { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.' },
+];
 const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
@@ -101,7 +104,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior={false} passHref>
+              <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                   Dashboard
                 </NavigationMenuLink>
@@ -173,7 +176,7 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-              <Link href="/dashboard/settings" legacyBehavior={false} passHref>
+              <Link href="/dashboard/settings" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
                   Settings
                 </NavigationMenuLink>

@@ -11,6 +11,12 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const isPrimaryAdminPage = false; // This logic would be dynamic based on route
+
+  if (isPrimaryAdminPage) {
+     return <div className="flex min-h-screen w-full flex-col">{children}</div>;
+  }
+  
   return (
     <div className="flex min-h-screen w-full flex-col bg-background dark:bg-zinc-900">
       <Header />
