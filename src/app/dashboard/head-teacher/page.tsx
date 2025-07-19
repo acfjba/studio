@@ -2,7 +2,7 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import React, 'useState', useMemo, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { 
   BarChart3, Bell, FileText, LogOutIcon, Home, Printer, Download, AlertCircle, Users, MailWarning, CheckCircle, Award, TimerOff, 
-  CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes 
+  CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes, MailCheck 
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -467,8 +467,8 @@ export default function HeadTeacherPage() {
                     <Link href="/dashboard/staff" passHref>
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><UsersRound className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Staff Records</p><p className="text-xs text-muted-foreground">View and manage all staff details.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/staff" passHref>
-                        <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailPlus className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invite Teachers</p><p className="text-xs text-muted-foreground">Send invitations to new staff members.</p></div></Button>
+                    <Link href="/dashboard/invitation-logs" passHref>
+                        <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailCheck className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Invitation Logs</p><p className="text-xs text-muted-foreground">Track sent teacher invitations.</p></div></Button>
                     </Link>
                     <Link href="/dashboard/disciplinary" passHref>
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><Gavel className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Disciplinary Records</p><p className="text-xs text-muted-foreground">Access all student disciplinary entries.</p></div></Button>
