@@ -1,6 +1,7 @@
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, Key, User, UserCog } from 'lucide-react';
+import { Briefcase, Key, User, UserCog, Book } from 'lucide-react';
 import Link from 'next/link';
 
 export default function HomePage() {
@@ -24,7 +25,12 @@ export default function HomePage() {
             </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+            <RoleCard 
+                icon={Book}
+                title="Kindergarten"
+                description="Manage kindergarten class activities, student records, and inventory in a dedicated environment."
+            />
             <RoleCard 
                 icon={User}
                 title="Teacher"
@@ -74,3 +80,5 @@ function RoleCard({ icon: Icon, title, description }: { icon: React.ElementType,
         </Card>
     );
 }
+
+    

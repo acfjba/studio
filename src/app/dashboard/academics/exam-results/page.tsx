@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -52,6 +53,16 @@ async function deleteExamResultFromBackend(id: string): Promise<{ success: boole
   return { success: true };
 }
 
+const generateYearOptions = () => {
+    const options = [{ value: "Kindergarten", label: "Kindergarten" }];
+    for (let year = 1; year <= 8; year++) {
+        for (let cluster = 1; cluster <= 4; cluster++) {
+            const value = `${year}0${cluster}`;
+            options.push({ value: value, label: `Year ${year} - Cluster ${value}` });
+        }
+    }
+    return options;
+};
 
 export default function ExamResultsManagementPage() {
   const { toast } = useToast();
@@ -76,7 +87,7 @@ export default function ExamResultsManagementPage() {
 
   const canManage = useMemo(() => {
       if (!userRole) return false;
-      const editableRoles = ['teacher', 'head-teacher', 'primary-admin', 'system-admin'];
+      const editableRoles = ['teacher', 'head-teacher', 'primary-admin', 'system-admin', 'kindergarten'];
       return editableRoles.includes(userRole);
   }, [userRole]);
 
@@ -232,6 +243,8 @@ export default function ExamResultsManagementPage() {
     toast({ title: "Export Successful", description: "Exam results have been downloaded as a CSV file for Excel." });
   };
 
+  const studentYearOptions = useMemo(() => generateYearOptions(), []);
+
   const filteredResults = useMemo(() => {
     return results.filter(result =>
       (yearFilter === 'All' || result.studentYear === yearFilter) &&
@@ -245,9 +258,7 @@ export default function ExamResultsManagementPage() {
   const currentAcademicYear = new Date().getFullYear();
   const yearOptions = Array.from({ length: 10 }, (_, i) => (currentAcademicYear - 5 + i).toString());
   const termOptions = ["1", "2", "3", "4"]; 
-  const studentYearOptions = Array.from({ length: 8 }, (_, i) => (i + 1).toString());
-
-
+  
   return (
     <div className="flex flex-col gap-8 printable-area">
       <PageHeader
@@ -283,7 +294,7 @@ export default function ExamResultsManagementPage() {
                 </SelectTrigger>
                 <SelectContent>
                     <SelectItem value="All">All Years</SelectItem>
-                    {studentYearOptions.map(year => <SelectItem key={year} value={year}>Year {year}</SelectItem>)}
+                    {studentYearOptions.map(year => <SelectItem key={year.value} value={year.value}>{year.label}</SelectItem>)}
                 </SelectContent>
               </Select>
             </div>
@@ -337,7 +348,7 @@ export default function ExamResultsManagementPage() {
               <div><Label htmlFor="studentYearForm">Student Year</Label>
                   <Controller name="studentYear" control={control} render={({ field }) => (
                       <Select onValueChange={field.onChange} value={field.value}><SelectTrigger id="studentYearForm"><SelectValue placeholder="Select Year" /></SelectTrigger>
-                          <SelectContent>{studentYearOptions.map(opt => <SelectItem key={opt} value={opt}>Year {opt}</SelectItem>)}</SelectContent>
+                          <SelectContent>{studentYearOptions.map(opt => <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>)}</SelectContent>
                       </Select>
                   )} />
                   {errors.studentYear && <p className="text-destructive text-xs mt-1">{errors.studentYear.message}</p>}
@@ -378,3 +389,5 @@ export default function ExamResultsManagementPage() {
     </div>
   );
 }
+
+    

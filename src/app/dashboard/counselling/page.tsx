@@ -75,6 +75,16 @@ async function deleteCounsellingRecordFromFirestore(id: string): Promise<void> {
     await deleteDoc(docRef);
 }
 
+const generateYearOptions = () => {
+    const options = [{ value: "Kindergarten", label: "Kindergarten" }];
+    for (let year = 1; year <= 8; year++) {
+        for (let cluster = 1; cluster <= 4; cluster++) {
+            const value = `${year}0${cluster}`;
+            options.push({ value: value, label: `Year ${year} - Cluster ${value}` });
+        }
+    }
+    return options;
+};
 
 export default function CounsellingPage() {
   const { toast } = useToast();
@@ -288,7 +298,7 @@ export default function CounsellingPage() {
     return hasSearched ? searchResults : records;
   }, [hasSearched, searchResults, records]);
 
-  const yearOptions = Array.from({ length: 13 }, (_, i) => (i + 1).toString());
+  const yearOptions = useMemo(() => generateYearOptions(), []);
 
   return (
       <div className="flex flex-col gap-8">
@@ -370,7 +380,7 @@ export default function CounsellingPage() {
                               <Select onValueChange={field.onChange} value={field.value}>
                                   <SelectTrigger id="student-year"><SelectValue placeholder="Select year level" /></SelectTrigger>
                                   <SelectContent>
-                                      {yearOptions.map(year => <SelectItem key={year} value={year}>Year {year}</SelectItem>)}
+                                      {yearOptions.map(year => <SelectItem key={year.value} value={year.value}>{year.label}</SelectItem>)}
                                   </SelectContent>
                               </Select>
                           )}
@@ -557,3 +567,5 @@ export default function CounsellingPage() {
       </div>
   );
 }
+
+    

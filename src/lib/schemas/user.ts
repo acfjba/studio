@@ -1,6 +1,7 @@
+
 import * as z from 'zod';
 
-export const userRoles = ["teacher", "head-teacher", "assistant-head-teacher", "primary-admin", "system-admin", "librarian"] as const;
+export const userRoles = ["teacher", "head-teacher", "assistant-head-teacher", "primary-admin", "system-admin", "librarian", "kindergarten"] as const;
 
 export const SingleUserFormSchema = z.object({
   name: z.string().min(2, "Name is required."),
@@ -26,3 +27,5 @@ export type UserWithPassword = UserFormData & {
   uid: string;
   displayName: string;
 };
+
+    

@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -60,10 +61,21 @@ async function saveInventoryToBackend(inventory: ClassroomInventory): Promise<{ 
   return { success: true };
 }
 
+const generateYearOptions = () => {
+    const options = [{ value: "Kindergarten", label: "Kindergarten" }];
+    for (let year = 1; year <= 8; year++) {
+        for (let cluster = 1; cluster <= 4; cluster++) {
+            const value = `${year}0${cluster}`;
+            options.push({ value: value, label: `Year ${year} - Cluster ${value}` });
+        }
+    }
+    return options;
+};
+
 export default function ClassroomInventoryPage() {
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>('teacher');
-  const [selectedYear, setSelectedYear] = useState<string>("1");
+  const [selectedYear, setSelectedYear] = useState<string>("101");
   const [inventoryItems, setInventoryItems] = useState<EditableInventoryItem[]>([]);
   const [newItemName, setNewItemName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -71,7 +83,7 @@ export default function ClassroomInventoryPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const canEdit = useMemo(() => {
-    const editableRoles = ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'];
+    const editableRoles = ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'];
     return editableRoles.includes(userRole || '');
   }, [userRole]);
 
@@ -220,7 +232,7 @@ export default function ClassroomInventoryPage() {
     toast({ title: "Item Removed", description: "The item has been removed from your inventory list." });
   };
   
-  const yearOptions = Array.from({ length: 8 }, (_, i) => (i + 1).toString());
+  const yearOptions = generateYearOptions();
 
   return (
     <div className="flex flex-col gap-8 printable-area">
@@ -234,11 +246,11 @@ export default function ClassroomInventoryPage() {
               <div className="flex items-center gap-4">
                 <Label htmlFor="year-select" className="font-semibold">Select Year Level:</Label>
                 <Select value={selectedYear} onValueChange={setSelectedYear} disabled={isLoading}>
-                    <SelectTrigger id="year-select" className="w-[180px]">
+                    <SelectTrigger id="year-select" className="w-[240px]">
                         <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
                     <SelectContent>
-                        {yearOptions.map(year => <SelectItem key={year} value={year}>Year {year}</SelectItem>)}
+                        {yearOptions.map(year => <SelectItem key={year.value} value={year.value}>{year.label}</SelectItem>)}
                     </SelectContent>
                 </Select>
               </div>
@@ -411,3 +423,5 @@ export default function ClassroomInventoryPage() {
       </div>
   );
 }
+
+    
