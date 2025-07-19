@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState, type FormEvent } from 'react';
+import React, { useState, type FormEvent, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,8 +10,11 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { ShieldAlert, Printer, Mail, Save, Search as SearchIcon, AlertCircle } from "lucide-react";
+import { ShieldAlert, Printer, Mail, Save, Search as SearchIcon, AlertCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Skeleton } from '@/components/ui/skeleton';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, addDoc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 
 interface OhsRecord {
   id: string;
@@ -22,10 +26,41 @@ interface OhsRecord {
   headReport: string;
   actionTaken: string;
   parentsNotified: string;
+  schoolId?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+// --- Firestore Actions ---
+async function fetchOhsRecordsFromFirestore(schoolId?: string): Promise<OhsRecord[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    let q = query(collection(db, 'ohs'));
+    if (schoolId) {
+        q = query(collection(db, 'ohs'), where("schoolId", "==", schoolId));
+    }
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            ...data,
+            id: doc.id,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+        } as OhsRecord;
+    });
+}
+
+async function saveOhsRecordToFirestore(record: Omit<OhsRecord, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId?: string): Promise<OhsRecord> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const collectionRef = collection(db, 'ohs');
+    const dataToAdd = { ...record, schoolId, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+    const docRef = await addDoc(collectionRef, dataToAdd);
+    return { ...record, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
 }
 
 export function HealthInspectionClient() {
   const { toast } = useToast();
+  const [schoolId, setSchoolId] = useState<string | null>(null);
 
   // Form state
   const [incidentDate, setIncidentDate] = useState('');
@@ -36,15 +71,43 @@ export function HealthInspectionClient() {
   const [headReport, setHeadReport] = useState('');
   const [actionTaken, setActionTaken] = useState('');
   const [parentsNotified, setParentsNotified] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // Search state
+  // Search/view state
   const [searchDate, setSearchDate] = useState('');
   const [searchReportedBy, setSearchReportedBy] = useState('');
   const [searchParentsNotified, setSearchParentsNotified] = useState('');
   const [searchResults, setSearchResults] = useState<OhsRecord[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
 
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+        setSchoolId(localStorage.getItem('schoolId'));
+    }
+  }, []);
+
+  const loadAllRecords = useCallback(async () => {
+    setIsLoading(true);
+    setHasSearched(false);
+    try {
+        if (!isFirebaseConfigured) {
+            setSearchResults([]);
+            return;
+        }
+        const records = await fetchOhsRecordsFromFirestore(schoolId || undefined);
+        setSearchResults(records);
+    } catch (e) {
+        console.error(e);
+        toast({ variant: 'destructive', title: "Error", description: "Failed to load OHS records." });
+    } finally {
+        setIsLoading(false);
+    }
+  }, [schoolId, toast]);
+
+  useEffect(() => {
+      loadAllRecords();
+  }, [loadAllRecords]);
 
   const handleNotifiedToChange = (value: string, checked: boolean) => {
     setNotifiedTo(prev =>
@@ -65,35 +128,51 @@ export function HealthInspectionClient() {
 
   const handleSaveRecord = async (event?: FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save record because Firebase is not configured." });
+        return;
+    }
     setIsSubmitting(true);
     const newRecord = {
       incidentDate, reportedBy, compiledBy, notifiedTo,
       ambulanceCalled, headReport, actionTaken, parentsNotified,
     };
-    console.log("Saving OHS record:", newRecord);
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
-    toast({ title: "Record Saved", description: "OHS incident record has been saved (simulated)." });
-    resetForm();
-    setIsSubmitting(false);
+    try {
+        await saveOhsRecordToFirestore(newRecord, schoolId || undefined);
+        toast({ title: "Record Saved", description: "OHS incident record has been saved to Firestore." });
+        resetForm();
+        await loadAllRecords(); // Refresh the list
+    } catch (e) {
+        console.error(e);
+        toast({ variant: 'destructive', title: "Error", description: "Failed to save OHS record." });
+    } finally {
+        setIsSubmitting(false);
+    }
   };
 
   const handleSearchRecords = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setHasSearched(true);
-    setIsSubmitting(true);
-    console.log("Searching OHS records with:", { searchDate, searchReportedBy, searchParentsNotified });
-    await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+    setIsLoading(true);
     
-    setSearchResults([
-      { id: "1", incidentDate: "2024-07-15", reportedBy: "John Doe", compiledBy: "Jane Smith", notifiedTo: ["Police"], ambulanceCalled: true, headReport: "Minor fall in playground.", actionTaken: "First aid administered.", parentsNotified: "Yes" },
-      { id: "2", incidentDate: "2024-07-10", reportedBy: "Alice Brown", compiledBy: "Bob White", notifiedTo: ["Ministry of Education", "Ministry of Health"], ambulanceCalled: false, headReport: "Student felt unwell.", actionTaken: "Sent to sick bay, parents contacted.", parentsNotified: "Yes" },
-    ].filter(record => 
-        (!searchDate || record.incidentDate === searchDate) &&
-        (!searchReportedBy || record.reportedBy.toLowerCase().includes(searchReportedBy.toLowerCase())) &&
-        (!searchParentsNotified || record.parentsNotified === searchParentsNotified)
-    ));
-    toast({ title: "Search Complete", description: "Displaying simulated OHS search results." });
-    setIsSubmitting(false);
+    try {
+        if (!isFirebaseConfigured) throw new Error("Firebase not configured");
+        const allRecords = await fetchOhsRecordsFromFirestore(schoolId || undefined);
+        const filtered = allRecords.filter(record => 
+            (!searchDate || record.incidentDate === searchDate) &&
+            (!searchReportedBy || record.reportedBy.toLowerCase().includes(searchReportedBy.toLowerCase())) &&
+            (!searchParentsNotified || record.parentsNotified === searchParentsNotified)
+        );
+        setSearchResults(filtered);
+        if (filtered.length === 0) {
+             toast({ title: "No Results", description: "No records matched your search." });
+        }
+    } catch (e) {
+        console.error(e);
+        toast({ variant: 'destructive', title: "Search Error", description: "Failed to search records." });
+    } finally {
+        setIsLoading(false);
+    }
   };
 
   const handlePrint = () => {
@@ -126,6 +205,20 @@ export function HealthInspectionClient() {
 
   return (
       <div className="printable-area w-full max-w-3xl mx-auto space-y-8">
+         {!isFirebaseConfigured && (
+            <Card className="bg-amber-50 border-amber-300">
+                <CardHeader>
+                    <CardTitle className="font-headline text-amber-800 flex items-center">
+                        <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <p className="text-amber-700">
+                        The connection to the live Firebase database is not configured. No data can be saved or loaded.
+                    </p>
+                </CardContent>
+            </Card>
+        )}
         <section id="entry-form" className="mb-8 p-4 border border-border rounded-lg shadow-md bg-card">
             <CardHeader className="p-2">
                 <CardTitle className="text-2xl font-headline text-primary mb-4">New OHS Record</CardTitle>
@@ -226,69 +319,69 @@ export function HealthInspectionClient() {
                 </Select>
                 </div>
             </div>
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
+            <Button type="submit" className="w-full" disabled={isLoading}>
                 <SearchIcon className="mr-2 h-5 w-5" />
-                {isSubmitting && hasSearched ? 'Searching...' : 'Search Records'}
+                {isLoading && hasSearched ? 'Searching...' : 'Search Records'}
             </Button>
             </form>
             </CardContent>
         </section>
 
-        {hasSearched && (
-            <section id="preview-section" className="p-4 border border-border rounded-lg shadow-md bg-card">
-                <CardHeader className="p-2">
-                    <CardTitle className="text-2xl font-headline text-primary mb-4">Search Results</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    {searchResults.length > 0 ? (
-                        <div className="overflow-x-auto">
-                        <Table>
-                            <TableHeader>
-                            <TableRow>
-                                <TableHead>Date</TableHead>
-                                <TableHead>Reported By</TableHead>
-                                <TableHead>Compiled By</TableHead>
-                                <TableHead>Notified To</TableHead>
-                                <TableHead>Ambulance</TableHead>
-                                <TableHead>Head Report</TableHead>
-                                <TableHead>Action Taken</TableHead>
-                                <TableHead>Parents</TableHead>
+        <section id="preview-section" className="p-4 border border-border rounded-lg shadow-md bg-card">
+            <CardHeader className="p-2">
+                <CardTitle className="text-2xl font-headline text-primary mb-4">{hasSearched ? "Search Results" : "All Records"}</CardTitle>
+            </CardHeader>
+            <CardContent>
+                {isLoading ? (
+                    <div className="space-y-2"><Skeleton className="h-20 w-full" /><Skeleton className="h-20 w-full" /></div>
+                ) : searchResults.length > 0 ? (
+                    <div className="overflow-x-auto">
+                    <Table>
+                        <TableHeader>
+                        <TableRow>
+                            <TableHead>Date</TableHead>
+                            <TableHead>Reported By</TableHead>
+                            <TableHead>Compiled By</TableHead>
+                            <TableHead>Notified To</TableHead>
+                            <TableHead>Ambulance</TableHead>
+                            <TableHead>Head Report</TableHead>
+                            <TableHead>Action Taken</TableHead>
+                            <TableHead>Parents</TableHead>
+                        </TableRow>
+                        </TableHeader>
+                        <TableBody className="font-body">
+                        {searchResults.map(record => (
+                            <TableRow key={record.id}>
+                            <TableCell>{record.incidentDate}</TableCell>
+                            <TableCell>{record.reportedBy}</TableCell>
+                            <TableCell>{record.compiledBy}</TableCell>
+                            <TableCell>{record.notifiedTo.join(', ')}</TableCell>
+                            <TableCell>{record.ambulanceCalled ? 'Yes' : 'No'}</TableCell>
+                            <TableCell className="max-w-xs truncate">{record.headReport}</TableCell>
+                            <TableCell className="max-w-xs truncate">{record.actionTaken}</TableCell>
+                            <TableCell>{record.parentsNotified}</TableCell>
                             </TableRow>
-                            </TableHeader>
-                            <TableBody className="font-body">
-                            {searchResults.map(record => (
-                                <TableRow key={record.id}>
-                                <TableCell>{record.incidentDate}</TableCell>
-                                <TableCell>{record.reportedBy}</TableCell>
-                                <TableCell>{record.compiledBy}</TableCell>
-                                <TableCell>{record.notifiedTo.join(', ')}</TableCell>
-                                <TableCell>{record.ambulanceCalled ? 'Yes' : 'No'}</TableCell>
-                                <TableCell className="max-w-xs truncate">{record.headReport}</TableCell>
-                                <TableCell className="max-w-xs truncate">{record.actionTaken}</TableCell>
-                                <TableCell>{record.parentsNotified}</TableCell>
-                                </TableRow>
-                            ))}
-                            </TableBody>
-                        </Table>
-                        </div>
-                    ) : (
-                        <Card className="mt-6 bg-muted/30">
-                            <CardHeader>
-                                <CardTitle className="font-headline text-base text-primary flex items-center">
-                                    <AlertCircle className="mr-2 h-5 w-5" />
-                                    No Results Found
-                                </CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                                <p className="font-body text-sm text-foreground">
-                                    No OHS records matched your search criteria.
-                                </p>
-                            </CardContent>
-                        </Card>
-                    )}
-                </CardContent>
-            </section>
-        )}
+                        ))}
+                        </TableBody>
+                    </Table>
+                    </div>
+                ) : (
+                    <Card className="mt-6 bg-muted/30">
+                        <CardHeader>
+                            <CardTitle className="font-headline text-base text-primary flex items-center">
+                                <AlertCircle className="mr-2 h-5 w-5" />
+                                No Results Found
+                            </CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="font-body text-sm text-foreground">
+                                {hasSearched ? "No OHS records matched your search criteria." : "No OHS records have been logged yet."}
+                            </p>
+                        </CardContent>
+                    </Card>
+                )}
+            </CardContent>
+        </section>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 print:hidden">
             <Button onClick={handlePrint} className="w-full sm:w-auto" variant="outline">
