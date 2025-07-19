@@ -23,33 +23,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { PageHeader } from '@/components/layout/page-header';
+import type { ClassroomInventory, EditableInventoryItem } from '@/lib/schemas/classroom-inventory';
 
-// Define a more flexible type for local state editing to handle empty inputs
-type EditableInventoryItem = {
-    id: string;
-    itemName: string;
-    remarks: string;
-    quantityStart: number | '';
-    quantityAdded: number | '';
-    quantityLost: number | '';
-};
-
-type ClassroomInventory = {
-    yearLevel: number;
-    term: string;
-    items: InventoryItem[];
-    lastUpdatedBy: string;
-    updatedAt: string;
-};
-
-type InventoryItem = {
-    id: string;
-    itemName: string;
-    quantityStart: number;
-    quantityAdded: number;
-    quantityLost: number;
-    remarks: string;
-}
 
 const initialInventoryItems: EditableInventoryItem[] = [
     { id: "item-1", itemName: "Textbooks", quantityStart: 120, quantityAdded: 10, quantityLost: 5, remarks: "English and Math" },
