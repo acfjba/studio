@@ -33,6 +33,9 @@ import {
   Bot,
   Settings,
   LayoutGrid,
+  History,
+  UploadCloud,
+  ClipboardList,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -42,6 +45,7 @@ const managementLinks = [{ href: '/dashboard/school-management', icon: Briefcase
 const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
+  { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'Workbook Plan', description: 'Manage and submit your workbook plans.' },
 ];
 const studentServicesLinks = [{ href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.' }];
 const operationsLinks = [
@@ -50,8 +54,12 @@ const operationsLinks = [
   { href: '/dashboard/library', icon: Library, label: 'Library', description: 'Manage the library collection.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
+  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel sheets for processing.' },
 ];
-const analyticsLinks = [{ href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' }];
+const analyticsLinks = [
+    { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' },
+    { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.' },
+];
 const platformLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin', description: 'Manage the entire platform.' },
   { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.' },
@@ -81,7 +89,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" passHref>
+              <Link href="/dashboard" passHref legacyBehavior>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                   Dashboard
                 </NavigationMenuLink>
@@ -153,7 +161,7 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-              <Link href="/dashboard/settings" passHref>
+              <Link href="/dashboard/settings" passHref legacyBehavior>
                 <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
                   Settings
                 </NavigationMenuLink>
