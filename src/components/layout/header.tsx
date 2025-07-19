@@ -104,11 +104,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" passHref>
-                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                  Dashboard
-                </NavigationMenuLink>
-              </Link>
+                <Link href="/dashboard" legacyBehavior passHref>
+                  <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                    Dashboard
+                  </NavigationMenuLink>
+                </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Management</NavigationMenuTrigger>
@@ -176,11 +176,11 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-              <Link href="/dashboard/settings" passHref>
-                <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
-                  Settings
-                </NavigationMenuLink>
-              </Link>
+                <Link href="/dashboard/settings" legacyBehavior passHref>
+                  <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
+                    Settings
+                  </NavigationMenuLink>
+                </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -227,24 +227,23 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
   ({ className, title, children, icon: Icon, href, ...props }, ref) => {
     return (
       <li>
-        <Link href={href!} passHref>
-          <NavigationMenuLink asChild>
-            <a
-              ref={ref}
-              className={cn(
-                'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
-                className,
-              )}
-              {...props}
-            >
-              <div className="flex items-center gap-2 text-sm font-medium leading-none">
-                  {Icon && <Icon className="h-4 w-4"/>}
-                  {title}
-              </div>
-              <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
-            </a>
-          </NavigationMenuLink>
-        </Link>
+        <NavigationMenuLink asChild>
+          <Link
+            href={href!}
+            ref={ref}
+            className={cn(
+              'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
+              className
+            )}
+            {...props}
+          >
+            <div className="flex items-center gap-2 text-sm font-medium leading-none">
+                {Icon && <Icon className="h-4 w-4"/>}
+                {title}
+            </div>
+            <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
+          </Link>
+        </NavigationMenuLink>
       </li>
     );
   },
