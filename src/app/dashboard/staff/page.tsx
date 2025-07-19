@@ -21,7 +21,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { StaffMemberSchema, type StaffMember } from "@/lib/schemas/staff";
+import { StaffMemberSchema, type StaffMember, StaffMemberFormDataSchema } from "@/lib/schemas/staff";
 import { staffData as sampleStaffSeedData } from '@/lib/data';
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
@@ -45,7 +45,7 @@ async function getStaffListFromFirestore(): Promise<StaffMember[]> {
     return staffList;
 }
 
-async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>): Promise<StaffMember> {
+async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>): Promise<StaffMember> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollectionRef = collection(db, 'staff');
     const fullStaffData = {
@@ -58,13 +58,17 @@ async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdA
     return { ...fullStaffData, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
 }
 
-async function updateStaffInFirestore(staffData: StaffMember): Promise<StaffMember> {
+async function updateStaffInFirestore(staffData: Omit<StaffMember, 'createdAt' | 'updatedAt'>): Promise<StaffMember> {
     if (!db || !staffData.id) throw new Error("Firestore is not configured or staff ID is missing.");
     const staffDocRef = doc(db, 'staff', staffData.id);
-    const dataToUpdate: Partial<StaffMember> & { updatedAt: any } = { ...staffData, updatedAt: serverTimestamp() };
-    delete (dataToUpdate as any).id;
-    await updateDoc(staffDocRef, dataToUpdate as any);
-    return { ...staffData, updatedAt: new Date().toISOString() };
+    
+    // Create a new object for update to avoid passing readonly properties.
+    const dataToUpdate: any = { ...staffData, updatedAt: serverTimestamp() };
+    delete dataToUpdate.id; // Don't try to update the document ID
+    delete dataToUpdate.createdAt; // Don't try to update the creation timestamp
+
+    await updateDoc(staffDocRef, dataToUpdate);
+    return { ...staffData, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
 }
 
 async function deleteStaffFromFirestore(staffId: string): Promise<void> {
@@ -81,12 +85,12 @@ export default function StaffRecordsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
-  const addForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>>({
-    resolver: zodResolver(StaffMemberSchema.omit({ id: true, createdAt: true, updatedAt: true, schoolId: true })),
+  const addForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({
+    resolver: zodResolver(StaffMemberFormDataSchema),
   });
 
-  const editForm = useForm<StaffMember>({
-    resolver: zodResolver(StaffMemberSchema),
+  const editForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({
+    resolver: zodResolver(StaffMemberFormDataSchema),
   });
 
   const fetchStaffList = useCallback(async () => {
@@ -119,10 +123,6 @@ export default function StaffRecordsPage() {
       editForm.setValue("status", editingStaff.status);
       editForm.setValue("email", editingStaff.email);
       editForm.setValue("phone", editingStaff.phone || ''); 
-      editForm.setValue("schoolId", editingStaff.schoolId);
-      editForm.setValue("id", editingStaff.id);
-      editForm.setValue("createdAt", editingStaff.createdAt);
-      editForm.setValue("updatedAt", editingStaff.updatedAt);
     }
   }, [editingStaff, editForm]);
 
@@ -132,7 +132,7 @@ export default function StaffRecordsPage() {
     staff.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleAddStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>> = async (data) => {
+  const handleAddStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>> = async (data) => {
     if (!isFirebaseConfigured) {
         const newStaffMember: StaffMember = { ...data, id: `mock-${Date.now()}`, schoolId: 'SCH-MOCK', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
         setStaffList(prev => [...prev, newStaffMember]);
@@ -157,16 +157,17 @@ export default function StaffRecordsPage() {
     setEditingStaff(staff);
   };
 
-  const handleUpdateStaffSubmitHandler: SubmitHandler<StaffMember> = async (data) => {
+  const handleUpdateStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>> = async (data) => {
     if (!editingStaff || !editingStaff.id) return;
      if (!isFirebaseConfigured) {
-        setStaffList(staffList.map(s => s.id === editingStaff.id ? { ...data, updatedAt: new Date().toISOString() } : s));
+        setStaffList(staffList.map(s => s.id === editingStaff.id ? { ...editingStaff, ...data, updatedAt: new Date().toISOString() } : s));
         toast({ title: "Staff Updated (Simulated)", description: `${data.name}'s record has been updated in the local list.` });
         setEditingStaff(null);
         return;
     }
     try {
-        const updatedStaff = await updateStaffInFirestore({ ...data, id: editingStaff.id, createdAt: editingStaff.createdAt });
+        const staffToUpdate = { ...editingStaff, ...data };
+        const updatedStaff = await updateStaffInFirestore(staffToUpdate);
         setStaffList(staffList.map(s => s.id === updatedStaff.id ? updatedStaff : s));
         toast({ title: "Staff Updated", description: `${updatedStaff.name}'s record has been updated in Firestore.` });
         setEditingStaff(null);
@@ -370,7 +371,6 @@ export default function StaffRecordsPage() {
                     </DialogDescription>
                   </DialogHeader>
                   <form onSubmit={editForm.handleSubmit(handleUpdateStaffSubmitHandler)} className="grid gap-4 py-4">
-                    <Input type="hidden" {...editForm.register('id')} />
                     <div className="grid grid-cols-4 items-center gap-4">
                       <Label htmlFor="staffIdEdit" className="text-right col-span-1">Staff ID</Label>
                       <Input id="staffIdEdit" {...editForm.register('staffId')} className="col-span-3" />

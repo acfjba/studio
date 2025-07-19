@@ -1,7 +1,7 @@
 
 import * as z from 'zod';
 
-export const StaffMemberSchema = z.object({
+export const StaffMemberFormDataSchema = z.object({
   staffId: z.string().min(1, 'Staff ID is required.'),
   name: z.string().min(2, 'Name is required.'),
   role: z.string().min(2, 'Role is required.'),
@@ -9,13 +9,13 @@ export const StaffMemberSchema = z.object({
   status: z.string().min(1, 'Status is required.'),
   email: z.string().email('Invalid email address.'),
   phone: z.string().optional(),
-  schoolId: z.string(),
 });
 
-export type StaffMemberFormData = z.infer<typeof StaffMemberSchema>;
+export const StaffMemberSchema = StaffMemberFormDataSchema.extend({
+    id: z.string(),
+    schoolId: z.string(),
+    createdAt: z.string(), // ISO Date String
+    updatedAt: z.string(), // ISO Date String
+});
 
-export type StaffMember = z.infer<typeof StaffMemberSchema> & {
-    id: string;
-    createdAt: string; // ISO Date String
-    updatedAt: string; // ISO Date String
-};
+export type StaffMember = z.infer<typeof StaffMemberSchema>;

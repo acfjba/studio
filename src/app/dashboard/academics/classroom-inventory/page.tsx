@@ -110,6 +110,7 @@ export default function ClassroomInventoryPage() {
       prevItems.map(item => {
         if (item.id === itemId) {
           if (field === 'quantityStart' || field === 'quantityAdded' || field === 'quantityLost') {
+            // Allow empty string or numbers only
             if (value === '' || /^\d*$/.test(value)) {
               return { ...item, [field]: value };
             }

@@ -164,7 +164,7 @@ export default function PrimarySchoolInventoryPage() {
             title="Primary School Inventory"
             description="Manage fixed assets and major supplies for the entire primary school."
         />
-        <Card className="shadow-xl rounded-lg w-full max-w-5xl mx-auto">
+        <Card className="shadow-xl rounded-lg w-full">
           <CardContent className="pt-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 print:hidden">
               <div>
@@ -253,7 +253,7 @@ export default function PrimarySchoolInventoryPage() {
                               <AlertDialogTrigger asChild><Button variant="ghost" size="icon" disabled={!canEdit} title="Remove Item"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                               <AlertDialogContent>
                                   <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently remove the item "{item.itemName}" from the inventory list.</AlertDialogDescription></AlertDialogHeader>
-                                  <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveItem(item.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Yes, Remove Item</AlertDialogAction></AlertDialogFooter>
+                                  <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveItem(item.id)} className="bg-destructive hover:bg-destructive/90">Yes, Remove Item</AlertDialogAction></AlertDialogFooter>
                               </AlertDialogContent>
                             </AlertDialog>
                         </TableCell>
