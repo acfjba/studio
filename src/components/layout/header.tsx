@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React from 'react';
@@ -62,7 +63,7 @@ const operationsLinks = [
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
-  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel sheets for processing.' },
+  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Master Data / Backup', description: 'Download backups of application data.' },
 ];
 const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' },
@@ -97,9 +98,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                <Link href="/dashboard">Dashboard</Link>
-              </NavigationMenuLink>
+              <Link href="/dashboard" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                  Dashboard
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Management</NavigationMenuTrigger>
@@ -167,9 +170,11 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <NavigationMenuLink asChild active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
-                  <Link href="/dashboard/settings">Settings</Link>
-                </NavigationMenuLink>
+                <Link href="/dashboard/settings" legacyBehavior passHref>
+                  <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
+                    Settings
+                  </NavigationMenuLink>
+                </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
