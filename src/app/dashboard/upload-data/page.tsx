@@ -1,177 +1,153 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, type ChangeEvent, type FormEvent } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Database, AlertTriangle, HardDrive } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { UploadCloud, FileSpreadsheet, FileArchive, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { PageHeader } from '@/components/layout/page-header';
 
-export default function MasterDataPage() {
+export default function UploadDataPage() {
+  const [file, setFile] = useState<File | null>(null);
+  const [additionalInfo, setAdditionalInfo] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [isSavingToBrowser, setIsSavingToBrowser] = useState(false);
 
-  const getSampleApplicationData = () => {
-    return {
-      timestamp: new Date().toISOString(),
-      appName: "Digital Platform for Schools - Prototype Backup",
-      data: {
-        sampleStaffRecords: [
-          { id: "1", staffId: "T001", name: "NILESH SHARMA", position: "Head Teacher", email: "nsharma@example.com", phone: "123-456-7890" },
-          { id: "2", staffId: "T002", name: "SENIROSI LEDUA", position: "Teacher", email: "sledua@example.com", phone: "123-456-7891" },
-        ],
-        sampleDisciplinaryRecords: [
-            { id: "rec1", studentName: "Tom Riddle", studentId: "S001", incidentDate: "2024-07-01", issues: ["Bullying"] },
-        ],
-        sampleExamResults: [
-            { id: "ex1", studentName: "Jone Roko", subject: "Numeracy", score: 85, examDate: "2024-03-15" }
-        ],
-        note: "This is a sample backup structure. A real backup would contain comprehensive data from all modules."
-      },
-    };
-  };
-
-  const handleDownloadAllData = async () => {
-    setIsDownloading(true);
-    toast({ title: "Preparing Download", description: "Gathering all application data entries..." });
-
-    await new Promise(resolve => setTimeout(resolve, 1500));
-
-    const allApplicationData = getSampleApplicationData();
-
-    try {
-      const now = new Date();
-      const dateStr = now.toISOString().split('T')[0];
-      const timeStr = now.toTimeString().split(' ')[0].replace(/:/g, '');
-      const filename = `digital_platform_schools_backup_${dateStr}_${timeStr}.json`;
-
-      const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(JSON.stringify(allApplicationData, null, 2))}`;
-      const link = document.createElement("a");
-      link.href = jsonString;
-      link.download = filename;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast({ title: "Download Started", description: `Your data backup file "${filename}" is downloading.` });
-    } catch (error) {
-      console.error("Error creating download:", error);
-      toast({ variant: "destructive", title: "Download Failed", description: "Could not prepare data for download." });
-    } finally {
-      setIsDownloading(false);
+  const handleFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      const selectedFile = event.target.files[0];
+      const allowedTypes = [
+        'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+        'application/vnd.ms-excel', // .xls
+        'application/zip', // .zip
+        'application/x-zip-compressed' // .zip (alternative MIME type)
+      ];
+      if (allowedTypes.includes(selectedFile.type) || selectedFile.name.endsWith('.zip')) {
+        setFile(selectedFile);
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Invalid File Type",
+          description: "Please upload a valid Excel (.xlsx, .xls) or ZIP (.zip) file.",
+        });
+        event.target.value = ''; // Clear the input
+        setFile(null);
+      }
+    } else {
+      setFile(null);
     }
   };
 
-  const handleSaveToBrowserStorage = async () => {
-    setIsSavingToBrowser(true);
-    toast({ title: "Saving Backup...", description: "Saving a copy of your data to the browser's local storage." });
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    if (!file) {
+      toast({
+        variant: "destructive",
+        title: "No File Selected",
+        description: "Please select an Excel or ZIP file to upload.",
+      });
+      return;
+    }
 
+    setIsSubmitting(true);
+    console.log("File to upload:", file);
+    console.log("Additional Information:", additionalInfo);
+
+    // Simulate an upload process
     await new Promise(resolve => setTimeout(resolve, 1500));
 
-    const allApplicationData = getSampleApplicationData();
-
-    try {
-      localStorage.setItem('masterDataBackup', JSON.stringify(allApplicationData));
-      toast({ 
-        title: "Backup Saved Locally", 
-        description: "A backup has been saved to your browser's storage. This backup is only accessible on this device and browser." 
-      });
-    } catch (error) {
-      console.error("Error saving to localStorage:", error);
-       const errorMessage = error instanceof Error && error.message.includes('QuotaExceededError') 
-        ? "Could not save backup. Browser storage is full."
-        : "Could not save backup to browser's local storage.";
-      toast({ 
-        variant: "destructive",
-        title: "Local Backup Failed", 
-        description: errorMessage
-      });
-    } finally {
-      setIsSavingToBrowser(false);
+    setIsSubmitting(false);
+    toast({
+      title: "Upload Successful (Simulated)",
+      description: `File "${file.name}" and additional info have been logged.`,
+    });
+    // Reset form
+    setFile(null);
+    setAdditionalInfo('');
+    // Clear file input visually
+    const fileInput = document.getElementById('fileUploadInput') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.value = '';
     }
   };
 
   return (
     <div className="flex flex-col gap-8">
-      <PageHeader 
-        title="Master Data Management"
-        description="Manage and backup your application's master data."
-      />
-      <Card className="shadow-xl rounded-lg">
-        <CardHeader>
-          <CardTitle className="font-headline text-2xl text-primary flex items-center">
-            <Database className="mr-3 h-7 w-7" />
-            Master Data Actions
-          </CardTitle>
-          <CardDescription className="font-body text-muted-foreground">
-            Use the options below to download a full backup of the application data.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          <section aria-labelledby="data-backup-options-heading">
-            <h2 id="data-backup-options-heading" className="text-xl font-headline text-primary mb-4">Data Backup Options</h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <Card className="bg-card/50">
-                <CardHeader>
-                  <CardTitle className="font-headline text-lg text-primary flex items-center">
-                    <Download className="mr-2 h-5 w-5" />
-                    Download Backup File (JSON)
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="font-body text-sm text-muted-foreground">
-                    Download a complete snapshot of your data as a JSON file. This is the recommended method for creating a permanent, local backup.
-                  </p>
-                  <Button 
-                    onClick={handleDownloadAllData} 
-                    className="w-full"
-                    disabled={isDownloading}
-                  >
-                    {isDownloading ? "Processing..." : "Download Data File"}
-                  </Button>
-                </CardContent>
-              </Card>
+        <PageHeader 
+            title="Upload Data Files"
+            description="Upload your Excel spreadsheets (.xlsx, .xls) or ZIP archives (.zip) along with any relevant notes or descriptions."
+        />
 
-              <Card className="bg-card/50">
-                <CardHeader>
-                  <CardTitle className="font-headline text-lg text-primary flex items-center">
-                    <HardDrive className="mr-2 h-5 w-5" />
-                    Save to Browser Storage
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <p className="font-body text-sm text-muted-foreground">
-                    Save a quick, temporary backup directly to this browser. This data is only accessible on this specific device and browser.
-                  </p>
-                  <Button 
-                    onClick={handleSaveToBrowserStorage} 
-                    className="w-full"
-                    disabled={isSavingToBrowser}
-                  >
-                     {isSavingToBrowser ? "Saving..." : "Save to Browser"}
-                  </Button>
-                </CardContent>
-              </Card>
-            </div>
-            <Card className="mt-6 bg-destructive/10 border-destructive/50">
-              <CardHeader>
-                  <CardTitle className="font-headline text-base text-destructive flex items-center">
-                      <AlertTriangle className="mr-2 h-5 w-5" />
-                      Important Notes on Backups
-                  </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                  <p className="font-body text-sm text-destructive/90">
-                      <strong>Download Backup File:</strong> This is the recommended method for creating a permanent, local backup. You can save this file anywhere on your device, including cloud-synced folders.
-                  </p>
-                  <p className="font-body text-sm text-destructive/90">
-                      <strong>Browser Storage:</strong> This is a temporary backup. Clearing your browser data will delete it. It is not a substitute for a downloaded file backup.
-                  </p>
-              </CardContent>
-            </Card>
-          </section>
-        </CardContent>
-      </Card>
-    </div>
+        <Card className="shadow-xl rounded-lg max-w-2xl mx-auto">
+          <CardHeader>
+            <CardTitle className="font-headline text-xl text-primary flex items-center">
+              <FileSpreadsheet className="mr-2 h-6 w-6" />
+              <FileArchive className="mr-2 h-6 w-6" />
+              Data Upload Form
+            </CardTitle>
+            <CardDescription className="font-body text-muted-foreground">
+              Select your Excel or ZIP file and provide additional details below.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="space-y-2">
+                <Label htmlFor="fileUploadInput" className="font-body font-semibold text-foreground flex items-center">
+                  <UploadCloud className="mr-2 h-5 w-5" />
+                  Excel or ZIP File
+                </Label>
+                <Input
+                  id="fileUploadInput"
+                  type="file"
+                  accept=".xlsx,.xls,.zip"
+                  onChange={handleFileChange}
+                  required
+                  className="font-body file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent/20 file:text-accent-foreground hover:file:bg-accent/30"
+                />
+                {file && <p className="text-sm text-muted-foreground font-body">Selected file: {file.name} ({file.type || 'N/A'})</p>}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="additionalInfo" className="font-body font-semibold text-foreground flex items-center">
+                  <Info className="mr-2 h-5 w-5" />
+                  Additional Information (Optional)
+                </Label>
+                <Textarea
+                  id="additionalInfo"
+                  value={additionalInfo}
+                  onChange={(e) => setAdditionalInfo(e.target.value)}
+                  placeholder="E.g., Source of the data, specific instructions, context for the file..."
+                  className="min-h-[100px] font-body"
+                  rows={4}
+                />
+              </div>
+
+              <Button
+                type="submit"
+                className="w-full font-bold font-body py-2.5 text-base"
+                disabled={isSubmitting || !file}
+              >
+                {isSubmitting ? (
+                  <>
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Submitting...
+                  </>
+                ) : (
+                  <>
+                    <UploadCloud className="mr-2 h-5 w-5" />
+                    Upload Data
+                  </>
+                )}
+              </Button>
+            </form>
+          </CardContent>
+        </Card>
+      </div>
   );
 }

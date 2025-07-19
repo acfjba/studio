@@ -71,7 +71,7 @@ const operationsLinks = [
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.' },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.' },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.' },
-  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Master Data / Backup', description: 'Download backups of application data.' },
+  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.' },
 ];
 const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' },
@@ -106,7 +106,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior passHref>
+              <Link href="/dashboard" passHref legacyBehavior>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    Dashboard
                 </NavigationMenuLink>
@@ -178,7 +178,7 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/dashboard/settings" legacyBehavior passHref>
+                <Link href="/dashboard/settings" passHref legacyBehavior>
                   <NavigationMenuLink className={navigationMenuTriggerStyle()}>
                      Settings
                   </NavigationMenuLink>
