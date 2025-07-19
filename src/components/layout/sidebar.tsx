@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, UserCog, GraduationCap, Library, ShieldCheck, BarChart2, Bot, Contact } from 'lucide-react';
+import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, UserCog, GraduationCap, Library, ShieldCheck, BarChart2, Bot, Contact, HeartHandshake } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
@@ -17,6 +17,10 @@ const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization' },
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics' },
 ];
+
+const studentServicesLinks = [
+    { href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling' },
+]
 
 const operationsLinks = [
     { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory' },
@@ -41,6 +45,7 @@ export function Sidebar() {
   const navSections = [
     { links: managementLinks },
     { links: academicLinks },
+    { links: studentServicesLinks },
     { links: operationsLinks },
     { links: analyticsLinks },
     { links: platformLinks, isLast: true },
