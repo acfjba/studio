@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -495,7 +496,7 @@ export default function HeadTeacherPage() {
                     <Link href="/dashboard/academics/classroom-inventory" passHref>
                         <Button><Boxes className="mr-2 h-4 w-4" /> Go to Classroom Inventory</Button>
                     </Link>
-                    <Link href="/dashboard/academics/exam-summary" passHref>
+                    <Link href="/dashboard/academics/inventory-summary" passHref>
                         <Button variant="outline"><BarChart3 className="mr-2 h-4 w-4" /> View Classroom Summary</Button>
                     </Link>
                     <Link href="/dashboard/inventory" passHref>
@@ -880,3 +881,4 @@ export default function HeadTeacherPage() {
     </TooltipProvider>
   );
 }
+design
