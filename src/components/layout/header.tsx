@@ -36,6 +36,7 @@ import {
   History,
   UploadCloud,
   ClipboardList,
+  Gavel,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -47,7 +48,10 @@ const academicLinks = [
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
   { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'Workbook Plan', description: 'Manage and submit your workbook plans.' },
 ];
-const studentServicesLinks = [{ href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.' }];
+const studentServicesLinks = [
+    { href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.' },
+    { href: '/dashboard/disciplinary', icon: Gavel, label: 'Disciplinary', description: 'Manage disciplinary records.' }
+];
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory', description: 'Track and forecast inventory.' },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.' },
