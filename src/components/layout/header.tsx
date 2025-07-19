@@ -132,7 +132,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior={false} passHref>
+              <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    Dashboard
                 </NavigationMenuLink>
@@ -156,7 +156,7 @@ export function Header() {
              
              {hasAccess(['system-admin']) && (
                 <NavigationMenuItem>
-                  <Link href="/dashboard/platform-management" legacyBehavior={false} passHref>
+                  <Link href="/dashboard/platform-management" legacyBehavior passHref>
                     <NavigationMenuLink active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
                        Platform
                     </NavigationMenuLink>
@@ -230,3 +230,4 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
   },
 );
 ListItem.displayName = 'ListItem';
+
