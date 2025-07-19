@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -13,7 +14,7 @@ import { Gavel, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusC
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { DisciplinaryRecordSchema, type DisciplinaryRecord, type DisciplinaryRecordFormData } from "@/lib/schemas/disciplinary";
+import { DisciplinaryRecordSchema, issueTypes, type DisciplinaryRecord, type DisciplinaryRecordFormData } from "@/lib/schemas/disciplinary";
 import {
   Dialog,
   DialogContent,
@@ -320,7 +321,7 @@ export default function DisciplinaryPage() {
                       control={control}
                       render={({ field }) => (
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-x-4 gap-y-1">
-                          {['Absent', 'Drug', 'Bullying', 'Vandalism', 'Disrespect', 'Other'].map(issue => (
+                          {issueTypes.map(issue => (
                             <div key={issue} className="flex items-center space-x-2">
                               <Checkbox
                                 id={`issue-${issue.toLowerCase()}`}
