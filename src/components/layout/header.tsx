@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { PanelLeft, Search, School, LayoutGrid, FileText, Warehouse, Users, Settings } from 'lucide-react';
+import { PanelLeft, Search, School, LayoutGrid, FileText, Warehouse, Users, Settings, Briefcase, UserCog } from 'lucide-react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -12,9 +12,11 @@ import React from 'react';
 
 const navItems = [
   { href: '/dashboard', icon: LayoutGrid, label: 'Dashboard' },
+  { href: '/dashboard/school-management', icon: Briefcase, label: 'School Management' },
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization' },
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory' },
   { href: '/dashboard/staff', icon: Users, label: 'Staff' },
+  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 
@@ -67,11 +69,11 @@ export function Header() {
                 {index < pathSegments.length - 2 ? (
                   <BreadcrumbLink asChild>
                     <Link href={`/${pathSegments.slice(0, index + 2).join('/')}`}>
-                      {segment.charAt(0).toUpperCase() + segment.slice(1)}
+                      {segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')}
                     </Link>
                   </BreadcrumbLink>
                 ) : (
-                  <BreadcrumbPage>{segment.charAt(0).toUpperCase() + segment.slice(1)}</BreadcrumbPage>
+                  <BreadcrumbPage>{segment.charAt(0).toUpperCase() + segment.slice(1).replace(/-/g, ' ')}</BreadcrumbPage>
                 )}
               </BreadcrumbItem>
             </React.Fragment>

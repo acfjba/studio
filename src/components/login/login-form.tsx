@@ -20,32 +20,39 @@ export function LoginForm() {
   };
 
   return (
-    <Card className="w-full max-w-md">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl font-headline">
-          <School className="h-8 w-8 text-primary" />
-          School Data Insights
+    <Card className="w-full max-w-md mx-auto">
+       <CardHeader className="text-center">
+        <CardTitle className="text-2xl font-headline">
+          Welcome to the Platform
         </CardTitle>
-        <CardDescription>Select your login method and enter your credentials.</CardDescription>
+        <CardDescription>Empowering schools with a modern solution for performance and efficiency.</CardDescription>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="school" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="school">School</TabsTrigger>
-            <TabsTrigger value="admin">System Admin</TabsTrigger>
+            <TabsTrigger value="school">School Login</TabsTrigger>
+            <TabsTrigger value="admin">Admin Login</TabsTrigger>
           </TabsList>
           <TabsContent value="school">
             <form onSubmit={handleLogin} className="grid gap-4 pt-4">
               <div className="grid gap-2">
                 <Label htmlFor="school-id">School ID</Label>
-                <Input id="school-id" placeholder="Enter your school ID" required />
+                <Input id="school-id" placeholder="Enter School ID (e.g., 3046)" required />
+                 <p className="text-xs text-muted-foreground">
+                    System Admins can leave School ID blank or enter one.
+                  </p>
               </div>
               <div className="grid gap-2">
                 <Label htmlFor="school-email">Email</Label>
-                <Input id="school-email" type="email" placeholder="m@example.com" required />
+                <Input id="school-email" type="email" placeholder="Enter your email" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="school-password">Password</Label>
+                 <div className="flex items-center">
+                    <Label htmlFor="school-password">Password</Label>
+                    <a href="#" className="ml-auto inline-block text-sm underline">
+                        Forgot Password?
+                    </a>
+                </div>
                 <Input id="school-password" type="password" required />
               </div>
               <Button type="submit" className="w-full mt-2">
@@ -60,7 +67,12 @@ export function LoginForm() {
                 <Input id="admin-email" type="email" placeholder="admin@system.com" required />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="admin-password">Password</Label>
+                <div className="flex items-center">
+                    <Label htmlFor="admin-password">Password</Label>
+                    <a href="#" className="ml-auto inline-block text-sm underline">
+                        Forgot Password?
+                    </a>
+                </div>
                 <Input id="admin-password" type="password" required />
               </div>
               <Button type="submit" className="w-full mt-2">
