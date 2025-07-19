@@ -10,10 +10,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { PageHeader } from '@/components/layout/page-header';
 
 export default function DashboardPage() {
-  const [currentDateTime, setCurrentDateTime] = useState(new Date());
+  const [currentDateTime, setCurrentDateTime] = useState<Date | null>(null);
   const [schoolId, setSchoolId] = useState<string | null>(null);
 
   useEffect(() => {
+    // Set the initial time on the client
+    setCurrentDateTime(new Date());
+
     const timer = setInterval(() => {
       setCurrentDateTime(new Date());
     }, 1000);
@@ -23,6 +26,7 @@ export default function DashboardPage() {
       setSchoolId(storedSchoolId || "N/A"); 
     }
 
+    // Cleanup the interval on component unmount
     return () => clearInterval(timer);
   }, []);
 
@@ -48,12 +52,18 @@ export default function DashboardPage() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-center">
             <div className="md:col-span-1 flex justify-center">
                  <div className="w-64 h-64 rounded-full border-8 border-primary/20 bg-card shadow-2xl flex flex-col items-center justify-center text-center p-4">
-                    <p className="text-4xl font-bold font-headline text-foreground">
-                        {currentDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
-                    </p>
-                    <p className="text-lg text-muted-foreground mt-2">
-                        {currentDateTime.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
-                    </p>
+                    {currentDateTime ? (
+                        <>
+                            <p className="text-4xl font-bold font-headline text-foreground">
+                                {currentDateTime.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true })}
+                            </p>
+                            <p className="text-lg text-muted-foreground mt-2">
+                                {currentDateTime.toLocaleDateString([], { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
+                            </p>
+                        </>
+                    ) : (
+                        <p className="text-lg text-muted-foreground">Loading time...</p>
+                    )}
                 </div>
             </div>
              <div className="md:col-span-2">
