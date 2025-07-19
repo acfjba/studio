@@ -44,16 +44,16 @@ export default function DashboardPage() {
             </Tooltip>
         </PageHeader>
         
-        <div className="mt-3 inline-block rounded-full bg-muted text-muted-foreground px-4 py-1.5 text-xs shadow-inner">
+        <div className="mt-3 inline-block rounded-full bg-muted text-muted-foreground px-4 py-2 text-lg shadow-inner">
             <div className="flex items-center space-x-3">
               {schoolId && (
                 <div className="flex items-center">
-                  <Building className="mr-1.5 h-3.5 w-3.5" />
+                  <Building className="mr-1.5 h-4 w-4" />
                   <span>School ID: {schoolId}</span>
                 </div>
               )}
               <div className="flex items-center">
-                <CalendarClock className="mr-1.5 h-3.5 w-3.5" />
+                <CalendarClock className="mr-1.5 h-4 w-4" />
                 <span>{currentDateTime || 'Loading date/time...'}</span>
               </div>
             </div>
