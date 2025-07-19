@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import {
@@ -38,7 +38,6 @@ import {
   ClipboardList,
   Gavel,
   BookOpen,
-    DollarSign,
     Building,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -66,16 +65,18 @@ const studentServicesLinks = [
 ];
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/inventory/summary', icon: BarChart2, label: 'Primary Inventory Summary', description: 'View aggregated asset value.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin', 'teacher', 'primary-admin', 'assistant-head-teacher', 'kindergarten'] },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
   { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
 ];
+
 const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
 ];
-const platformLinks = [
+const systemLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
   { href: '/dashboard/platform-management/school-management', icon: Building, label: 'School Management', description: 'View and manage schools.', roles: ['system-admin'] },
   { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
@@ -90,7 +91,7 @@ const allLinks = [
     ...studentServicesLinks.map(l => ({...l, category: "Student Services"})),
     ...operationsLinks.map(l => ({...l, category: "Operations"})),
     ...analyticsLinks.map(l => ({...l, category: "Analytics"})),
-    ...platformLinks.map(l => ({...l, category: "Platform"})),
+    ...systemLinks.map(l => ({...l, category: "Platform"})),
 ];
 
 const navMenuConfig = [
@@ -98,14 +99,16 @@ const navMenuConfig = [
   { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-  { name: 'Platform', links: [...analyticsLinks, ...platformLinks], roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
+  { name: 'Platform', links: [...analyticsLinks, ...systemLinks], roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
 ];
 
 export function Header() {
   const pathname = usePathname();
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
   useEffect(() => {
+    setIsClient(true);
     if (typeof window !== 'undefined') {
       const role = localStorage.getItem('userRole');
       setUserRole(role);
@@ -117,6 +120,17 @@ export function Header() {
     return allowedRoles.includes(userRole);
   };
   
+  if (!isClient) {
+    return (
+      <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+        <div className="flex items-center gap-2 text-lg font-semibold md:text-base">
+          <School className="h-6 w-6 text-primary" />
+          <span className="sr-only">School Data Insights</span>
+        </div>
+      </header>
+    );
+  }
+
   const accessibleNavMenus = navMenuConfig.filter(menu => {
     const hasLinksWithAccess = menu.links.some(link => hasAccess(link.roles));
     return hasLinksWithAccess;
@@ -133,7 +147,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior passHref>
+               <Link href="/dashboard" legacyBehavior passHref>
                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                    Dashboard
                 </NavigationMenuLink>
