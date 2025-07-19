@@ -9,8 +9,9 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useToast } from "@/hooks/use-toast";
-import { Palette, ToggleRight, Bell, Save } from "lucide-react";
+import { Palette, ToggleRight, Bell, Save, Shield } from "lucide-react";
 import { Separator } from '@/components/ui/separator';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function AppSettingsPage() {
     const { toast } = useToast();
@@ -24,8 +25,20 @@ export default function AppSettingsPage() {
     const [featureFlags, setFeatureFlags] = useState({
         libraryModule: true,
         counsellingModule: true,
+        disciplinaryModule: true,
+        healthSafetyModule: true,
+        teacherRatingSystem: true,
         kpiReporting: true,
         aiSummarization: true,
+    });
+    
+    // State for security settings
+    const [securitySettings, setSecuritySettings] = useState({
+        sessionTimeoutMinutes: 30,
+        passwordMinLength: 8,
+        passwordRequireUppercase: true,
+        passwordRequireNumber: true,
+        passwordRequireSymbol: false,
     });
 
     // State for notification settings
@@ -35,6 +48,7 @@ export default function AppSettingsPage() {
         console.log("Saving App Settings (Simulated):", {
             theme: { primaryColor, accentColor, backgroundColor },
             features: featureFlags,
+            security: securitySettings,
             notifications: { notificationEmail }
         });
 
@@ -46,6 +60,10 @@ export default function AppSettingsPage() {
 
     const handleFeatureToggle = (feature: keyof typeof featureFlags) => {
         setFeatureFlags(prev => ({ ...prev, [feature]: !prev[feature] }));
+    };
+
+    const handleSecurityChange = (key: keyof typeof securitySettings, value: string | number | boolean) => {
+        setSecuritySettings(prev => ({ ...prev, [key]: value }));
     };
 
     return (
@@ -85,7 +103,7 @@ export default function AppSettingsPage() {
                             <CardTitle className="flex items-center gap-2 font-headline"><ToggleRight /> Feature Toggles</CardTitle>
                             <CardDescription>Enable or disable major application modules globally.</CardDescription>
                         </CardHeader>
-                        <CardContent className="space-y-4">
+                        <CardContent className="space-y-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                              <div className="flex items-center justify-between p-3 rounded-md border">
                                 <Label htmlFor="ff-library">Library Module</Label>
                                 <Switch id="ff-library" checked={featureFlags.libraryModule} onCheckedChange={() => handleFeatureToggle('libraryModule')} />
@@ -93,6 +111,18 @@ export default function AppSettingsPage() {
                             <div className="flex items-center justify-between p-3 rounded-md border">
                                 <Label htmlFor="ff-counselling">Counselling Module</Label>
                                 <Switch id="ff-counselling" checked={featureFlags.counsellingModule} onCheckedChange={() => handleFeatureToggle('counsellingModule')} />
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-md border">
+                                <Label htmlFor="ff-disciplinary">Disciplinary Module</Label>
+                                <Switch id="ff-disciplinary" checked={featureFlags.disciplinaryModule} onCheckedChange={() => handleFeatureToggle('disciplinaryModule')} />
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-md border">
+                                <Label htmlFor="ff-health-safety">Health & Safety Module</Label>
+                                <Switch id="ff-health-safety" checked={featureFlags.healthSafetyModule} onCheckedChange={() => handleFeatureToggle('healthSafetyModule')} />
+                            </div>
+                            <div className="flex items-center justify-between p-3 rounded-md border">
+                                <Label htmlFor="ff-teacher-rating">Teacher Rating System</Label>
+                                <Switch id="ff-teacher-rating" checked={featureFlags.teacherRatingSystem} onCheckedChange={() => handleFeatureToggle('teacherRatingSystem')} />
                             </div>
                             <div className="flex items-center justify-between p-3 rounded-md border">
                                 <Label htmlFor="ff-kpi">KPI Reporting</Label>
@@ -108,6 +138,52 @@ export default function AppSettingsPage() {
 
                 {/* Side Card */}
                 <div className="lg:col-span-1 space-y-8">
+                     <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 font-headline"><Shield /> Security Settings</CardTitle>
+                        </CardHeader>
+                        <CardContent className="space-y-4">
+                            <div>
+                                <Label htmlFor="session-timeout">Session Timeout (minutes)</Label>
+                                <Input 
+                                    id="session-timeout" 
+                                    type="number" 
+                                    value={securitySettings.sessionTimeoutMinutes} 
+                                    onChange={e => handleSecurityChange('sessionTimeoutMinutes', parseInt(e.target.value, 10))} 
+                                    placeholder="e.g., 30"
+                                />
+                                <p className="text-xs text-muted-foreground mt-1">Users will be logged out after this period of inactivity.</p>
+                            </div>
+                             <div>
+                                <Label>Password Policy</Label>
+                                <div className="space-y-3 p-3 border rounded-md">
+                                    <div>
+                                        <Label htmlFor="password-min-length" className="text-sm">Minimum Length</Label>
+                                        <Input 
+                                            id="password-min-length" 
+                                            type="number" 
+                                            value={securitySettings.passwordMinLength} 
+                                            onChange={e => handleSecurityChange('passwordMinLength', parseInt(e.target.value, 10))}
+                                            min="6"
+                                        />
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox id="password-uppercase" checked={securitySettings.passwordRequireUppercase} onCheckedChange={(checked) => handleSecurityChange('passwordRequireUppercase', !!checked)} />
+                                        <Label htmlFor="password-uppercase" className="font-normal">Require uppercase letter</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox id="password-number" checked={securitySettings.passwordRequireNumber} onCheckedChange={(checked) => handleSecurityChange('passwordRequireNumber', !!checked)} />
+                                        <Label htmlFor="password-number" className="font-normal">Require a number</Label>
+                                    </div>
+                                    <div className="flex items-center space-x-2">
+                                        <Checkbox id="password-symbol" checked={securitySettings.passwordRequireSymbol} onCheckedChange={(checked) => handleSecurityChange('passwordRequireSymbol', !!checked)} />
+                                        <Label htmlFor="password-symbol" className="font-normal">Require a symbol</Label>
+                                    </div>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 font-headline"><Bell /> Notification Settings</CardTitle>
