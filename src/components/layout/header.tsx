@@ -80,6 +80,7 @@ const platformLinks = [
   { href: '/dashboard/platform-management/school-management', icon: Building, label: 'School Management', description: 'View and manage schools.', roles: ['system-admin'] },
   { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
   { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
+  { href: '/dashboard/settings', icon: Settings, label: 'Settings', description: 'View application settings.', roles: ['system-admin'] },
 ];
 
 const allLinks = [
@@ -90,7 +91,6 @@ const allLinks = [
     ...operationsLinks.map(l => ({...l, category: "Operations"})),
     ...analyticsLinks.map(l => ({...l, category: "Analytics"})),
     ...platformLinks.map(l => ({...l, category: "Platform"})),
-    {category: "Settings", href: "/dashboard/settings", icon: Settings, label: "Settings", roles: ['system-admin']},
 ];
 
 const navMenuConfig = [
@@ -98,7 +98,7 @@ const navMenuConfig = [
   { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-  { name: 'Platform', links: [...analyticsLinks, ...platformLinks], roles: ['system-admin', 'head-teacher', 'primary-admin'] },
+  { name: 'Platform', links: [...analyticsLinks, ...platformLinks], roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
 ];
 
 export function Header() {
@@ -154,16 +154,6 @@ export function Header() {
                     </NavigationMenuContent>
                 </NavigationMenuItem>
             ))}
-             
-             {hasAccess(['system-admin']) && (
-                <NavigationMenuItem>
-                  <Link href="/dashboard/platform-management" legacyBehavior passHref>
-                    <NavigationMenuLink active={pathname.startsWith('/dashboard/platform-management')} className={navigationMenuTriggerStyle()}>
-                       Platform
-                    </NavigationMenuLink>
-                  </Link>
-                </NavigationMenuItem>
-             )}
           </NavigationMenuList>
         </NavigationMenu>
       </nav>
