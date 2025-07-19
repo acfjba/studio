@@ -62,11 +62,11 @@ const operationsLinks = [
 ];
 const analyticsLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.' },
-    { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.' },
 ];
 const platformLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin', description: 'Manage the entire platform.' },
   { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.' },
+  { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.' },
 ];
 
 const allLinks = [
@@ -93,12 +93,12 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-              <NavigationMenuLink asChild active={pathname === '/dashboard'}>
-                <Link href="/dashboard" className={navigationMenuTriggerStyle()}>
-                  Dashboard
+                <Link href="/dashboard" legacyBehavior passHref>
+                  <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                    Dashboard
+                  </NavigationMenuLink>
                 </Link>
-              </NavigationMenuLink>
-            </NavigationMenuItem>
+              </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Management</NavigationMenuTrigger>
               <NavigationMenuContent>
@@ -165,11 +165,11 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-               <NavigationMenuLink asChild active={pathname === '/dashboard/settings'}>
-                <Link href="/dashboard/settings" className={navigationMenuTriggerStyle()}>
+               <Link href="/dashboard/settings" legacyBehavior passHref>
+                <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
                   Settings
-                </Link>
-              </NavigationMenuLink>
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
@@ -218,6 +218,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
       <li>
         <NavigationMenuLink asChild>
           <Link
+            href={props.href || '/'}
             ref={ref}
             className={cn(
               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
