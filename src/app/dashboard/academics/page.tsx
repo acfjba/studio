@@ -1,7 +1,7 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Boxes, FileText } from "lucide-react";
+import { BookOpen, Boxes, FileText, ClipboardCheck } from "lucide-react";
 import Link from "next/link";
 
 export default function AcademicsPage() {
@@ -29,6 +29,17 @@ export default function AcademicsPage() {
           <CardContent>
             <Link href="/dashboard/academics/classroom-inventory">
               <Button>Manage Inventory</Button>
+            </Link>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-headline"><ClipboardCheck className="w-5 h-5 text-primary" /> Exam Results</CardTitle>
+            <CardDescription>Record and manage student exam results and grades.</CardDescription>
+          </CardHeader>
+          <CardContent>
+             <Link href="/dashboard/academics/exam-results">
+              <Button>Manage Exam Results</Button>
             </Link>
           </CardContent>
         </Card>

@@ -33,6 +33,45 @@ export const bookData = [
     { id: 'BK-006', title: 'Sapiens: A Brief History of Humankind', author: 'Yuval Noah Harari', genre: 'History', status: 'Checked Out' },
 ];
 
+export const sampleExamResultsData = [
+    {
+      id: 'ER-001',
+      studentId: 'S12345',
+      studentName: 'John Doe',
+      studentYear: '5',
+      examType: 'Mid-Term',
+      subject: 'Mathematics',
+      score: 85,
+      grade: 'A',
+      examDate: '2023-05-15',
+      term: '2',
+      year: '2023',
+      comments: 'Excellent understanding of calculus.',
+      recordedByUserId: 'USR-001',
+      schoolId: 'SCH-001',
+      createdAt: '2023-05-16T10:00:00Z',
+      updatedAt: '2023-05-16T10:00:00Z',
+    },
+    {
+      id: 'ER-002',
+      studentId: 'S67890',
+      studentName: 'Jane Smith',
+      studentYear: '7',
+      examType: 'Final',
+      subject: 'English Literature',
+      score: 92,
+      grade: 'A+',
+      examDate: '2023-11-20',
+      term: '4',
+      year: '2023',
+      comments: 'Outstanding analysis in the final essay.',
+      recordedByUserId: 'USR-002',
+      schoolId: 'SCH-002',
+      createdAt: '2023-11-21T14:30:00Z',
+      updatedAt: '2023-11-21T14:30:00Z',
+    },
+];
+
 export const overviewChartData = [
   { name: 'Jan', total: Math.floor(Math.random() * 5000) + 1000 },
   { name: 'Feb', total: Math.floor(Math.random() * 5000) + 1000 },
