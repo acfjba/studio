@@ -268,9 +268,9 @@ export default function ClassroomInventoryPage() {
               </div>
               <div className="flex flex-wrap gap-2">
                 {canViewSummary && (
-                  <Link href="/dashboard/inventory/summary" passHref>
+                  <Link href="/dashboard/academics/exam-summary" passHref>
                     <Button variant="outline">
-                      <BarChart3 className="mr-2 h-4 w-4" /> View Summary
+                      <BarChart3 className="mr-2 h-4 w-4" /> View Exam Summary
                     </Button>
                   </Link>
                 )}
