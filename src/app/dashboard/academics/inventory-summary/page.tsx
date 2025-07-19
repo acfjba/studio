@@ -226,3 +226,7 @@ export default function InventorySummaryPage() {
                         </Card>
                     </>
                 )}
+            </div>
+        </div>
+    );
+}

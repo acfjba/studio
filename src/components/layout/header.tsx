@@ -46,6 +46,8 @@ import { cn } from '@/lib/utils';
 const managementLinks = [
   { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.' },
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.' },
+  { href: '/dashboard/system-admin', icon: Settings, label: 'System Admin', description: 'Manage the entire platform infrastructure.' },
+  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.' },
 ];
 const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
@@ -104,11 +106,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
              <NavigationMenuItem>
-                <Link href="/dashboard" legacyBehavior passHref>
-                  <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                    Dashboard
-                  </NavigationMenuLink>
-                </Link>
+              <Link href="/dashboard" legacyBehavior passHref>
+                <NavigationMenuLink asChild className={navigationMenuTriggerStyle()} active={pathname === '/dashboard'}>
+                   <a>Dashboard</a>
+                </NavigationMenuLink>
+              </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
               <NavigationMenuTrigger>Management</NavigationMenuTrigger>
@@ -177,8 +179,8 @@ export function Header() {
             </NavigationMenuItem>
              <NavigationMenuItem>
                 <Link href="/dashboard/settings" legacyBehavior passHref>
-                  <NavigationMenuLink active={pathname === '/dashboard/settings'} className={navigationMenuTriggerStyle()}>
-                    Settings
+                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()} active={pathname === '/dashboard/settings'}>
+                     <a>Settings</a>
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
