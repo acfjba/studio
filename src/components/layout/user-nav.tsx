@@ -31,11 +31,11 @@ export function UserNav() {
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <Link href="/dashboard/profile" passHref>
+          <Link href="/dashboard/profile">
             <DropdownMenuItem>Profile</DropdownMenuItem>
           </Link>
           <DropdownMenuItem>Billing</DropdownMenuItem>
-          <Link href="/dashboard/settings" passHref>
+          <Link href="/dashboard/settings">
             <DropdownMenuItem>Settings</DropdownMenuItem>
           </Link>
         </DropdownMenuGroup>

@@ -464,28 +464,28 @@ export default function HeadTeacherPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                    <Link href="/dashboard/staff" passHref>
+                    <Link href="/dashboard/staff">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><UsersRound className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Staff Records</p><p className="text-xs text-muted-foreground">View and manage all staff details.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/invite-teachers" passHref>
+                    <Link href="/dashboard/invite-teachers">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><MailPlus className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">User Management</p><p className="text-xs text-muted-foreground">Invite and manage platform users.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/iwp" passHref>
+                    <Link href="/dashboard/iwp">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><Target className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Individual Work Plan</p><p className="text-xs text-muted-foreground">Manage teacher work plans.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/disciplinary" passHref>
+                    <Link href="/dashboard/disciplinary">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><Gavel className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Disciplinary Records</p><p className="text-xs text-muted-foreground">Access all student disciplinary entries.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/counselling" passHref>
+                    <Link href="/dashboard/counselling">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><HeartHandshake className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Counselling Records</p><p className="text-xs text-muted-foreground">View confidential counselling notes.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/academics/exam-results" passHref>
+                    <Link href="/dashboard/academics/exam-results">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><ClipboardCheck className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Exam Results</p><p className="text-xs text-muted-foreground">Manage and review all exam data.</p></div></Button>
                     </Link>
-                     <Link href="/dashboard/academics/exam-summary" passHref>
+                     <Link href="/dashboard/academics/exam-summary">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><BarChart2Icon className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Exam Summary</p><p className="text-xs text-muted-foreground">View aggregated exam performance.</p></div></Button>
                     </Link>
-                    <Link href="/dashboard/health-safety" passHref>
+                    <Link href="/dashboard/health-safety">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><ShieldAlert className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">OHS Incidents</p><p className="text-xs text-muted-foreground">Oversee all reported OHS incidents.</p></div></Button>
                     </Link>
                 </CardContent>
@@ -499,16 +499,16 @@ export default function HeadTeacherPage() {
                     </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                     <Link href="/dashboard/academics/classroom-inventory" passHref>
+                     <Link href="/dashboard/academics/classroom-inventory">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><Boxes className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Classroom Inventory</p><p className="text-xs text-muted-foreground">Manage supplies for each year level.</p></div></Button>
                     </Link>
-                     <Link href="/dashboard/academics/inventory-summary" passHref>
+                     <Link href="/dashboard/academics/inventory-summary">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><BarChart3 className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Classroom Summary</p><p className="text-xs text-muted-foreground">View aggregated classroom stock.</p></div></Button>
                     </Link>
-                     <Link href="/dashboard/inventory" passHref>
+                     <Link href="/dashboard/inventory">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><Building2 className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Primary Inventory</p><p className="text-xs text-muted-foreground">Manage fixed assets for the school.</p></div></Button>
                     </Link>
-                     <Link href="/dashboard/inventory/summary" passHref>
+                     <Link href="/dashboard/inventory/summary">
                         <Button variant="outline" className="w-full justify-start p-6 text-left h-auto"><BarChart3 className="mr-4 h-6 w-6 text-primary" /><div><p className="font-bold">Primary Summary</p><p className="text-xs text-muted-foreground">View aggregated asset value.</p></div></Button>
                     </Link>
                 </CardContent>
@@ -865,7 +865,7 @@ export default function HeadTeacherPage() {
           <NavItem label="Reports" tabName="reports" icon={FileText} />
           <NavItem label="Teacher Assessment" tabName="assessment" icon={UserCheck} />
         </nav>
-        <Link href="/dashboard" passHref>
+        <Link href="/dashboard">
           <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary mb-2 p-3">
             <Home size={18} className="mr-2" />
             Return to Dashboard
