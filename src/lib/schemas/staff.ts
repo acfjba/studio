@@ -1,7 +1,7 @@
+
 import * as z from 'zod';
 
 export const StaffMemberSchema = z.object({
-  id: z.string(),
   staffId: z.string().min(1, 'Staff ID is required.'),
   name: z.string().min(2, 'Name is required.'),
   role: z.string().min(2, 'Role is required.'),
@@ -10,8 +10,12 @@ export const StaffMemberSchema = z.object({
   email: z.string().email('Invalid email address.'),
   phone: z.string().optional(),
   schoolId: z.string(),
-  createdAt: z.string(), // ISO Date String
-  updatedAt: z.string(), // ISO Date String
 });
 
-export type StaffMember = z.infer<typeof StaffMemberSchema>;
+export type StaffMemberFormData = z.infer<typeof StaffMemberSchema>;
+
+export type StaffMember = z.infer<typeof StaffMemberSchema> & {
+    id: string;
+    createdAt: string; // ISO Date String
+    updatedAt: string; // ISO Date String
+};

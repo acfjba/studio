@@ -1,16 +1,16 @@
+
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Star, Search, User, AlertCircle, Building } from "lucide-react";
+import { Star, Search, AlertCircle, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { sampleStaffSeedData } from '@/lib/data';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -33,7 +33,7 @@ async function fetchTeachersFromBackend(): Promise<Teacher[]> {
   
   return sampleStaffSeedData
     .map(staff => {
-        const rateablePositions = ["teacher", "head teacher", "assistant head teacher"];
+        const rateablePositions = ["teacher", "head-teacher", "assistant-head-teacher"];
         const isRateable = rateablePositions.includes((staff.role || "").toLowerCase());
         return {
             id: staff.id,
@@ -59,6 +59,20 @@ export default function TeachersListPage() {
   const [loggedInSchoolId, setLoggedInSchoolId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   
+  const loadInitialData = useCallback(async () => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+        const fetchedTeachers = await fetchTeachersFromBackend();
+        setTeachers(fetchedTeachers);
+    } catch (err) {
+        setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
+        toast({ variant: "destructive", title: "Error", description: "Could not load teacher data." });
+    } finally {
+        setIsLoading(false);
+    }
+  }, [toast]);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
         const storedSchoolId = localStorage.getItem('schoolId');
@@ -70,22 +84,8 @@ export default function TeachersListPage() {
             setSchoolIdFilter(storedSchoolId);
         }
     }
-    
-    const loadTeachers = async () => {
-      setIsLoading(true);
-      setFetchError(null);
-      try {
-        const fetchedTeachers = await fetchTeachersFromBackend();
-        setTeachers(fetchedTeachers);
-      } catch (err) {
-        setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
-        toast({ variant: "destructive", title: "Error", description: "Could not load teacher data." });
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadTeachers();
-  }, [toast]);
+    loadInitialData();
+  }, [loadInitialData]);
 
   const filteredTeachers = useMemo(() => {
     return teachers.filter(teacher =>
@@ -182,6 +182,15 @@ export default function TeachersListPage() {
                     )}
                   </Card>
                 ))}
+                 {filteredTeachers.length === 0 && (
+                  <Card className="col-span-full bg-muted/30">
+                    <CardContent className="p-6 text-center">
+                        <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+                        <p className="text-lg text-foreground">No Teachers Found</p>
+                        <p className="text-muted-foreground">No rateable teachers match your current search and filter criteria.</p>
+                    </CardContent>
+                  </Card>
+                )}
               </div>
             )}
           </CardContent>

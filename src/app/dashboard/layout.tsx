@@ -1,19 +1,24 @@
+
+'use client';
+
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
+import { usePathname } from 'next/navigation';
 
-export const metadata: Metadata = {
-  title: "School Data Insights Dashboard",
-  description: "Your central hub for school data management.",
-};
+// export const metadata: Metadata = { // Metadata needs to be static or generated in a generateMetadata function
+//   title: "School Data Insights Dashboard",
+//   description: "Your central hub for school data management.",
+// };
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const isPrimaryAdminPage = false; // This logic would be dynamic based on route
+  const pathname = usePathname();
+  const isSystemAdminPage = pathname.startsWith('/dashboard/system-admin');
 
-  if (isPrimaryAdminPage) {
+  if (isSystemAdminPage) {
      return <div className="flex min-h-screen w-full flex-col">{children}</div>;
   }
   

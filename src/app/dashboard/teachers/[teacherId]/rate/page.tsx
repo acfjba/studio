@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -33,8 +34,8 @@ async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<Teache
   const staffMember = simulatedStaffDataStoreForRatingPage.find(staff => staff.id === teacherId);
 
   if (staffMember) {
-    const rateablePositions = ["teacher", "head teacher", "assistant head teacher"];
-    if (rateablePositions.includes((staffMember.role || "").toLowerCase())) {
+    const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
+    if (rateableRoles.includes((staffMember.role || "").toLowerCase())) {
       return {
         id: staffMember.id,
         name: staffMember.name,
@@ -45,7 +46,7 @@ async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<Teache
         email: staffMember.email,
       };
     } else {
-      console.warn(`RateTeacherPage: Staff member ${teacherId} found but is not a rateable position. Position: ${staffMember.position}`);
+      console.warn(`RateTeacherPage: Staff member ${teacherId} found but is not a rateable role. Role: ${staffMember.role}`);
       return null; 
     }
   }

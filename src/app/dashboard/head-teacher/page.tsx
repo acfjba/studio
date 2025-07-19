@@ -508,7 +508,7 @@ export default function HeadTeacherPage() {
                     <Link href="/dashboard/inventory" passHref>
                         <Button><Building2 className="mr-2 h-4 w-4" /> Go to Primary School Inventory</Button>
                     </Link>
-                     <Link href="/dashboard/academics/inventory-summary" passHref>
+                     <Link href="/dashboard/inventory/summary" passHref>
                         <Button variant="outline"><BarChart3 className="mr-2 h-4 w-4" /> View Primary Summary</Button>
                     </Link>
                 </CardContent>
@@ -887,4 +887,3 @@ export default function HeadTeacherPage() {
     </TooltipProvider>
   );
 }
-design
