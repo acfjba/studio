@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Button } from '@/components/ui/button';
-import { PanelLeft, Search, School, LayoutGrid, FileText, Warehouse, Users, Settings, Briefcase, UserCog } from 'lucide-react';
+import { PanelLeft, Search, School, LayoutGrid, FileText, Warehouse, Users, Settings, Briefcase, UserCog, Bot } from 'lucide-react';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -17,6 +17,7 @@ const navItems = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Inventory' },
   { href: '/dashboard/staff', icon: Users, label: 'Staff' },
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin' },
+  { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant' },
   { href: '/dashboard/settings', icon: Settings, label: 'Settings' },
 ];
 

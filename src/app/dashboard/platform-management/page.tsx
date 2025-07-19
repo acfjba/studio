@@ -1,7 +1,8 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { School, Users, Database, Server } from "lucide-react";
+import { School, Users, Database, Server, Bot } from "lucide-react";
+import Link from "next/link";
 
 export default function PlatformManagementPage() {
   return (
@@ -49,6 +50,17 @@ export default function PlatformManagementPage() {
           </CardContent>
         </Card>
       </div>
+       <Card className="mt-4">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 font-headline"><Bot className="w-5 h-5 text-primary" /> AI-Powered Development</CardTitle>
+          <CardDescription>Use the AI Assistant to build, modify, and manage this application by giving it conversational instructions.</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Link href="/dashboard/platform-management/ai-assistant">
+            <Button>Launch AI Assistant</Button>
+          </Link>
+        </CardContent>
+      </Card>
     </div>
   );
 }

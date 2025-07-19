@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, UserCog, GraduationCap, Library, ShieldCheck, BarChart2 } from 'lucide-react';
+import { LayoutGrid, FileText, Warehouse, Users, Settings, School, Briefcase, UserCog, GraduationCap, Library, ShieldCheck, BarChart2, Bot } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { Separator } from '@/components/ui/separator';
@@ -31,6 +31,7 @@ const analyticsLinks = [
 
 const platformLinks = [
   { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Admin' },
+  { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant' },
 ];
 
 export function Sidebar() {
