@@ -106,9 +106,9 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-              <Link href="/dashboard" legacyBehavior passHref>
-                <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                   <a>Dashboard</a>
+              <Link href="/dashboard" legacyBehavior={false} passHref>
+                <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+                   Dashboard
                 </NavigationMenuLink>
               </Link>
             </NavigationMenuItem>
@@ -178,9 +178,9 @@ export function Header() {
               </NavigationMenuContent>
             </NavigationMenuItem>
              <NavigationMenuItem>
-                <Link href="/dashboard/settings" legacyBehavior passHref>
-                  <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                     <a>Settings</a>
+                <Link href="/dashboard/settings" legacyBehavior={false} passHref>
+                  <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                     Settings
                   </NavigationMenuLink>
                 </Link>
             </NavigationMenuItem>
@@ -230,9 +230,9 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
     return (
       <li>
         <NavigationMenuLink asChild>
-          <Link
-            href={href!}
+          <a
             ref={ref}
+            href={href}
             className={cn(
               'block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground',
               className
@@ -244,7 +244,7 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
                 {title}
             </div>
             <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">{children}</p>
-          </Link>
+          </a>
         </NavigationMenuLink>
       </li>
     );
