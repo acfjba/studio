@@ -42,11 +42,13 @@ import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
 
-const managementLinks = [{ href: '/dashboard/school-management', icon: Briefcase, label: 'School Management', description: 'Oversee all school-level tasks.' }];
+const managementLinks = [{ href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.' }];
 const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.' },
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.' },
   { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'Workbook Plan', description: 'Manage and submit your workbook plans.' },
+  { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.' },
+
 ];
 const studentServicesLinks = [
     { href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.' },
