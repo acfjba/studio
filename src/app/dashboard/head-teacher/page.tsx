@@ -873,7 +873,7 @@ export default function HeadTeacherPage() {
         </Link>
         <Button 
             onClick={handleLogout} 
-            className="w-full mt-auto bg-primary text-primary-foreground hover:bg-primary/90 font-semibold py-2.5"
+            className="w-full mt-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold py-2.5"
         >
           <LogOutIcon size={18} className="mr-2"/>
           Logout

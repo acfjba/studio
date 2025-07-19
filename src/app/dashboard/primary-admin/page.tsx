@@ -196,7 +196,7 @@ export default function PrimaryAdminPage() {
             </Link>
             <Button 
                 onClick={handleLogout} 
-                className="w-full mt-auto"
+                className="w-full mt-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
             <LogOut size={18} className="mr-2"/>
             Logout
