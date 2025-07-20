@@ -1,6 +1,7 @@
 
 
 
+
 // This file contains the "seed" data for the application, acting as a mock database.
 // In a real-world scenario, this data would be fetched from a live database like Firestore.
 
