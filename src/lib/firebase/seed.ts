@@ -1,7 +1,7 @@
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
-import { staffData, schoolData, sampleLibraryBooksData, sampleExamResultsData } from '@/lib/data';
+import { staffData, schoolData, sampleLibraryBooksData, sampleExamResultsData, sampleUsersSeedData } from '@/lib/data';
 
 export async function seedDatabase() {
   if (!isFirebaseConfigured || !db) {
@@ -15,18 +15,23 @@ export async function seedDatabase() {
     // Seed Schools
     console.log("Seeding schools...");
     schoolData.forEach(school => {
-      // Create a document reference with the specific ID from our data
       const docRef = doc(db, 'schools', school.id);
-      // Add the set operation to the batch
       batch.set(docRef, school);
     });
 
     // Seed Staff
     console.log("Seeding staff...");
     staffData.forEach(staffMember => {
-      // Use the staff member's ID as the document ID in the 'staff' collection
       const docRef = doc(db, 'staff', staffMember.id);
       batch.set(docRef, staffMember);
+    });
+    
+    // Seed Users
+    console.log("Seeding users...");
+    sampleUsersSeedData.forEach(user => {
+      // Use the user's UID as the document ID in the 'users' collection
+      const docRef = doc(db, 'users', user.uid);
+      batch.set(docRef, user);
     });
 
     // Seed Library Books
