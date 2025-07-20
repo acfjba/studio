@@ -147,7 +147,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-               <Link href="/dashboard" legacyBehavior passHref>
+               <Link href="/dashboard" passHref>
                  <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                     Dashboard
                  </NavigationMenuLink>
@@ -235,3 +235,5 @@ const ListItem = React.forwardRef<React.ElementRef<'a'>, React.ComponentPropsWit
   },
 );
 ListItem.displayName = 'ListItem';
+
+    
