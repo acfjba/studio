@@ -1,3 +1,4 @@
+
 import * as z from 'zod';
 
 export const counsellingTypes = [
@@ -18,19 +19,19 @@ export const CounsellingRecordFormInputSchema = z.object({
   studentDob: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid date of birth is required." }),
   studentYear: z.string().min(1, { message: "Student year level is required." }),
   counsellingType: z.enum(counsellingTypes, { required_error: "Please select a counselling type." }),
-  otherCounsellingType: z.string().optional(),
+  otherCounsellingType: z.string().optional().default(''),
   sessionDetails: z.string().min(20, { message: "Session details must be at least 20 characters long." }),
   actionPlan: z.string().min(10, { message: "Action plan must be at least 10 characters long." }),
   parentsContacted: z.enum(["Yes", "No", "Attempted", "Not Required"], { required_error: "Please select parent contact status." }),
   counsellorName: z.string().min(2, { message: "Counsellor name is required." }),
-}).refine(data => {
-    if (data.counsellingType === 'Other') {
-      return data.otherCounsellingType && data.otherCounsellingType.length > 0;
+}).superRefine((data, ctx) => {
+    if (data.counsellingType === 'Other' && !data.otherCounsellingType?.trim()) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "Please specify the 'Other' counselling type.",
+        path: ["otherCounsellingType"],
+      });
     }
-    return true;
-}, {
-    message: "Please specify the 'Other' counselling type.",
-    path: ["otherCounsellingType"],
 });
 
 export type CounsellingRecordFormData = z.infer<typeof CounsellingRecordFormInputSchema>;

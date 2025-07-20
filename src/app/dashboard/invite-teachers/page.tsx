@@ -69,7 +69,6 @@ export default function UserManagementPage() {
                 ...data,
                 uid: `new_user_${Date.now()}`,
                 displayName: data.name,
-                password: data.password,
             };
             setUsers(prevUsers => [newUser, ...prevUsers]);
 
@@ -128,7 +127,6 @@ export default function UserManagementPage() {
                 ...u,
                 uid: `new_user_${Date.now()}_${Math.random()}`,
                 displayName: u.name,
-                password: u.password,
             }));
             setUsers(prevUsers => [...addedUsers, ...prevUsers]);
             toast({

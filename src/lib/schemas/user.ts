@@ -27,5 +27,3 @@ export type UserWithPassword = UserFormData & {
   uid: string;
   displayName: string;
 };
-
-    
