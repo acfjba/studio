@@ -66,8 +66,9 @@ export const bookData = [
     { id: 'BK-006', title: 'Sapiens: A Brief History of Humankind', author: 'Yuval Noah Harari', genre: 'History', status: 'Checked Out' },
 ];
 
-export const sampleLibraryBooksData: Omit<Book, 'id'>[] = [
+export const sampleLibraryBooksData: Book[] = [
   {
+    id: 'book_1',
     title: 'To Kill a Mockingbird',
     author: 'Harper Lee',
     category: 'Fiction',
@@ -78,6 +79,7 @@ export const sampleLibraryBooksData: Omit<Book, 'id'>[] = [
     updatedAt: '2023-01-10T00:00:00Z',
   },
   {
+    id: 'book_2',
     title: '1984',
     author: 'George Orwell',
     category: 'Dystopian',
@@ -88,6 +90,7 @@ export const sampleLibraryBooksData: Omit<Book, 'id'>[] = [
     updatedAt: '2023-01-11T00:00:00Z',
   },
   {
+    id: 'book_3',
     title: 'A Brief History of Time',
     author: 'Stephen Hawking',
     category: 'Science',
@@ -98,6 +101,7 @@ export const sampleLibraryBooksData: Omit<Book, 'id'>[] = [
     updatedAt: '2023-01-12T00:00:00Z',
   },
    {
+    id: 'book_4',
     title: 'The Great Gatsby',
     author: 'F. Scott Fitzgerald',
     category: 'Fiction',
