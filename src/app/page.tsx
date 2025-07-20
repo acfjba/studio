@@ -1,8 +1,72 @@
 
+"use client";
+
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, Key, User, UserCog, Book } from 'lucide-react';
+import { Briefcase, Key, User, UserCog, Book, MessageSquareQuote } from 'lucide-react';
 import Link from 'next/link';
+import { useFormState } from 'react-dom';
+import { submitFeedback } from './actions';
+import { useToast } from '@/hooks/use-toast';
+import React, { useEffect } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
+
+const initialState = {
+  message: '',
+  error: false,
+};
+
+function FeedbackForm() {
+  const [state, formAction] = useFormState(submitFeedback, initialState);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (state.message) {
+      if (state.error) {
+        toast({
+          variant: 'destructive',
+          title: 'Feedback Error',
+          description: state.message,
+        });
+      } else {
+        toast({
+          title: 'Feedback Submitted',
+          description: state.message,
+        });
+      }
+    }
+  }, [state, toast]);
+
+  return (
+    <Card className="bg-background/80 text-left col-span-1 lg:col-span-2">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+            <MessageSquareQuote className="h-6 w-6 mr-2 text-primary" />
+            Provide Feedback
+        </CardTitle>
+        <CardDescription>
+            Help us improve the platform by sharing your thoughts.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <form action={formAction} className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor="feedback-message">Your Feedback</Label>
+            <Textarea 
+              id="feedback-message"
+              name="message"
+              placeholder="Tell us what you think..."
+              required
+            />
+          </div>
+          <Button type="submit" className="w-full">Submit Feedback</Button>
+        </form>
+      </CardContent>
+    </Card>
+  );
+}
+
 
 export default function HomePage() {
   return (
@@ -25,7 +89,7 @@ export default function HomePage() {
             </p>
         </div>
 
-        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+        <div className="mt-12 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
             <RoleCard 
                 icon={Book}
                 title="Kindergarten"
@@ -41,7 +105,7 @@ export default function HomePage() {
                 title="Head Teacher"
                 description="Oversee teacher submissions, review school-wide reports, and manage administrative tasks."
             />
-            <RoleCard 
+             <RoleCard 
                 icon={UserCog}
                 title="Primary Admin"
                 description="Manage all school operations, including user accounts, academic records, and data reporting."
@@ -51,6 +115,7 @@ export default function HomePage() {
                 title="System Admin"
                 description="Manage the entire platform, including schools, system settings, and permissions."
             />
+             <FeedbackForm />
         </div>
 
         <div className="mt-12">
@@ -80,5 +145,3 @@ function RoleCard({ icon: Icon, title, description }: { icon: React.ElementType,
         </Card>
     );
 }
-
-    
