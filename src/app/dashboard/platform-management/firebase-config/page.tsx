@@ -2,7 +2,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
     CheckCircle, AlertTriangle, ExternalLink, Database, Shield, DatabaseZap, Code, KeyRound, 
@@ -58,7 +58,7 @@ export default function FirebaseConfigPage() {
     };
     
     const firestoreUrl = `https://console.firebase.google.com/project/${projectId}/firestore/databases/-default-/data`;
-    const rulesUrl = `https://console.firebase.google.com/project/${projectId}/firestore/rules`;
+    const authUrl = `https://console.firebase.google.com/project/${projectId}/authentication/users`;
     const functionsUrl = `https://console.firebase.google.com/project/${projectId}/functions`;
 
 
@@ -94,26 +94,67 @@ export default function FirebaseConfigPage() {
                 </CardContent>
             </Card>
 
-            <Card>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2 font-headline">
-                        <Server className="w-5 h-5 text-primary" /> Architecture Overview
-                    </CardTitle>
-                    <CardDescription>
-                        Understanding how your application is structured.
-                    </CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-4 text-sm text-muted-foreground">
-                    <p>
-                        This Next.js application serves as both a **frontend** (what you see in the browser) and a **backend**. The Firebase SDK allows the app to communicate directly and securely with the Firestore database for many tasks.
-                    </p>
-                    <p>
-                        However, for sensitive operations like handling secret API keys, performing administrative tasks (like migrating users), or running scheduled jobs, a dedicated backend environment is required. For this, you would use **Firebase Cloud Functions**.
-                    </p>
-                </CardContent>
-            </Card>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 font-headline">
+                            <Code className="w-5 h-5 text-primary" /> Frontend Connection
+                        </CardTitle>
+                        <CardDescription>
+                            This configuration is used by the Next.js application in the browser. It uses public keys that are safe to expose.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground">The client-side Firebase configuration is located in:</p>
+                        <code className="font-mono text-sm bg-muted p-2 rounded-md block mt-2">src/lib/firebase/config.ts</code>
+                    </CardContent>
+                </Card>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 font-headline">
+                            <Server className="w-5 h-5 text-primary" /> Backend Connection
+                        </CardTitle>
+                        <CardDescription>
+                           A true backend connection with admin rights uses the Firebase Admin SDK within Cloud Functions.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                         <p className="text-sm text-muted-foreground">This code would live in a separate Firebase Functions project, not in your Next.js app code:</p>
+                        <pre className="font-mono text-xs bg-muted p-2 rounded-md block mt-2 overflow-x-auto">
+{`// Example: functions/src/index.ts
+import * as admin from 'firebase-admin';
+
+// SDK is initialized with default credentials
+// provided by the Firebase environment.
+admin.initializeApp();
+
+// Now you can perform admin tasks
+const db = admin.firestore();
+// ... function logic
+`}
+                        </pre>
+                    </CardContent>
+                </Card>
+            </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <Card>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2 font-headline">
+                            <KeyRound className="w-5 h-5 text-primary" /> Authentication
+                        </CardTitle>
+                        <CardDescription>
+                            View and manage users, login providers, and password policies.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <a href={authUrl} target="_blank" rel="noopener noreferrer">
+                            <Button className="w-full" disabled={!projectId}>
+                                Manage Users <ExternalLink className="ml-2 h-4 w-4" />
+                            </Button>
+                        </a>
+                    </CardContent>
+                </Card>
                  <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
@@ -131,25 +172,6 @@ export default function FirebaseConfigPage() {
                         </a>
                     </CardContent>
                 </Card>
-
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 font-headline">
-                            <Shield className="w-5 h-5 text-primary" /> Security Rules
-                        </CardTitle>
-                        <CardDescription>
-                            Define access controls and data validation for your database in the Firebase Console.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <a href={rulesUrl} target="_blank" rel="noopener noreferrer">
-                            <Button className="w-full" disabled={!projectId}>
-                                Edit Security Rules <ExternalLink className="ml-2 h-4 w-4" />
-                            </Button>
-                        </a>
-                    </CardContent>
-                </Card>
-
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
@@ -174,15 +196,15 @@ export default function FirebaseConfigPage() {
                         <DatabaseZap className="w-5 h-5 text-primary" /> Database Seeding
                     </CardTitle>
                     <CardDescription>
-                           Populate your database with initial sample data for testing and demonstration.
+                           Populate your database with initial sample data for testing and demonstration. This will write to both `users` and `staff` collections.
                         </CardDescription>
                 </CardHeader>
-                <CardContent>
+                <CardFooter>
                         <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
                            {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                            {isSeeding ? "Seeding..." : "Seed Database"}
                         </Button>
-                </CardContent>
+                </CardFooter>
             </Card>
         </div>
     );
