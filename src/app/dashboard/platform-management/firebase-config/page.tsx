@@ -6,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { 
     CheckCircle, AlertTriangle, ExternalLink, Database, Shield, DatabaseZap, Code, KeyRound, 
-    Loader2 
+    Loader2, Server, CloudCog
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -59,6 +59,8 @@ export default function FirebaseConfigPage() {
     
     const firestoreUrl = `https://console.firebase.google.com/project/${projectId}/firestore/databases/-default-/data`;
     const rulesUrl = `https://console.firebase.google.com/project/${projectId}/firestore/rules`;
+    const functionsUrl = `https://console.firebase.google.com/project/${projectId}/functions`;
+
 
     return (
         <div className="flex flex-col gap-8">
@@ -85,10 +87,29 @@ export default function FirebaseConfigPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Firebase Not Configured</AlertTitle>
                             <AlertDescription>
-                                The application cannot connect to Firebase. Please ensure your project credentials are correctly set in the <code className="font-mono">.env</code> file at the root of the project.
+                                The application cannot connect to Firebase. Please ensure your project credentials are correctly set in the <code className="font-mono">next.config.ts</code> file.
                             </AlertDescription>
                         </Alert>
                     )}
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
+                    <CardTitle className="flex items-center gap-2 font-headline">
+                        <Server className="w-5 h-5 text-primary" /> Architecture Overview
+                    </CardTitle>
+                    <CardDescription>
+                        Understanding how your application is structured.
+                    </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4 text-sm text-muted-foreground">
+                    <p>
+                        This Next.js application serves as both a **frontend** (what you see in the browser) and a **backend**. The Firebase SDK allows the app to communicate directly and securely with the Firestore database for many tasks.
+                    </p>
+                    <p>
+                        However, for sensitive operations like handling secret API keys, performing administrative tasks (like migrating users), or running scheduled jobs, a dedicated backend environment is required. For this, you would use **Firebase Cloud Functions**.
+                    </p>
                 </CardContent>
             </Card>
 
@@ -129,47 +150,38 @@ export default function FirebaseConfigPage() {
                     </CardContent>
                 </Card>
 
-                 <Card>
+                <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
-                            <DatabaseZap className="w-5 h-5 text-primary" /> Database Seeding
+                            <CloudCog className="w-5 h-5 text-primary" /> Cloud Functions
                         </CardTitle>
                         <CardDescription>
-                           Populate your database with initial sample data for testing and demonstration.
+                            For advanced backend logic, manage your serverless functions in the Firebase Console.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
-                           {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                           {isSeeding ? "Seeding..." : "Seed Database"}
-                        </Button>
+                         <a href={functionsUrl} target="_blank" rel="noopener noreferrer">
+                            <Button className="w-full" disabled={!projectId}>
+                                Manage Functions <ExternalLink className="ml-2 h-4 w-4" />
+                            </Button>
+                        </a>
                     </CardContent>
                 </Card>
             </div>
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline">
-                        <Code className="w-5 h-5 text-primary" /> Configuration Files
+                        <DatabaseZap className="w-5 h-5 text-primary" /> Database Seeding
                     </CardTitle>
                     <CardDescription>
-                        Your Firebase credentials and initialization logic are located in these project files.
-                    </CardDescription>
+                           Populate your database with initial sample data for testing and demonstration.
+                        </CardDescription>
                 </CardHeader>
-                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                   <div className="flex items-center gap-3 p-3 rounded-md bg-muted/50 border">
-                        <KeyRound className="h-6 w-6 text-amber-600" />
-                        <div>
-                            <p className="font-semibold">.env</p>
-                            <p className="text-xs text-muted-foreground">Stores your secret credentials. Located in the project root.</p>
-                        </div>
-                   </div>
-                   <div className="flex items-center gap-3 p-3 rounded-md bg-muted/50 border">
-                        <Code className="h-6 w-6 text-blue-600" />
-                        <div>
-                            <p className="font-semibold">src/lib/firebase/config.ts</p>
-                            <p className="text-xs text-muted-foreground">Initializes the connection to Firebase using credentials from .env.</p>
-                        </div>
-                   </div>
+                <CardContent>
+                        <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
+                           {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                           {isSeeding ? "Seeding..." : "Seed Database"}
+                        </Button>
                 </CardContent>
             </Card>
         </div>
