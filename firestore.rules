@@ -1,0 +1,81 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Default to locked down
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Allow authenticated users to read and write their own data in most collections.
+    // This is a basic rule. For production, you would want more granular control
+    // based on user roles (e.g., only head-teachers can write to certain fields).
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    // Function to check if the user is the owner of the document
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // School data can be read by any authenticated user
+    match /schools/{schoolId} {
+      allow read: if isAuthenticated();
+      // Write access should be restricted to admins in a real app
+      allow write: if isAuthenticated(); 
+    }
+
+    // Staff data can be read by any authenticated user
+    match /staff/{staffId} {
+      allow read: if isAuthenticated();
+       // Write access should be restricted to admins in a real app
+      allow write: if isAuthenticated();
+    }
+
+    // Books can be read by any authenticated user
+    match /books/{bookId} {
+      allow read: if isAuthenticated();
+      // Write access should be restricted to librarians/admins
+      allow write: if isAuthenticated(); 
+    }
+
+    // Transactions can be read by any authenticated user
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated();
+      // Write access should be restricted to librarians/admins
+      allow write: if isAuthenticated(); 
+    }
+
+    // Disciplinary records can be created by an authenticated user.
+    // Only the user who created the record can read or update it.
+    match /disciplinary/{recordId} {
+      allow read, update: if isAuthenticated() && isOwner(resource.data.userId);
+      allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+      allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // Counselling records have the same rules as disciplinary records.
+    match /counselling/{recordId} {
+       allow read, update: if isAuthenticated() && isOwner(resource.data.userId);
+       allow create: if isAuthenticated() && isOwner(request.resource.data.userId);
+       allow delete: if isAuthenticated() && isOwner(resource.data.userId);
+    }
+
+    // OHS records can be created by any authenticated user.
+    match /ohs/{recordId} {
+      allow read, create: if isAuthenticated();
+      // Only admins should be able to update/delete
+      allow update, delete: if isAuthenticated();
+    }
+    
+    // Exam results can be created by authenticated users.
+    match /examResults/{recordId} {
+      allow read, create: if isAuthenticated();
+       // Only the creator or an admin should update/delete
+      allow update, delete: if isAuthenticated();
+    }
+  }
+}
