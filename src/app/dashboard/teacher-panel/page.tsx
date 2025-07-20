@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -51,7 +52,7 @@ export default function TeacherPanelPage() {
                   </Button>
               </TooltipTrigger>
               <TooltipContent>
-                  <p className="max-w-xs">This is your dedicated panel with quick access to all essential teaching modules.</p>
+                  <p className="max-w-xs">This is your dedicated navigation hub. From here, you can access all the tools you need for planning, record-keeping, and reporting. The main header provides links back to the main dashboard.</p>
               </TooltipContent>
           </Tooltip>
         </PageHeader>

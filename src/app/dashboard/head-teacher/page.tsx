@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -865,12 +864,19 @@ export default function HeadTeacherPage() {
           <NavItem label="Reports" tabName="reports" icon={FileText} />
           <NavItem label="Teacher Assessment" tabName="assessment" icon={UserCheck} />
         </nav>
-        <Link href="/dashboard">
-          <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary mb-2 p-3">
-            <Home size={18} className="mr-2" />
-            Return to Dashboard
-          </Button>
-        </Link>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Link href="/dashboard">
+              <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary mb-2 p-3">
+                <Home size={18} className="mr-2" />
+                Return to Dashboard
+              </Button>
+            </Link>
+          </TooltipTrigger>
+          <TooltipContent side="right">
+            <p>Go back to the main user dashboard.</p>
+          </TooltipContent>
+        </Tooltip>
         <Button 
             onClick={handleLogout} 
             className="w-full mt-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold py-2.5"

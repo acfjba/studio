@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -188,12 +189,19 @@ export default function PrimaryAdminPage() {
                 <NavItem key={item.section} {...item} />
             ))}
             </nav>
-            <Link href="/dashboard">
-            <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:bg-accent/50 mb-2 p-3">
-                <Home size={18} className="mr-2" />
-                Return to Dashboard
-            </Button>
-            </Link>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Link href="/dashboard">
+                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:bg-accent/50 mb-2 p-3">
+                    <Home size={18} className="mr-2" />
+                    Return to Dashboard
+                  </Button>
+                </Link>
+              </TooltipTrigger>
+              <TooltipContent side="right">
+                <p>Go back to the main user dashboard.</p>
+              </TooltipContent>
+            </Tooltip>
             <Button 
                 onClick={handleLogout} 
                 className="w-full mt-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
