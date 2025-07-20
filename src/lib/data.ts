@@ -5,6 +5,7 @@
 
 import type { StaffMember } from './schemas/staff';
 import type { UserWithPassword } from './schemas/user';
+import type { Book } from './schemas/library';
 
 
 export const schoolData = [
@@ -64,6 +65,50 @@ export const bookData = [
     { id: 'BK-005', title: 'The Diary of a Young Girl', author: 'Anne Frank', genre: 'Biography', status: 'Available' },
     { id: 'BK-006', title: 'Sapiens: A Brief History of Humankind', author: 'Yuval Noah Harari', genre: 'History', status: 'Checked Out' },
 ];
+
+export const sampleLibraryBooksData: Omit<Book, 'id'>[] = [
+  {
+    title: 'To Kill a Mockingbird',
+    author: 'Harper Lee',
+    category: 'Fiction',
+    isbn: '978-0-06-112008-4',
+    totalCopies: 5,
+    availableCopies: 3,
+    createdAt: '2023-01-10T00:00:00Z',
+    updatedAt: '2023-01-10T00:00:00Z',
+  },
+  {
+    title: '1984',
+    author: 'George Orwell',
+    category: 'Dystopian',
+    isbn: '978-0-452-28423-4',
+    totalCopies: 3,
+    availableCopies: 0,
+    createdAt: '2023-01-11T00:00:00Z',
+    updatedAt: '2023-01-11T00:00:00Z',
+  },
+  {
+    title: 'A Brief History of Time',
+    author: 'Stephen Hawking',
+    category: 'Science',
+    isbn: '978-0-553-38016-3',
+    totalCopies: 4,
+    availableCopies: 4,
+    createdAt: '2023-01-12T00:00:00Z',
+    updatedAt: '2023-01-12T00:00:00Z',
+  },
+   {
+    title: 'The Great Gatsby',
+    author: 'F. Scott Fitzgerald',
+    category: 'Fiction',
+    isbn: '978-0-7432-7356-5',
+    totalCopies: 6,
+    availableCopies: 5,
+    createdAt: '2023-01-13T00:00:00Z',
+    updatedAt: '2023-01-13T00:00:00Z',
+  },
+];
+
 
 export const sampleExamResultsData = [
     {

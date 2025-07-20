@@ -13,7 +13,7 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, Legend, CartesianGrid, Cell } fro
 import { 
   LogOut, Home, Users, Mail, Info, AlertTriangle, Loader2, Settings, PlusCircle, Trash2,
   DatabaseZap, RefreshCw, Lock, Edit, Printer, HelpCircle, CircleUserRound, History as HistoryIcon, Upload,
-  KeyRound, ShieldCheck, Bot, Wifi, Server, Building
+  KeyRound, ShieldCheck, Bot, Wifi, Server, Building, Database
 } from 'lucide-react';
 import {
   Dialog,
@@ -38,6 +38,8 @@ import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
+import { isFirebaseConfigured } from '@/lib/firebase/config';
+import { seedDatabase } from '@/lib/firebase/seed';
 
 
 interface AdminMetrics {
@@ -336,14 +338,29 @@ export default function PlatformManagementPage() {
   };
 
   const handleSeedData = async () => {
-    setIsManagingData(true);
-    toast({ title: "Seeding Data...", description: "Connecting to the server to seed the database." });
-    
-    // Simulating for now.
-    await new Promise(resolve => setTimeout(resolve, 2000));
-    toast({ title: "Database Seeded (Simulated)", description: "Sample data has been loaded." });
-    
-    setIsManagingData(false);
+      if (!isFirebaseConfigured) {
+          toast({
+              variant: "destructive",
+              title: "Firebase Not Configured",
+              description: "Please configure your Firebase credentials in the project to seed the database.",
+          });
+          return;
+      }
+      if (!window.confirm("Are you sure you want to seed the database? This may overwrite existing data with the same IDs.")) {
+          return;
+      }
+      setIsManagingData(true);
+      toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
+      
+      try {
+          await seedDatabase();
+          toast({ title: "Database Seeded Successfully", description: "Sample data has been loaded into Firestore." });
+      } catch (error) {
+          console.error("Error seeding database:", error);
+          toast({ variant: "destructive", title: "Seeding Failed", description: "Could not seed the database. Check console for errors." });
+      }
+      
+      setIsManagingData(false);
   };
 
   const handleCreateGroup = () => {
@@ -782,6 +799,30 @@ export default function PlatformManagementPage() {
                                 Launch Gemini AI Assistant
                             </Button>
                         </Link>
+                    </CardContent>
+                </Card>
+            </section>
+
+            <section aria-labelledby="data-management-section" className="mb-8">
+                 <Card className="shadow-lg h-full">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-xl text-primary flex items-center">
+                            <DatabaseZap className="mr-2 h-6 w-6" />
+                            Data Management
+                        </CardTitle>
+                        <CardDescription className="text-sm text-muted-foreground">
+                           Use these tools to manage the Firestore database.
+                        </CardDescription>
+                    </CardHeader>
+                    <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <Button onClick={handleSeedData} disabled={isManagingData} variant="outline">
+                            {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
+                            Seed Database
+                        </Button>
+                        <Button onClick={handleClearData} disabled={isManagingData} variant="destructive">
+                            {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                            Clear All Data
+                        </Button>
                     </CardContent>
                 </Card>
             </section>
