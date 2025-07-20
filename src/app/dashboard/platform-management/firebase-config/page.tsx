@@ -19,6 +19,7 @@ import { seedDatabase } from '@/lib/firebase/seed';
 export default function FirebaseConfigPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
     const [isSeeding, setIsSeeding] = useState(false);
+    const [isClearing, setIsClearing] = useState(false);
     const { toast } = useToast();
 
     useEffect(() => {
@@ -55,16 +56,32 @@ export default function FirebaseConfigPage() {
         }
     };
     
-    const firestoreUrl = `https://console.firebase.google.com/project/${projectId}/firestore/databases/-default-/data`;
-    const authUrl = `https://console.firebase.google.com/project/${projectId}/authentication/users`;
-    const functionsUrl = `https://console.firebase.google.com/project/${projectId}/functions`;
+    const handleClearData = async () => {
+        if (!isFirebaseConfigured) {
+            toast({ variant: "destructive", title: "Action Disabled" });
+            return;
+        }
+        if (!window.confirm("This will delete all data in your Firestore database. This is irreversible. Are you sure?")) {
+            return;
+        }
+        setIsClearing(true);
+        toast({ title: "Clearing Database...", description: "This is a simulation. In a real app, this would be a high-privilege operation.", variant: "destructive" });
+        await new Promise(res => setTimeout(res, 2000));
+        toast({ title: "Database Cleared (Simulated)", description: "The database has been cleared." });
+        setIsClearing(false);
+    };
+    
+    const firestoreUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/databases/-default-/data` : '#';
+    const authUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/authentication/users` : '#';
+    const functionsUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/functions` : '#';
+    const rulesUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/rules` : '#';
 
 
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="Firebase Configuration Dashboard"
-                description="Monitor your Firebase connection and manage data."
+                title="Firebase Dashboard"
+                description="Monitor your Firebase connection, manage data, and access your project console."
             />
 
             <Card>
@@ -77,7 +94,7 @@ export default function FirebaseConfigPage() {
                              <CheckCircle className="h-4 w-4 text-green-600" />
                             <AlertTitle className="text-green-800 font-bold">Successfully Connected to Firebase</AlertTitle>
                             <AlertDescription className="text-green-700">
-                                The application is configured and connected to your Firebase project: <strong className="font-mono">{projectId || "Loading..."}</strong>.
+                                This web application is configured to connect to your Firebase project: <strong className="font-mono">{projectId || "Loading..."}</strong>.
                             </AlertDescription>
                         </Alert>
                     ) : (
@@ -85,27 +102,32 @@ export default function FirebaseConfigPage() {
                             <AlertTriangle className="h-4 w-4" />
                             <AlertTitle>Firebase Not Configured</AlertTitle>
                             <AlertDescription>
-                                The application cannot connect to Firebase. Please ensure your project credentials are correctly set in the <code className="font-mono">next.config.ts</code> file.
+                                The application cannot connect to Firebase. Please ensure your project credentials are correctly set in the <code className="font-mono">next.config.ts</code> file and that the .env file is present.
                             </AlertDescription>
                         </Alert>
                     )}
                 </CardContent>
             </Card>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
-                            <KeyRound className="w-5 h-5 text-primary" /> Authentication
+                            <Code className="w-5 h-5 text-primary" /> Frontend Connection
                         </CardTitle>
                         <CardDescription>
-                            View and manage users, login providers, and password policies.
+                            The keys in <code className="font-mono text-xs">src/lib/firebase/config.ts</code> are for the client-side SDK. They allow the browser to securely talk to Firestore, protected by your security rules.
                         </CardDescription>
                     </CardHeader>
-                    <CardContent>
+                     <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                         <a href={authUrl} target="_blank" rel="noopener noreferrer">
-                            <Button className="w-full" disabled={!projectId}>
-                                Manage Users <ExternalLink className="ml-2 h-4 w-4" />
+                            <Button className="w-full" disabled={!projectId} variant="outline">
+                                <KeyRound className="mr-2 h-4 w-4" /> Manage Users
+                            </Button>
+                        </a>
+                        <a href={firestoreUrl} target="_blank" rel="noopener noreferrer">
+                            <Button className="w-full" disabled={!projectId} variant="outline">
+                                <Database className="mr-2 h-4 w-4" /> View Database
                             </Button>
                         </a>
                     </CardContent>
@@ -113,33 +135,16 @@ export default function FirebaseConfigPage() {
                  <Card>
                     <CardHeader>
                         <CardTitle className="flex items-center gap-2 font-headline">
-                            <Database className="w-5 h-5 text-primary" /> Firestore Database
+                            <Server className="w-5 h-5 text-primary" /> Backend Connection
                         </CardTitle>
                         <CardDescription>
-                            View and manage your live application data directly in the Firebase Console.
+                           A secure backend connection with admin rights is handled by <strong className="text-foreground">Firebase Cloud Functions</strong>. These are separate from this web app and run on Google's servers.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <a href={firestoreUrl} target="_blank" rel="noopener noreferrer">
+                        <a href={functionsUrl} target="_blank" rel="noopener noreferrer">
                             <Button className="w-full" disabled={!projectId}>
-                                Open Database <ExternalLink className="ml-2 h-4 w-4" />
-                            </Button>
-                        </a>
-                    </CardContent>
-                </Card>
-                <Card>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2 font-headline">
-                            <CloudCog className="w-5 h-5 text-primary" /> Cloud Functions
-                        </CardTitle>
-                        <CardDescription>
-                            For advanced backend logic, manage your serverless functions in the Firebase Console.
-                        </CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                         <a href={functionsUrl} target="_blank" rel="noopener noreferrer">
-                            <Button className="w-full" disabled={!projectId}>
-                                Manage Functions <ExternalLink className="ml-2 h-4 w-4" />
+                                Manage Cloud Functions <ExternalLink className="ml-2 h-4 w-4" />
                             </Button>
                         </a>
                     </CardContent>
@@ -148,18 +153,22 @@ export default function FirebaseConfigPage() {
              <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2 font-headline">
-                        <DatabaseZap className="w-5 h-5 text-primary" /> Database Seeding
+                        <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
                     </CardTitle>
                     <CardDescription>
-                           Populate your database with initial sample data for testing and demonstration. This will write to `users`, `staff`, `schools`, `books`, and `examResults` collections.
+                           Use these actions to manage the data in your Firestore database for testing and demonstration purposes.
                         </CardDescription>
                 </CardHeader>
-                <CardFooter>
-                        <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
+                <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                     <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
                            {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                            {isSeeding ? "Seeding..." : "Seed Database"}
                         </Button>
-                </CardFooter>
+                     <Button className="w-full" onClick={handleClearData} disabled={isClearing || !isFirebaseConfigured} variant="destructive">
+                           {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                           {isClearing ? "Clearing..." : "Clear All Data (Simulated)"}
+                        </Button>
+                </CardContent>
             </Card>
         </div>
     );
