@@ -1,7 +1,7 @@
 // src/lib/firebase/seed.ts
 import { writeBatch, collection, doc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
-import { staffData as sampleStaffSeedData, schoolData, sampleLibraryBooksData } from '@/lib/data';
+import { staffData as sampleStaffSeedData, schoolData, sampleLibraryBooksData, sampleExamResultsData } from '@/lib/data';
 
 export async function seedDatabase() {
   if (!isFirebaseConfigured || !db) {
@@ -11,33 +11,36 @@ export async function seedDatabase() {
   const batch = writeBatch(db);
 
   // Seed Schools
-  const schoolsCollection = collection(db, 'schools');
   schoolData.forEach(school => {
-    const docRef = doc(schoolsCollection, school.id);
+    const docRef = doc(db, 'schools', school.id);
     batch.set(docRef, school);
   });
 
   // Seed Staff
-  const staffCollection = collection(db, 'staff');
   sampleStaffSeedData.forEach(staff => {
     const { id, ...staffDetails } = staff;
-    const docRef = doc(staffCollection, id);
+    const docRef = doc(db, 'staff', id);
     batch.set(docRef, staffDetails);
   });
 
   // Seed Library Books
-  const booksCollection = collection(db, 'books');
   sampleLibraryBooksData.forEach(book => {
       const { id, ...bookDetails } = book;
-      const docRef = doc(booksCollection, id);
+      const docRef = doc(db, 'books', id);
       batch.set(docRef, bookDetails);
+  });
+
+  // Seed Exam Results
+  sampleExamResultsData.forEach(result => {
+      const { id, ...resultDetails } = result;
+      const docRef = doc(db, 'examResults', id);
+      batch.set(docRef, resultDetails);
   });
   
   // You can add more collections to seed here, for example:
   // - Counselling records
   // - Disciplinary records
   // - OHS records
-  // - Exam Results
   // etc.
 
   // Commit the batch
