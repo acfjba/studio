@@ -78,6 +78,7 @@ const platformLinks = [
     { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/school-management', icon: Building, label: 'School Management', description: 'View and manage schools.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
+    { href: '/dashboard/platform-management/app-settings', icon: Settings, label: 'App Settings', description: 'Configure system-wide settings.', roles: ['system-admin'] },
     { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
     { href: '/dashboard/settings', icon: Settings, label: 'Settings', description: 'View application settings.', roles: ['system-admin'] },
 ];
