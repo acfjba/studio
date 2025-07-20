@@ -2,7 +2,8 @@
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import type { ChangeEvent, FormEvent } from 'react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -10,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Gavel, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusCircle, Mail, AlertTriangle } from "lucide-react";
+import { Gavel, Search as SearchIcon, Printer, AlertCircle, Edit3, Trash2, PlusCircle, Mail, AlertTriangle, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -231,8 +232,8 @@ export default function DisciplinaryPage() {
     }
   };
 
-  const handleSearchRecords = (event?: React.FormEvent<HTMLFormElement>) => {
-    event?.preventDefault();
+  const handleSearchRecords = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
     setIsSearching(true);
     setHasSearched(true); 
     
@@ -251,10 +252,11 @@ export default function DisciplinaryPage() {
     }, 300);
   };
   
-  const handlePrint = (area: 'results' | 'form') => {
-    const title = area === 'results' ? "Printing Results..." : "Printing Form...";
-    const description = "Use your browser's print dialog to save as PDF or print.";
-    toast({ title, description });
+  const handlePrint = () => {
+    toast({
+      title: "Printing...",
+      description: "Use your browser's print dialog to save as PDF or print.",
+    });
     window.print();
   };
 
@@ -431,7 +433,7 @@ export default function DisciplinaryPage() {
                 </form>
               </div>
               <DialogFooter className="pt-3 print:hidden flex-wrap justify-center sm:justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => handlePrint('form')}>
+                <Button type="button" variant="outline" onClick={handlePrint}>
                     <Printer className="mr-2 h-4 w-4" /> Print Form
                 </Button>
                 <Button type="button" variant="outline" onClick={handleEmailForm}>
@@ -456,11 +458,11 @@ export default function DisciplinaryPage() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
                       <Label htmlFor="search-name">Student Name</Label>
-                      <Input type="text" id="search-name" value={searchName} onChange={e => setSearchName(e.target.value)} placeholder="Enter full or partial name" />
+                      <Input type="text" id="search-name" value={searchName} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchName(e.target.value)} placeholder="Enter full or partial name" />
                     </div>
                     <div>
                       <Label htmlFor="search-dob">Date of Birth</Label>
-                      <Input type="date" id="search-dob" value={searchDob} onChange={e => setSearchDob(e.target.value)} />
+                      <Input type="date" id="search-dob" value={searchDob} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchDob(e.target.value)} />
                     </div>
                   </div>
                   <Button type="submit" className="w-full" disabled={isSearching}>
@@ -529,19 +531,19 @@ export default function DisciplinaryPage() {
                         </TableBody>
                         </Table>
                     </div>
-                    <Button onClick={() => handlePrint('results')} className="w-full sm:w-auto mt-6 print:hidden">
+                    <Button onClick={handlePrint} className="w-full sm:w-auto mt-6 print:hidden">
                         <Printer className="mr-2 h-5 w-5" /> Print {hasSearched ? 'Results' : 'Records'}
                     </Button>
                 </CardContent>
                 </Card>
             )}
-            </div>
             {!isLoading && !fetchError && displayedRecords.length === 0 && (
               <Card className="mt-6 bg-muted/30 print:hidden">
                 <CardHeader><CardTitle className="text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />{hasSearched ? 'No Results Found' : 'No Disciplinary Records'}</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-foreground">{hasSearched ? 'No disciplinary records matched your search criteria.' : 'No disciplinary records found for this school. Add one to get started.'}</p></CardContent>
               </Card>
             )}
+            </div>
       </div>
   );
 }

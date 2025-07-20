@@ -1,6 +1,9 @@
+
+"use client";
+
+import React from 'react';
 import { PageHeader } from "@/components/layout/page-header";
 import { HealthInspectionClient } from "@/components/health-safety/health-safety-client";
-import { ShieldAlert } from "lucide-react";
 
 export default function HealthSafetyPage() {
   return (

@@ -204,7 +204,7 @@ export function HealthInspectionClient() {
   const specialAnyStatusValue = "_ANY_STATUS_";
 
   return (
-      <div className="printable-area w-full max-w-3xl mx-auto space-y-8">
+      <div className="space-y-8">
          {!isFirebaseConfigured && (
             <Card className="bg-amber-50 border-amber-300">
                 <CardHeader>
@@ -219,76 +219,78 @@ export function HealthInspectionClient() {
                 </CardContent>
             </Card>
         )}
-        <section id="entry-form" className="mb-8 p-4 border border-border rounded-lg shadow-md bg-card">
-            <CardHeader className="p-2">
-                <CardTitle className="text-2xl font-headline text-primary mb-4">New OHS Record</CardTitle>
-            </CardHeader>
-            <CardContent>
-            <form onSubmit={handleSaveRecord} className="space-y-4 font-body">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                <Label htmlFor="ohs-date">Date of Incident</Label>
-                <Input type="date" id="ohs-date" value={incidentDate} onChange={e => setIncidentDate(e.target.value)} required />
-                </div>
-                <div>
-                <Label htmlFor="ohs-reported-by">Reported By</Label>
-                <Input type="text" id="ohs-reported-by" value={reportedBy} onChange={e => setReportedBy(e.target.value)} placeholder="Name of reporter" required />
-                </div>
-                <div>
-                <Label htmlFor="ohs-compiled-by">Compiled By</Label>
-                <Input type="text" id="ohs-compiled-by" value={compiledBy} onChange={e => setCompiledBy(e.target.value)} placeholder="Name of compiler" required />
-                </div>
-                <div>
-                <Label htmlFor="ohs-parents-notified">Parents Notified</Label>
-                <Select value={parentsNotified} onValueChange={setParentsNotified} required>
-                    <SelectTrigger id="ohs-parents-notified"><SelectValue placeholder="Select status" /></SelectTrigger>
-                    <SelectContent>
-                    <SelectItem value="Yes">Yes</SelectItem>
-                    <SelectItem value="No">No</SelectItem>
-                    <SelectItem value="Attempted">Attempted, No Response</SelectItem>
-                    </SelectContent>
-                </Select>
-                </div>
-            </div>
+        <div className="printable-area">
+          <section id="entry-form" className="p-4 border border-border rounded-lg shadow-md bg-card">
+              <CardHeader className="p-2">
+                  <CardTitle className="text-2xl font-headline text-primary mb-4">New OHS Record</CardTitle>
+              </CardHeader>
+              <CardContent>
+              <form onSubmit={handleSaveRecord} className="space-y-4 font-body">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                  <Label htmlFor="ohs-date">Date of Incident</Label>
+                  <Input type="date" id="ohs-date" value={incidentDate} onChange={e => setIncidentDate(e.target.value)} required />
+                  </div>
+                  <div>
+                  <Label htmlFor="ohs-reported-by">Reported By</Label>
+                  <Input type="text" id="ohs-reported-by" value={reportedBy} onChange={e => setReportedBy(e.target.value)} placeholder="Name of reporter" required />
+                  </div>
+                  <div>
+                  <Label htmlFor="ohs-compiled-by">Compiled By</Label>
+                  <Input type="text" id="ohs-compiled-by" value={compiledBy} onChange={e => setCompiledBy(e.target.value)} placeholder="Name of compiler" required />
+                  </div>
+                  <div>
+                  <Label htmlFor="ohs-parents-notified">Parents Notified</Label>
+                  <Select value={parentsNotified} onValueChange={setParentsNotified} required>
+                      <SelectTrigger id="ohs-parents-notified"><SelectValue placeholder="Select status" /></SelectTrigger>
+                      <SelectContent>
+                      <SelectItem value="Yes">Yes</SelectItem>
+                      <SelectItem value="No">No</SelectItem>
+                      <SelectItem value="Attempted">Attempted, No Response</SelectItem>
+                      </SelectContent>
+                  </Select>
+                  </div>
+              </div>
 
-            <div>
-                <Label className="mb-2 block">Notified To</Label>
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
-                {notifiedOptions.map(option => (
-                    <div key={option} className="flex items-center space-x-2">
-                    <Checkbox
-                        id={`notified-${option.toLowerCase().replace(/\s+/g, '-')}`}
-                        checked={notifiedTo.includes(option)}
-                        onCheckedChange={(checked) => handleNotifiedToChange(option, !!checked)}
-                    />
-                    <Label htmlFor={`notified-${option.toLowerCase().replace(/\s+/g, '-')}`} className="font-normal">{option}</Label>
-                    </div>
-                ))}
-                </div>
-            </div>
+              <div>
+                  <Label className="mb-2 block">Notified To</Label>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-x-4 gap-y-2">
+                  {notifiedOptions.map(option => (
+                      <div key={option} className="flex items-center space-x-2">
+                      <Checkbox
+                          id={`notified-${option.toLowerCase().replace(/\s+/g, '-')}`}
+                          checked={notifiedTo.includes(option)}
+                          onCheckedChange={(checked) => handleNotifiedToChange(option, !!checked)}
+                      />
+                      <Label htmlFor={`notified-${option.toLowerCase().replace(/\s+/g, '-')}`} className="font-normal">{option}</Label>
+                      </div>
+                  ))}
+                  </div>
+              </div>
 
-            <div className="flex items-center space-x-2 pt-2">
-                <Checkbox id="ohs-ambulance-called" checked={ambulanceCalled} onCheckedChange={(checked) => setAmbulanceCalled(!!checked)} />
-                <Label htmlFor="ohs-ambulance-called" className="font-normal">Ambulance Called?</Label>
-            </div>
+              <div className="flex items-center space-x-2 pt-2">
+                  <Checkbox id="ohs-ambulance-called" checked={ambulanceCalled} onCheckedChange={(checked) => setAmbulanceCalled(!!checked)} />
+                  <Label htmlFor="ohs-ambulance-called" className="font-normal">Ambulance Called?</Label>
+              </div>
 
-            <div>
-                <Label htmlFor="ohs-head-report">Head Report / Incident Details</Label>
-                <Textarea id="ohs-head-report" value={headReport} onChange={e => setHeadReport(e.target.value)} placeholder="Detailed description of the incident" rows={3} />
-            </div>
-            <div>
-                <Label htmlFor="ohs-action-taken">Action Taken / Next Steps</Label>
-                <Textarea id="ohs-action-taken" value={actionTaken} onChange={e => setActionTaken(e.target.value)} placeholder="Describe actions taken and any next steps" rows={3} />
-            </div>
-                <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    <Save className="mr-2 h-5 w-5" />
-                    {isSubmitting ? 'Saving...' : 'Save Record'}
-                </Button>
-            </form>
-            </CardContent>
-        </section>
+              <div>
+                  <Label htmlFor="ohs-head-report">Head Report / Incident Details</Label>
+                  <Textarea id="ohs-head-report" value={headReport} onChange={e => setHeadReport(e.target.value)} placeholder="Detailed description of the incident" rows={3} />
+              </div>
+              <div>
+                  <Label htmlFor="ohs-action-taken">Action Taken / Next Steps</Label>
+                  <Textarea id="ohs-action-taken" value={actionTaken} onChange={e => setActionTaken(e.target.value)} placeholder="Describe actions taken and any next steps" rows={3} />
+              </div>
+                  <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      <Save className="mr-2 h-5 w-5" />
+                      {isSubmitting ? 'Saving...' : 'Save Record'}
+                  </Button>
+              </form>
+              </CardContent>
+          </section>
+        </div>
 
-        <section id="search-section" className="mb-8 p-4 border border-border rounded-lg shadow-md bg-card print:hidden">
+        <section id="search-section" className="p-4 border border-border rounded-lg shadow-md bg-card print:hidden">
             <CardHeader className="p-2">
                 <CardTitle className="text-2xl font-headline text-primary mb-4 flex items-center"><SearchIcon className="mr-2 h-6 w-6"/>Search OHS Records</CardTitle>
             </CardHeader>
@@ -327,69 +329,71 @@ export function HealthInspectionClient() {
             </CardContent>
         </section>
 
-        <section id="preview-section" className="p-4 border border-border rounded-lg shadow-md bg-card">
-            <CardHeader className="p-2">
-                <CardTitle className="text-2xl font-headline text-primary mb-4">{hasSearched ? "Search Results" : "All Records"}</CardTitle>
-            </CardHeader>
-            <CardContent>
-                {isLoading ? (
-                    <div className="space-y-2"><Skeleton className="h-20 w-full" /><Skeleton className="h-20 w-full" /></div>
-                ) : searchResults.length > 0 ? (
-                    <div className="overflow-x-auto">
-                    <Table>
-                        <TableHeader>
-                        <TableRow>
-                            <TableHead>Date</TableHead>
-                            <TableHead>Reported By</TableHead>
-                            <TableHead>Compiled By</TableHead>
-                            <TableHead>Notified To</TableHead>
-                            <TableHead>Ambulance</TableHead>
-                            <TableHead>Head Report</TableHead>
-                            <TableHead>Action Taken</TableHead>
-                            <TableHead>Parents</TableHead>
-                        </TableRow>
-                        </TableHeader>
-                        <TableBody className="font-body">
-                        {searchResults.map(record => (
-                            <TableRow key={record.id}>
-                            <TableCell>{record.incidentDate}</TableCell>
-                            <TableCell>{record.reportedBy}</TableCell>
-                            <TableCell>{record.compiledBy}</TableCell>
-                            <TableCell>{record.notifiedTo.join(', ')}</TableCell>
-                            <TableCell>{record.ambulanceCalled ? 'Yes' : 'No'}</TableCell>
-                            <TableCell className="max-w-xs truncate">{record.headReport}</TableCell>
-                            <TableCell className="max-w-xs truncate">{record.actionTaken}</TableCell>
-                            <TableCell>{record.parentsNotified}</TableCell>
-                            </TableRow>
-                        ))}
-                        </TableBody>
-                    </Table>
-                    </div>
-                ) : (
-                    <Card className="mt-6 bg-muted/30">
-                        <CardHeader>
-                            <CardTitle className="font-headline text-base text-primary flex items-center">
-                                <AlertCircle className="mr-2 h-5 w-5" />
-                                No Results Found
-                            </CardTitle>
-                        </CardHeader>
-                        <CardContent>
-                            <p className="font-body text-sm text-foreground">
-                                {hasSearched ? "No OHS records matched your search criteria." : "No OHS records have been logged yet."}
-                            </p>
-                        </CardContent>
-                    </Card>
-                )}
-            </CardContent>
-        </section>
+        <div className="printable-area">
+          <section id="preview-section" className="p-4 border border-border rounded-lg shadow-md bg-card">
+              <CardHeader className="p-2">
+                  <CardTitle className="text-2xl font-headline text-primary mb-4">{hasSearched ? "Search Results" : "All Records"}</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  {isLoading ? (
+                      <div className="space-y-2"><Skeleton className="h-20 w-full" /><Skeleton className="h-20 w-full" /></div>
+                  ) : searchResults.length > 0 ? (
+                      <div className="overflow-x-auto">
+                      <Table>
+                          <TableHeader>
+                          <TableRow>
+                              <TableHead>Date</TableHead>
+                              <TableHead>Reported By</TableHead>
+                              <TableHead>Compiled By</TableHead>
+                              <TableHead>Notified To</TableHead>
+                              <TableHead>Ambulance</TableHead>
+                              <TableHead>Head Report</TableHead>
+                              <TableHead>Action Taken</TableHead>
+                              <TableHead>Parents</TableHead>
+                          </TableRow>
+                          </TableHeader>
+                          <TableBody className="font-body">
+                          {searchResults.map(record => (
+                              <TableRow key={record.id}>
+                              <TableCell>{record.incidentDate}</TableCell>
+                              <TableCell>{record.reportedBy}</TableCell>
+                              <TableCell>{record.compiledBy}</TableCell>
+                              <TableCell>{record.notifiedTo.join(', ')}</TableCell>
+                              <TableCell>{record.ambulanceCalled ? 'Yes' : 'No'}</TableCell>
+                              <TableCell className="max-w-xs truncate">{record.headReport}</TableCell>
+                              <TableCell className="max-w-xs truncate">{record.actionTaken}</TableCell>
+                              <TableCell>{record.parentsNotified}</TableCell>
+                              </TableRow>
+                          ))}
+                          </TableBody>
+                      </Table>
+                      </div>
+                  ) : (
+                      <Card className="mt-6 bg-muted/30">
+                          <CardHeader>
+                              <CardTitle className="font-headline text-base text-primary flex items-center">
+                                  <AlertCircle className="mr-2 h-5 w-5" />
+                                  No Results Found
+                              </CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                              <p className="font-body text-sm text-foreground">
+                                  {hasSearched ? "No OHS records matched your search criteria." : "No OHS records have been logged yet."}
+                              </p>
+                          </CardContent>
+                      </Card>
+                  )}
+              </CardContent>
+          </section>
+        </div>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center mt-8 print:hidden">
             <Button onClick={handlePrint} className="w-full sm:w-auto" variant="outline">
-                <Printer className="mr-2 h-5 w-5" /> Print Current Record / Results
+                <Printer className="mr-2 h-5 w-5" /> Print
             </Button>
             <Button onClick={handleEmailRecord} className="w-full sm:w-auto" disabled={isSubmitting}>
                 <Mail className="mr-2 h-5 w-5" />
-                {isSubmitting ? 'Emailing...' : 'Email Current Record'}
+                {isSubmitting ? 'Emailing...' : 'Email Record'}
             </Button>
         </div>
       </div>

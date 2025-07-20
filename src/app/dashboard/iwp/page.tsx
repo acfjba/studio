@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState } from 'react';
@@ -7,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PlusCircle, Trash2, Target, Save, FileUp, Printer, Send } from "lucide-react";
+import { PlusCircle, Trash2, Target, Save, FileUp, Printer, Send, Mail } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Slider } from "@/components/ui/slider";
 import { PageHeader } from '@/components/layout/page-header';
@@ -108,6 +109,13 @@ export default function IwpPage() {
       description: "Use your browser's print dialog to save as PDF or print.",
     });
     window.print();
+  };
+
+  const handleEmailPlan = () => {
+    toast({
+      title: "Emailing Plan (Simulated)",
+      description: "An email with your IWP would be sent for review.",
+    });
   };
 
   const handleImportPdf = () => {
@@ -247,8 +255,8 @@ export default function IwpPage() {
         </Tabs>
         
         <div className="mt-8 flex flex-wrap justify-center gap-4 print:hidden">
-            <Button onClick={handleImportPdf} variant="outline" disabled={isSavingDraft || isSubmitting}>
-                <FileUp className="mr-2 h-4 w-4" /> Import from PDF
+             <Button onClick={handleEmailPlan} variant="outline" disabled={isSavingDraft || isSubmitting}>
+                <Mail className="mr-2 h-4 w-4" /> Email Plan
             </Button>
             <Button onClick={handlePrintPlan} variant="outline" disabled={isSavingDraft || isSubmitting}>
                 <Printer className="mr-2 h-4 w-4" /> Print Plan

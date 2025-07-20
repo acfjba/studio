@@ -271,10 +271,8 @@ export default function CounsellingPage() {
     toast({ title: "Search Cleared", description: "Displaying all records." });
   };
   
-  const handlePrint = (area: 'results' | 'form') => {
-    const title = area === 'results' ? "Printing Results..." : "Printing Form...";
-    const description = "Use your browser's print dialog to save as PDF or print.";
-    toast({ title, description });
+  const handlePrint = () => {
+    toast({ title: "Printing...", description: "Use your browser's print dialog to save as PDF or print." });
     window.print();
   };
 
@@ -449,7 +447,7 @@ export default function CounsellingPage() {
                 </form>
               </div>
               <DialogFooter className="pt-3 print:hidden flex-wrap justify-center sm:justify-end gap-2">
-                <Button type="button" variant="outline" onClick={() => handlePrint('form')}>
+                <Button type="button" variant="outline" onClick={handlePrint}>
                     <Printer className="mr-2 h-4 w-4" /> Print Form
                 </Button>
                 <Button type="button" variant="outline" onClick={handleEmailForm}>
@@ -511,8 +509,8 @@ export default function CounsellingPage() {
             </Card>
           )}
 
-          {!isLoading && displayedRecords.length > 0 && (
-             <div className="printable-area">
+          <div className="printable-area">
+            {!isLoading && displayedRecords.length > 0 && (
                 <Card id="preview-section" className="p-4">
                 <CardHeader>
                     <CardTitle className="text-2xl font-headline">{hasSearched ? `Search Results (${displayedRecords.length})` : `All Counselling Records (${displayedRecords.length})`}</CardTitle>
@@ -551,19 +549,19 @@ export default function CounsellingPage() {
                         </TableBody>
                         </Table>
                     </div>
-                    <Button onClick={() => handlePrint('results')} className="w-full sm:w-auto mt-6 print:hidden">
+                    <Button onClick={handlePrint} className="w-full sm:w-auto mt-6 print:hidden">
                         <Printer className="mr-2 h-5 w-5" /> Print {hasSearched ? 'Results' : 'Records'}
                     </Button>
                 </CardContent>
                 </Card>
-            </div>
-          )}
+            )}
            {!isLoading && !fetchError && displayedRecords.length === 0 && (
              <Card className="mt-6 bg-muted/30 print:hidden">
                 <CardHeader><CardTitle className="text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />{hasSearched ? 'No Results Found' : 'No Counselling Records'}</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-foreground">{hasSearched ? 'No counselling records matched your search criteria from the available data.' : 'No counselling records found for this school. Add a new record to get started.'}</p></CardContent>
             </Card>
            )}
+          </div>
       </div>
   );
 }
