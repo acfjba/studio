@@ -13,8 +13,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
 import { isFirebaseConfigured } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
-import { seedDatabase } from '@/lib/firebase/seed';
-
 
 export default function FirebaseConfigPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -45,8 +43,14 @@ export default function FirebaseConfigPage() {
         toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
 
         try {
-            await seedDatabase();
-            toast({ title: "Database Seeded Successfully", description: "Sample data has been loaded into Firestore." });
+            const response = await fetch('/api/seed', { method: 'POST' });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'Failed to seed database.');
+            }
+
+            toast({ title: "Database Seeded Successfully", description: result.message });
         } catch (error) {
             console.error("Error seeding database:", error);
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
