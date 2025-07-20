@@ -291,6 +291,7 @@ export default function UserManagementPage() {
                 <Card className="shadow-xl rounded-lg max-w-4xl mx-auto">
                     <CardHeader>
                         <CardTitle className="font-headline text-xl text-primary">Registered Users Summary</CardTitle>
+                        <CardDescription>This table shows the sample users available for the login simulation.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <Alert variant="destructive" className="mb-4">
