@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -49,8 +50,9 @@ export default function PrimarySchoolInventoryPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const canEdit = useMemo(() => {
+      if (!userRole) return false;
       const editableRoles = ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'];
-      return editableRoles.includes(userRole || '');
+      return editableRoles.includes(userRole);
   }, [userRole]);
 
   useEffect(() => {
