@@ -14,7 +14,6 @@ import {
   ShieldAlert,
   ClipboardCheck,
   Boxes,
-  FolderArchive
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { HelpCircle } from 'lucide-react';
@@ -36,7 +35,6 @@ const teacherLinks: TeacherLinkItem[] = [
   { label: "OHS Incident Reporting", href: "/dashboard/health-safety", icon: ShieldAlert, description: "Log OHS incidents for your class." },
   { label: "Exam Results Management", href: "/dashboard/academics/exam-results", icon: ClipboardCheck, description: "Record and manage student exam results." },
   { label: "Classroom Inventory", href: "/dashboard/academics/classroom-inventory", icon: Boxes, description: "Manage stock levels of classroom supplies." },
-  { label: "Document Vault", href: "/dashboard/document-vault", icon: FolderArchive, description: "Access all your saved and generated documents." },
 ];
 
 export default function TeacherPanelPage() {
