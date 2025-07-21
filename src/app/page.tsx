@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Briefcase, Key, User, UserCog, Book, MessageSquareQuote } from 'lucide-react';
 import Link from 'next/link';
-import { useFormState } from 'react-dom';
+import { useActionState } from 'react';
 import { submitFeedback } from './actions';
 import { useToast } from '@/hooks/use-toast';
 import React, { useEffect } from 'react';
@@ -18,7 +18,7 @@ const initialState = {
 };
 
 function FeedbackForm() {
-  const [state, formAction] = useFormState(submitFeedback, initialState);
+  const [state, formAction] = useActionState(submitFeedback, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
