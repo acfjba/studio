@@ -13,6 +13,7 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
 import { isFirebaseConfigured } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
+import { seedDatabaseAction } from '@/app/actions';
 
 export default function FirebaseConfigPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -42,22 +43,15 @@ export default function FirebaseConfigPage() {
         setIsSeeding(true);
         toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
 
-        try {
-            const response = await fetch('/api/seed', { method: 'POST' });
-            const result = await response.json();
+        const result = await seedDatabaseAction();
 
-            if (!response.ok) {
-                throw new Error(result.message || 'Failed to seed database.');
-            }
-
+        if (result.error) {
+             toast({ variant: "destructive", title: "Seeding Failed", description: result.message });
+        } else {
             toast({ title: "Database Seeded Successfully", description: result.message });
-        } catch (error) {
-            console.error("Error seeding database:", error);
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-            toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
-        } finally {
-            setIsSeeding(false);
         }
+        
+        setIsSeeding(false);
     };
     
     const handleClearData = async () => {
@@ -180,7 +174,7 @@ export default function FirebaseConfigPage() {
                     </CardTitle>
                     <CardDescription>
                            Use these actions to manage the data in your Firestore database for testing and demonstration purposes.
-                        </CardDescription>
+                        </Description>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
