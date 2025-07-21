@@ -41,6 +41,7 @@ const adminSubNavs: Record<AdminSection, AdminSubNavItem[]> = {
   overview: [], 
   userManagement: [
     { label: "Staff Records", href: "/dashboard/staff", icon: Users },
+    { label: "Invite Teachers", href: "/dashboard/invite-teachers", icon: UserPlus },
     { label: "Teacher List & Ratings", href: "/dashboard/teachers", icon: Users },
   ],
   academicRecords: [
@@ -56,6 +57,7 @@ const adminSubNavs: Record<AdminSection, AdminSubNavItem[]> = {
   ],
   dataReports: [
     { label: "KPI Reports", href: "/dashboard/reporting/kpi", icon: LineChartIcon },
+    { label: "Upload Data", href: "/dashboard/upload-data", icon: DatabaseZap },
   ]
 };
 

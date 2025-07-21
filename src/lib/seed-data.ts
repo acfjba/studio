@@ -1,3 +1,4 @@
+
 // src/lib/seed-data.ts
 // ------------------------------------------------------------------
 // Only the data we want to insert into Firestore in the seed step.
@@ -10,23 +11,23 @@ export const schoolsSeedData = [
 ];
 
 export const usersSeedData = [
-    { uid: 'uid-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'adminpass', phone: 'N/A' },
-    { uid: 'uid-head-teacher-1', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
-    { uid: 'uid-asst-head-teacher-1', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'assistant-head-teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
-    { uid: 'uid-primary-admin-1', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'primary-admin', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
-    { uid: 'uid-teacher-1', displayName: 'Mr. Samuel Greene', email: 's.greene@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Samuel Greene', password: 'password123', phone: '+679 123 4568' },
-    { uid: 'uid-teacher-2', displayName: 'Mrs. Helen Chu', email: 'h.chu@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Mrs. Helen Chu', password: 'password123', phone: '+679 234 5679' },
-    { uid: 'uid-librarian-1', displayName: 'Mr. David Chen', email: 'd.chen@adiscakobau.ac.fj', role: 'librarian', schoolId: 'SCH-003', name: 'Mr. David Chen', password: 'password123', phone: '+679 345 6789' },
-    { uid: 'uid-kinder-1', displayName: 'Ms. Kinder Teacher', email: 'kinder@suvagrammar.ac.fj', role: 'kindergarten', schoolId: 'SCH-001', name: 'Ms. Kinder Teacher', password: 'password123', phone: '+679 111 2222' }
+    { id: 'uid-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'adminpass', phone: 'N/A' },
+    { id: 'uid-head-teacher-1', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
+    { id: 'uid-asst-head-teacher-1', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'assistant-head-teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
+    { id: 'uid-primary-admin-1', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'primary-admin', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
+    { id: 'uid-teacher-1', displayName: 'Mr. Samuel Greene', email: 's.greene@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Samuel Greene', password: 'password123', phone: '+679 123 4568' },
+    { id: 'uid-teacher-2', displayName: 'Mrs. Helen Chu', email: 'h.chu@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Mrs. Helen Chu', password: 'password123', phone: '+679 234 5679' },
+    { id: 'uid-librarian-1', displayName: 'Mr. David Chen', email: 'd.chen@adiscakobau.ac.fj', role: 'librarian', schoolId: 'SCH-003', name: 'Mr. David Chen', password: 'password123', phone: '+679 345 6789' },
+    { id: 'uid-kinder-1', displayName: 'Ms. Kinder Teacher', email: 'kinder@suvagrammar.ac.fj', role: 'kindergarten', schoolId: 'SCH-001', name: 'Ms. Kinder Teacher', password: 'password123', phone: '+679 111 2222' }
 ];
 
 export const staffSeedData = [
-  { id: 'staff-001', name: 'Dr. Evelyn Reed', role: 'head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'e.reed@suvagrammar.ac.fj', phone: '+679 123 4567', staffId: 'T001', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'staff-002', name: 'Mr. Samuel Greene', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.greene@suvagrammar.ac.fj', phone: '+679 123 4568', staffId: 'T002', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'staff-003', name: 'Ms. Clara Bell', role: 'primary-admin', position: 'Administration', status: 'On Leave', schoolId: 'SCH-002', email: 'c.bell@natabuahigh.ac.fj', phone: '+679 234 5678', staffId: 'T003', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'staff-004', name: 'Mr. David Chen', role: 'librarian', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'd.chen@adiscakobau.ac.fj', phone: '+679 345 6789', staffId: 'T004', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'staff-005', name: 'Mrs. Helen Chu', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 'h.chu@natabuahigh.ac.fj', phone: '+679 234 5679', staffId: 'T005', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
-  { id: 'staff-006', name: 'Mr. Johnathan Lee', role: 'assistant-head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'j.lee@suvagrammar.ac.fj', phone: '+679 123 4569', staffId: 'T006', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'staff-001', name: 'Dr. Evelyn Reed', role: 'head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'e.reed@suvagrammar.ac.fj', phone: '+679 123 4567', staffId: 'T001' },
+  { id: 'staff-002', name: 'Mr. Samuel Greene', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.greene@suvagrammar.ac.fj', phone: '+679 123 4568', staffId: 'T002' },
+  { id: 'staff-003', name: 'Ms. Clara Bell', role: 'primary-admin', position: 'Administration', status: 'On Leave', schoolId: 'SCH-002', email: 'c.bell@natabuahigh.ac.fj', phone: '+679 234 5678', staffId: 'T003' },
+  { id: 'staff-004', name: 'Mr. David Chen', role: 'librarian', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'd.chen@adiscakobau.ac.fj', phone: '+679 345 6789', staffId: 'T004' },
+  { id: 'staff-005', name: 'Mrs. Helen Chu', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 'h.chu@natabuahigh.ac.fj', phone: '+679 234 5679', staffId: 'T005' },
+  { id: 'staff-006', name: 'Mr. Johnathan Lee', role: 'assistant-head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'j.lee@suvagrammar.ac.fj', phone: '+679 123 4569', staffId: 'T006' },
 ];
 
 export const libraryBooksSeedData = [
@@ -65,6 +66,7 @@ export const examResultsSeedData = [
     score: '88',
     grade: 'A+',
     examType: 'Final',
+    otherExamTypeName: '',
     examDate: '2024-11-15',
     term: '4',
     year: '2024',
@@ -82,17 +84,15 @@ export const disciplinaryRecordsSeedData = [
     studentDob: '2010-02-20',
     studentYear: '7',
     schoolId: 'SCH-002',
-    issues: ['Late arrival'],
-    comments: 'Student was 15 minutes late for morning assembly.',
+    issues: ['Absent' as const],
+    comments: 'Student was late for morning assembly.',
     actionComments: 'Verbal warning given.',
     incidentDate: '2024-05-12',
     raisedBy: 'Mr. Smith',
-    parentsInformed: 'Yes',
+    parentsInformed: 'Yes' as const,
     userId: 'uid-teacher-2',
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    drugType: undefined,
-    otherIssue: undefined
+    drugType: '',
+    otherIssue: ''
   },
 ];
 
@@ -104,10 +104,11 @@ export const counsellingRecordsSeedData = [
         studentId: 'stu-003',
         studentDob: '2011-08-15',
         studentYear: '6',
-        counsellingType: 'Academic',
+        counsellingType: 'Academic' as const,
+        otherCounsellingType: '',
         sessionDetails: 'Discussed exam anxiety and study strategies. Student is worried about upcoming math exam.',
         actionPlan: 'Scheduled follow-up session. Provided with breathing exercises and a study timetable template.',
-        parentsContacted: 'Yes',
+        parentsContacted: 'Yes' as const,
         counsellorName: 'Mrs. Davis',
         userId: 'uid-head-teacher-1',
         schoolId: 'SCH-001',

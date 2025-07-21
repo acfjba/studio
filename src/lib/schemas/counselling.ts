@@ -25,7 +25,7 @@ export const CounsellingRecordFormInputSchema = z.object({
   parentsContacted: z.enum(["Yes", "No", "Attempted", "Not Required"], { required_error: "Please select parent contact status." }),
   counsellorName: z.string().min(2, { message: "Counsellor name is required." }),
 }).superRefine((data, ctx) => {
-    if (data.counsellingType === 'Other' && (!data.otherCounsellingType || data.otherCounsellingType.trim() === '')) {
+    if (data.counsellingType === 'Other' && (!data.otherCounsellingType || data.otherCounsellingType.trim().length < 2)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please specify the 'Other' counselling type.",

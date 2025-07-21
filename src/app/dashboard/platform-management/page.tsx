@@ -821,13 +821,13 @@ export default function PlatformManagementPage() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                        <Button onClick={handleSeedData} disabled={isManagingData} variant="outline">
-                            {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
-                            Seed Database
+                        <Button className="w-full" onClick={handleSeedData} disabled={isManagingData}>
+                           {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Database className="mr-2 h-4 w-4" />}
+                           Seed Database
                         </Button>
-                        <Button onClick={handleClearData} disabled={isManagingData} variant="destructive">
-                            {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                            Clear All Data
+                        <Button className="w-full" onClick={handleClearData} disabled={isManagingData} variant="destructive">
+                           {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
+                           Clear All Data
                         </Button>
                     </CardContent>
                 </Card>
@@ -873,10 +873,68 @@ export default function PlatformManagementPage() {
                                                 <CardDescription>{group.userIds.length} user(s) | {group.permissions.length} permission(s)</CardDescription>
                                             </div>
                                             <div className="flex items-center gap-1">
-                                                <Dialog>
+                                                <Dialog open={editingGroup?.id === group.id} onOpenChange={(isOpen) => !isOpen && setEditingGroup(null)}>
                                                     <DialogTrigger asChild>
                                                         <Button variant="outline" size="icon" onClick={() => handleEditGroup(group)}><Edit className="h-4 w-4" /></Button>
                                                     </DialogTrigger>
+                                                    <DialogContent className="sm:max-w-2xl">
+                                                        <DialogHeader>
+                                                            <DialogTitle>Edit Group: {editingGroup?.name}</DialogTitle>
+                                                            <DialogDescription>Manage permissions and users for this group.</DialogDescription>
+                                                        </DialogHeader>
+                                                        <div className="grid md:grid-cols-2 gap-6 py-4 max-h-[60vh] overflow-y-auto">
+                                                            <div className="space-y-4">
+                                                                <h4 className="font-medium text-foreground">Permissions</h4>
+                                                                <div className="space-y-2 p-2 border rounded-md">
+                                                                    {allAvailablePermissions.map(perm => (
+                                                                        <div key={perm.id} className="flex items-center space-x-2">
+                                                                            <Checkbox
+                                                                                id={`perm-${perm.id}`}
+                                                                                checked={tempPermissions.includes(perm.id)}
+                                                                                onCheckedChange={(checked) => {
+                                                                                    setTempPermissions(prev => checked ? [...prev, perm.id] : prev.filter(p => p !== perm.id));
+                                                                                }}
+                                                                            />
+                                                                            <Label htmlFor={`perm-${perm.id}`} className="font-normal">{perm.description}</Label>
+                                                                        </div>
+                                                                    ))}
+                                                                </div>
+                                                            </div>
+                                                            <div className="space-y-4">
+                                                                <h4 className="font-medium text-foreground">Manage Users</h4>
+                                                                <div className="flex items-center gap-2">
+                                                                    <Select value={selectedUserToAdd} onValueChange={setSelectedUserToAdd}>
+                                                                        <SelectTrigger><SelectValue placeholder="Select a user..." /></SelectTrigger>
+                                                                        <SelectContent>
+                                                                            {usersSeedData
+                                                                                .filter(u => !tempUserIds.includes(u.id))
+                                                                                .map(user => (
+                                                                                <SelectItem key={user.id} value={user.id}>{user.displayName}</SelectItem>
+                                                                            ))}
+                                                                        </SelectContent>
+                                                                    </Select>
+                                                                    <Button size="sm" onClick={handleAddUserToGroup}>Add</Button>
+                                                                </div>
+                                                                <div className="space-y-2 p-2 border rounded-md min-h-[100px]">
+                                                                    {tempUserIds.length > 0 ? tempUserIds.map(userId => {
+                                                                        const user = usersSeedData.find(u => u.id === userId);
+                                                                        return (
+                                                                            <div key={userId} className="flex items-center justify-between text-sm">
+                                                                                <span>{user?.displayName || 'Unknown User'}</span>
+                                                                                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveUserFromGroup(userId)}>
+                                                                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                                                                </Button>
+                                                                            </div>
+                                                                        )
+                                                                    }) : <p className="text-xs text-muted-foreground text-center pt-4">No users in this group.</p>}
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <DialogFooter>
+                                                            <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
+                                                            <Button type="button" onClick={handleSaveGroupPermissions}>Save Changes</Button>
+                                                        </DialogFooter>
+                                                    </DialogContent>
                                                 </Dialog>
                                                 <Button variant="destructive" size="icon" onClick={() => handleDeleteGroup(group.id, group.name)}><Trash2 className="h-4 w-4" /></Button>
                                             </div>
@@ -887,68 +945,6 @@ export default function PlatformManagementPage() {
                         </div>
                     </CardContent>
                 </Card>
-                 {editingGroup && (
-                    <Dialog open={!!editingGroup} onOpenChange={() => setEditingGroup(null)}>
-                        <DialogContent className="sm:max-w-2xl">
-                            <DialogHeader>
-                                <DialogTitle>Edit Group: {editingGroup.name}</DialogTitle>
-                                <DialogDescription>Manage permissions and users for this group.</DialogDescription>
-                            </DialogHeader>
-                            <div className="grid md:grid-cols-2 gap-6 py-4 max-h-[60vh] overflow-y-auto">
-                                <div className="space-y-4">
-                                    <h4 className="font-medium text-foreground">Permissions</h4>
-                                    <div className="space-y-2 p-2 border rounded-md">
-                                        {allAvailablePermissions.map(perm => (
-                                            <div key={perm.id} className="flex items-center space-x-2">
-                                                <Checkbox
-                                                    id={`perm-${perm.id}`}
-                                                    checked={tempPermissions.includes(perm.id)}
-                                                    onCheckedChange={(checked) => {
-                                                        setTempPermissions(prev => checked ? [...prev, perm.id] : prev.filter(p => p !== perm.id));
-                                                    }}
-                                                />
-                                                <Label htmlFor={`perm-${perm.id}`} className="font-normal">{perm.description}</Label>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                                <div className="space-y-4">
-                                     <h4 className="font-medium text-foreground">Manage Users</h4>
-                                     <div className="flex items-center gap-2">
-                                        <Select value={selectedUserToAdd} onValueChange={setSelectedUserToAdd}>
-                                            <SelectTrigger><SelectValue placeholder="Select a user..." /></SelectTrigger>
-                                            <SelectContent>
-                                                {usersSeedData
-                                                    .filter(u => !tempUserIds.includes(u.id))
-                                                    .map(user => (
-                                                    <SelectItem key={user.id} value={user.id}>{user.displayName}</SelectItem>
-                                                ))}
-                                            </SelectContent>
-                                        </Select>
-                                        <Button size="sm" onClick={handleAddUserToGroup}>Add</Button>
-                                     </div>
-                                     <div className="space-y-2 p-2 border rounded-md min-h-[100px]">
-                                        {tempUserIds.length > 0 ? tempUserIds.map(userId => {
-                                            const user = usersSeedData.find(u => u.id === userId);
-                                            return (
-                                                <div key={userId} className="flex items-center justify-between text-sm">
-                                                    <span>{user?.displayName || 'Unknown User'}</span>
-                                                    <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => handleRemoveUserFromGroup(userId)}>
-                                                        <Trash2 className="h-3 w-3 text-destructive" />
-                                                    </Button>
-                                                </div>
-                                            )
-                                        }) : <p className="text-xs text-muted-foreground text-center pt-4">No users in this group.</p>}
-                                     </div>
-                                </div>
-                            </div>
-                            <DialogFooter>
-                                <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                                <Button type="button" onClick={handleSaveGroupPermissions}>Save Changes</Button>
-                            </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-                )}
             </section>
             
             <section aria-labelledby="platform-management-section" className="mb-8">
@@ -1072,5 +1068,3 @@ export default function PlatformManagementPage() {
     </TooltipProvider>
   );
 }
-
-    

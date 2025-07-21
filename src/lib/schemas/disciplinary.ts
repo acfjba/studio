@@ -17,14 +17,14 @@ export const DisciplinaryRecordSchema = z.object({
   parentsInformed: z.enum(["Yes", "No", "Attempted"], { required_error: "Please select parent contact status." }),
   actionComments: z.string().min(10, { message: "Action comments must be at least 10 characters long." }),
 }).superRefine((data, ctx) => {
-    if (data.issues.includes('Drug') && (!data.drugType || data.drugType.trim() === '')) {
+    if (data.issues.includes('Drug') && (!data.drugType || data.drugType.trim().length < 2)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please specify the type of drug.",
         path: ["drugType"],
       });
     }
-    if (data.issues.includes('Other') && (!data.otherIssue || data.otherIssue.trim() === '')) {
+    if (data.issues.includes('Other') && (!data.otherIssue || data.otherIssue.trim().length < 2)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: "Please describe the 'Other' issue.",
