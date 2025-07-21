@@ -1,3 +1,4 @@
+
 // src/lib/firebase/config.ts
 
 // This file is the central point for initializing the Firebase SDK for your application.
