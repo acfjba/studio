@@ -14,7 +14,7 @@ import {
   navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
 import {
   PanelLeft,
   Search,
@@ -149,11 +149,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-               <NavigationMenuLink asChild>
-                 <Link href="/dashboard" className={cn(navigationMenuTriggerStyle(), pathname === '/dashboard' && 'bg-accent/50')}>
+               <Link href="/dashboard" legacyBehavior={false} passHref>
+                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                     Dashboard
-                 </Link>
-               </NavigationMenuLink>
+                 </NavigationMenuLink>
+               </Link>
             </NavigationMenuItem>
             
             {accessibleNavMenus.map(menu => (
@@ -181,6 +181,10 @@ export function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
+          <SheetHeader className="sr-only">
+            <SheetTitle>Mobile Navigation Menu</SheetTitle>
+            <SheetDescription>A list of links to navigate the application.</SheetDescription>
+          </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
             <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
               <School className="h-6 w-6 text-primary" />
