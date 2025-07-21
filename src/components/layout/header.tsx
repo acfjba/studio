@@ -149,7 +149,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-               <Link href="/dashboard" legacyBehavior passHref asChild>
+               <Link href="/dashboard" asChild>
                  <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                     Dashboard
                  </NavigationMenuLink>
@@ -181,9 +181,9 @@ export function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
-          <SheetHeader className="sr-only">
-            <SheetTitle>Mobile Navigation Menu</SheetTitle>
-            <SheetDescription>A list of links to navigate the application.</SheetDescription>
+           <SheetHeader>
+            <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
+            <SheetDescription className="sr-only">A list of links to navigate the application.</SheetDescription>
           </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
             <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
