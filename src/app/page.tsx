@@ -73,12 +73,6 @@ export default function HomePage() {
     <div className="relative min-h-screen w-full bg-cover bg-center bg-no-repeat" style={{ backgroundImage: "url('https://storage.googleapis.com/aai-web-samples/apps/school-platform-bg.png')" }}>
       <div className="absolute inset-0 bg-white/80 backdrop-blur-sm"></div>
 
-      <div className="absolute top-4 right-4 z-10">
-        <Link href="/presentation">
-          <Button variant="outline">View Presentation</Button>
-        </Link>
-      </div>
-
       <main className="relative z-10 flex min-h-screen flex-col items-center justify-center p-4">
         <div className="w-full max-w-4xl text-center">
             <h1 className="text-5xl font-extrabold tracking-tight text-primary sm:text-6xl md:text-7xl">
