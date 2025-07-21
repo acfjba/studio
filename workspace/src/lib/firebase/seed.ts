@@ -3,11 +3,11 @@
 
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
-import { adminDb, adminAuth } from './admin'; // Corrected import
+import { adminDb, adminAuth } from './admin';
 import { 
-    schoolsSeedData, 
+    schoolData as schoolsSeedData,
     usersSeedData,
-    staffSeedData,
+    staffData as staffSeedData,
     libraryBooksSeedData,
     examResultsSeedData,
     disciplinaryRecordsSeedData,
@@ -16,7 +16,8 @@ import {
 } from '@/lib/seed-data';
 
 export async function seedDatabase() {
-  // Use the pre-initialized admin SDK
+  // Use the admin SDK which has privileged access and bypasses security rules.
+  // This is the correct approach for a trusted server-side seeding process.
   const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
