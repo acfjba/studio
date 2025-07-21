@@ -973,7 +973,7 @@ export default function PlatformManagementPage() {
                         </UiTooltip>
                     </div>
                     <div className="flex items-center gap-4 mt-2">
-                      <Badge variant="secondary">Version 2.0.1 (Stable)</Badge>
+                      <Badge variant="secondary">Version 2.0.2 (Stable)</Badge>
                       <Button onClick={handleUpgrade} disabled={isUpgrading}>
                         {isUpgrading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <RefreshCw className="mr-2 h-4 w-4" />}
                         {isUpgrading ? 'Updating...' : 'Check for Upgrades'}

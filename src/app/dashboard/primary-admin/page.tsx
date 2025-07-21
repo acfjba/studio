@@ -5,7 +5,7 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { 
   LayoutGrid, UserCog, GraduationCap, Settings2, DatabaseZap, LogOut, Home,
@@ -179,7 +179,7 @@ export default function PrimaryAdminPage() {
     <TooltipProvider>
         <div className="flex min-h-screen font-body bg-muted/40 text-foreground">
         <aside 
-            className="w-64 bg-background border-r p-6 flex flex-col shadow-lg fixed inset-y-0 left-0 print:hidden" 
+            className="w-64 bg-background border-r p-6 flex-col shadow-lg fixed inset-y-0 left-0 print:hidden hidden md:flex" 
         >
             <div className="mb-6 text-center">
             <h2 className="text-2xl font-headline font-bold text-primary pt-4 pb-2">Primary Admin</h2>
@@ -211,7 +211,7 @@ export default function PrimaryAdminPage() {
             </Button>
         </aside>
 
-        <main className="flex-1 p-8 ml-64">
+        <main className="flex-1 p-4 sm:p-6 md:p-8 md:ml-64">
             {renderContent()}
         </main>
         </div>
