@@ -11,7 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import { 
   BarChart3, Bell, FileText, LogOutIcon, Home, Printer, Download, AlertCircle, Users, MailWarning, CheckCircle, Award, TimerOff, 
-  CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes, Target, MailCheck as MailCheckIcon, BarChart2 as BarChart2Icon
+  CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes, Target, MailCheck as MailCheckIcon, BarChart2 as BarChart2Icon, ArrowLeft
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -853,9 +853,14 @@ export default function HeadTeacherPage() {
     <TooltipProvider>
     <div className="flex min-h-screen font-body bg-muted/40 text-foreground">
       <aside 
-        className="w-60 bg-background border-r p-6 flex-col shadow-lg fixed inset-y-0 left-0 print:hidden hidden md:flex" 
+        className="w-64 bg-background border-r p-6 flex-col shadow-lg fixed inset-y-0 left-0 print:hidden hidden md:flex" 
       >
-        <div className="mb-4 text-center">
+        <div className="mb-4 text-center flex items-center justify-center gap-2">
+           <Link href="/dashboard" passHref>
+             <Button variant="ghost" className="h-auto p-1">
+                <ArrowLeft className="h-5 w-5 text-muted-foreground"/>
+             </Button>
+           </Link>
           <h2 className="text-xl font-headline font-bold text-primary pt-4 pb-2">Head Teacher</h2>
         </div>
         <nav className="flex-grow">
