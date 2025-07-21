@@ -11,14 +11,14 @@ export const schoolsSeedData = [
 ];
 
 export const usersSeedData = [
-    { id: 'uid-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'password123', phone: 'N/A' },
-    { id: 'uid-head-teacher-1', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
-    { id: 'uid-asst-head-teacher-1', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'assistant-head-teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
-    { id: 'uid-primary-admin-1', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'primary-admin', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
-    { id: 'uid-teacher-1', displayName: 'Mr. Samuel Greene', email: 's.greene@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Samuel Greene', password: 'password123', phone: '+679 123 4568' },
-    { id: 'uid-teacher-2', displayName: 'Mrs. Helen Chu', email: 'h.chu@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Mrs. Helen Chu', password: 'password123', phone: '+679 234 5679' },
-    { id: 'uid-librarian-1', displayName: 'Mr. David Chen', email: 'd.chen@adiscakobau.ac.fj', role: 'librarian', schoolId: 'SCH-003', name: 'Mr. David Chen', password: 'password123', phone: '+679 345 6789' },
-    { id: 'uid-kinder-1', displayName: 'Ms. Kinder Teacher', email: 'kinder@suvagrammar.ac.fj', role: 'kindergarten', schoolId: 'SCH-001', name: 'Ms. Kinder Teacher', password: 'password123', phone: '+679 111 2222' }
+    { id: 'user-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'password123', phone: 'N/A' },
+    { id: 'user-head-teacher-1', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
+    { id: 'user-asst-head-teacher-1', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'assistant-head-teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
+    { id: 'user-primary-admin-1', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'primary-admin', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
+    { id: 'user-teacher-1', displayName: 'Mr. Samuel Greene', email: 's.greene@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Samuel Greene', password: 'password123', phone: '+679 123 4568' },
+    { id: 'user-teacher-2', displayName: 'Mrs. Helen Chu', email: 'h.chu@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Mrs. Helen Chu', password: 'password123', phone: '+679 234 5679' },
+    { id: 'user-librarian-1', displayName: 'Mr. David Chen', email: 'd.chen@adiscakobau.ac.fj', role: 'librarian', schoolId: 'SCH-003', name: 'Mr. David Chen', password: 'password123', phone: '+679 345 6789' },
+    { id: 'user-kinder-1', displayName: 'Ms. Kinder Teacher', email: 'kinder@suvagrammar.ac.fj', role: 'kindergarten', schoolId: 'SCH-001', name: 'Ms. Kinder Teacher', password: 'password123', phone: '+679 111 2222' }
 ];
 
 export const staffSeedData = [
@@ -73,7 +73,7 @@ export const examResultsSeedData = [
     term: '4',
     year: '2024',
     comments: 'Excellent work!',
-    recordedByUserId: 'uid-teacher-1',
+    recordedByUserId: 'user-teacher-1',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -95,7 +95,7 @@ export const disciplinaryRecordsSeedData = [
     parentsInformed: 'Yes' as const,
     actionComments: 'Verbal warning given.',
     schoolId: 'SCH-002',
-    userId: 'uid-teacher-2',
+    userId: 'user-teacher-2',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   },
@@ -115,7 +115,7 @@ export const counsellingRecordsSeedData = [
         actionPlan: 'Scheduled follow-up session. Provided with breathing exercises and a study timetable template.',
         parentsContacted: 'Yes' as const,
         counsellorName: 'Mrs. Davis',
-        userId: 'uid-head-teacher-1',
+        userId: 'user-head-teacher-1',
         schoolId: 'SCH-001',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
