@@ -1,3 +1,4 @@
+// src/lib/data.ts
 // This file contains "seed" data for the application, acting as a mock database
 // for components that are not yet connected to Firestore.
 // In a real-world scenario, this data would be fetched from a live database.
@@ -34,15 +35,6 @@ export const inventoryData = [
   { id: 'INV-005', item: 'Lab Coats', quantity: 40, unitCost: 25, usageRate: 10, reorderPoint: 20, status: 'In Stock' },
   { id: 'INV-006', item: 'Microscopes', quantity: 8, unitCost: 1200, usageRate: 1, reorderPoint: 2, status: 'Out of Stock' },
   { id: 'INV-007', item: 'Soccer Balls', quantity: 30, unitCost: 20, usageRate: 5, reorderPoint: 10, status: 'In Stock' },
-];
-
-export const bookData = [
-    { id: 'BK-001', title: 'To Kill a Mockingbird', author: 'Harper Lee', genre: 'Fiction', status: 'Available' },
-    { id: 'BK-002', title: '1984', author: 'George Orwell', genre: 'Dystopian', status: 'Checked Out' },
-    { id: 'BK-003', title: 'A Brief History of Time', author: 'Stephen Hawking', genre: 'Science', status: 'Available' },
-    { id: 'BK-004', title: 'The Great Gatsby', author: 'F. Scott Fitzgerald', genre: 'Fiction', status: 'Overdue' },
-    { id: 'BK-005', title: 'The Diary of a Young Girl', author: 'Anne Frank', genre: 'Biography', status: 'Available' },
-    { id: 'BK-006', title: 'Sapiens: A Brief History of Humankind', author: 'Yuval Noah Harari', genre: 'History', status: 'Checked Out' },
 ];
 
 export const sampleExamResultsData = [

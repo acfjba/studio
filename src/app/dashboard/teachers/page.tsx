@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Star, Search, AlertCircle, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { staffData as sampleStaffSeedData } from '@/lib/data';
+import { usersSeedData } from '@/lib/seed-data';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -21,7 +21,7 @@ interface Teacher {
   email: string;
   avatar: string;
   dataAiHint: string;
-  schoolId: string;
+  schoolId: string | null;
   isRateable: boolean;
   role: string;
 }
@@ -31,14 +31,14 @@ async function fetchTeachersFromBackend(): Promise<Teacher[]> {
   console.log("Simulating fetch teachers from backend...");
   await new Promise(resolve => setTimeout(resolve, 800));
   
-  return sampleStaffSeedData
+  return usersSeedData
     .map(staff => {
         const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
         const isRateable = rateableRoles.includes((staff.role || "").toLowerCase());
         return {
             id: staff.id,
-            name: staff.name,
-            position: staff.position,
+            name: staff.displayName,
+            position: staff.role.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
             email: staff.email,
             avatar: `https://placehold.co/80x80.png`,
             dataAiHint: "teacher portrait",
