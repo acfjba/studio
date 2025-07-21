@@ -3,7 +3,7 @@
 
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
-import { getAdminInstances } from './admin'; // Corrected import
+import { adminDb, adminAuth } from './admin'; // Corrected import
 import { 
     schoolsSeedData, 
     usersSeedData,
@@ -16,8 +16,7 @@ import {
 } from '@/lib/seed-data';
 
 export async function seedDatabase() {
-  // Use a just-in-time initialized admin SDK
-  const { adminDb, adminAuth } = getAdminInstances();
+  // Use the pre-initialized admin SDK
   const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
