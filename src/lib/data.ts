@@ -1,15 +1,8 @@
-
-
-
-
-
-// This file contains the "seed" data for the application, acting as a mock database.
-// In a real-world scenario, this data would be fetched from a live database like Firestore.
+// This file contains "seed" data for the application, acting as a mock database
+// for components that are not yet connected to Firestore.
+// In a real-world scenario, this data would be fetched from a live database.
 
 import type { StaffMember } from './schemas/staff';
-import type { UserWithPassword } from './schemas/user';
-import type { Book } from './schemas/library';
-
 
 export const schoolData = [
   { id: 'SCH-001', name: 'Suva Grammar School', address: 'Suva, Fiji' },
@@ -17,6 +10,7 @@ export const schoolData = [
   { id: 'SCH-003', name: 'Adi Cakobau School', address: 'Sawani, Fiji' },
 ];
 
+// This data is used by components that are not yet connected to Firestore.
 export const staffData: StaffMember[] = [
   { id: 'STF-001', name: 'Dr. Evelyn Reed', role: 'head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'e.reed@suvagrammar.ac.fj', phone: '+679 123 4567', staffId: 'T001', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
   { id: 'STF-002', name: 'Mr. Samuel Greene', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.greene@suvagrammar.ac.fj', phone: '+679 123 4568', staffId: 'T002', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },

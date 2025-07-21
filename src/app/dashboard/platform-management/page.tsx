@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { sampleUsersSeedData } from '@/lib/seed-data';
+import { usersSeedData } from '@/lib/seed-data';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -138,7 +138,7 @@ const initialPermissionGroups: PermissionGroup[] = [
     id: 'group_hod',
     name: 'Head of Department',
     permissions: ['view_all_workbooks', 'edit_all_workbooks', 'access_kpi_reports'],
-    userIds: sampleUsersSeedData.filter(u => u.role === 'head-teacher').slice(0,1).map(u => u.uid),
+    userIds: usersSeedData.filter(u => u.role === 'head-teacher').slice(0,1).map(u => u.id),
   },
   {
     id: 'group_discipline_committee',
@@ -918,10 +918,10 @@ export default function PlatformManagementPage() {
                                         <Select value={selectedUserToAdd} onValueChange={setSelectedUserToAdd}>
                                             <SelectTrigger><SelectValue placeholder="Select a user..." /></SelectTrigger>
                                             <SelectContent>
-                                                {sampleUsersSeedData
-                                                    .filter(u => !tempUserIds.includes(u.uid))
+                                                {usersSeedData
+                                                    .filter(u => !tempUserIds.includes(u.id))
                                                     .map(user => (
-                                                    <SelectItem key={user.uid} value={user.uid}>{user.displayName}</SelectItem>
+                                                    <SelectItem key={user.id} value={user.id}>{user.displayName}</SelectItem>
                                                 ))}
                                             </SelectContent>
                                         </Select>
@@ -929,7 +929,7 @@ export default function PlatformManagementPage() {
                                      </div>
                                      <div className="space-y-2 p-2 border rounded-md min-h-[100px]">
                                         {tempUserIds.length > 0 ? tempUserIds.map(userId => {
-                                            const user = sampleUsersSeedData.find(u => u.uid === userId);
+                                            const user = usersSeedData.find(u => u.id === userId);
                                             return (
                                                 <div key={userId} className="flex items-center justify-between text-sm">
                                                     <span>{user?.displayName || 'Unknown User'}</span>
@@ -1072,3 +1072,5 @@ export default function PlatformManagementPage() {
     </TooltipProvider>
   );
 }
+
+    

@@ -14,7 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { sampleUsersSeedData } from '@/lib/seed-data';
+import { usersSeedData } from '@/lib/seed-data';
 
 export function LoginForm() {
   const router = useRouter();
@@ -31,10 +31,13 @@ export function LoginForm() {
   const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     
-    const user = sampleUsersSeedData.find(
+    const user = usersSeedData.find(
       u => u.email.toLowerCase() === email.toLowerCase() && u.schoolId === schoolId
     );
 
+    // Note: Plain text password check is for demo purposes ONLY.
+    // In a real application, you would send the password to a backend
+    // to be compared against a securely hashed version.
     if (user && user.password === password) {
       localStorage.setItem('userRole', user.role);
       localStorage.setItem('schoolId', user.schoolId || '');
@@ -48,8 +51,8 @@ export function LoginForm() {
   const handleAdminLogin = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    const adminUser = sampleUsersSeedData.find(
-      u => u.email.toLowerCase() === adminEmail.toLowerCase() && u.role === 'system-admin'
+    const adminUser = usersSeedData.find(
+      u => u.email.toLowerCase() === adminEmail.toLowerCase() && (u.role === 'system-admin' || u.role === 'superadmin')
     );
     
     if (adminUser && adminUser.password === adminPassword) {

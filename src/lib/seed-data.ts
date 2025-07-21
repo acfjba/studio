@@ -1,67 +1,134 @@
+// src/lib/seed-data.ts
+// ------------------------------------------------------------------
+// Only the data we want to insert into Firestore in the seed step.
+// ------------------------------------------------------------------
 
-import type { Book } from './schemas/library';
-import type { UserWithPassword } from './schemas/user';
-
-export const sampleUsersSeedData: UserWithPassword[] = [
-    { uid: 'STF-001', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
-    { uid: 'STF-002', displayName: 'Mr. Samuel Greene', email: 's.greene@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Samuel Greene', password: 'password123', phone: '+679 123 4568' },
-    { uid: 'STF-003', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
-    { uid: 'STF-004', displayName: 'Mr. David Chen', email: 'd.chen@adiscakobau.ac.fj', role: 'librarian', schoolId: 'SCH-003', name: 'Mr. David Chen', password: 'password123', phone: '+679 345 6789' },
-    { uid: 'STF-005', displayName: 'Mrs. Helen Chu', email: 'h.chu@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Mrs. Helen Chu', password: 'password123', phone: '+679 234 5679' },
-    { uid: 'STF-006', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
-    { uid: 'STF-007', displayName: 'Ms. Aisha Khan', email: 'a.khan@adiscakobau.ac.fj', role: 'teacher', schoolId: 'SCH-003', name: 'Ms. Aisha Khan', password: 'password123', phone: '+679 345 6780' },
-    { uid: 'STF-008', displayName: 'SENIROSI LEDUA', email: 's.ledua@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'SENIROSI LEDUA', password: 'password123', phone: '+679 123 1111' },
-    { uid: 'STF-009', displayName: 'GAYLESHNI GAYETRI DEV', email: 'g.dev@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'GAYLESHNI GAYETRI DEV', password: 'password123', phone: '+679 123 2222' },
-    { uid: 'STF-010', displayName: 'SHIVAM MELVIN RAJ', email: 's.raj@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'SHIVAM MELVIN RAJ', password: 'password123', phone: '+679 234 3333' },
-    { uid: 'STF-011', displayName: 'SEEMA SHARMA', email: 's.sharma@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'SEEMA SHARMA', password: 'password123', phone: '+679 234 4444' },
-    { uid: 'STF-012', displayName: 'GRACE WILSON', email: 'g.wilson@adiscakobau.ac.fj', role: 'teacher', schoolId: 'SCH-003', name: 'GRACE WILSON', password: 'password123', phone: '+679 345 5555' },
-    { uid: 'SYS-001', displayName: 'System Administrator', email: 'sysadmin@system.com', role: 'system-admin', schoolId: '', name: 'System Administrator', password: 'adminpass', phone: 'N/A' },
-    { uid: 'KND-001', displayName: 'Kindergarten Teacher', email: 'kinder@suvagrammar.ac.fj', role: 'kindergarten', schoolId: 'SCH-001', name: 'Kindergarten Teacher', password: 'password123', phone: '+679 123 7777' },
+export const schoolsSeedData = [
+  { id: 'SCH-001', name: 'Suva Grammar School', address: 'Suva, Fiji' },
+  { id: 'SCH-002', name: 'Natabua High School', address: 'Lautoka, Fiji' },
+  { id: 'SCH-003', name: 'Adi Cakobau School', address: 'Sawani, Fiji' },
 ];
 
-export const sampleLibraryBooksData: Book[] = [
+export const usersSeedData = [
+    { uid: 'uid-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'adminpass', phone: 'N/A' },
+    { uid: 'uid-head-teacher-1', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
+    { uid: 'uid-asst-head-teacher-1', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'assistant-head-teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
+    { uid: 'uid-primary-admin-1', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'primary-admin', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
+    { uid: 'uid-teacher-1', displayName: 'Mr. Samuel Greene', email: 's.greene@suvagrammar.ac.fj', role: 'teacher', schoolId: 'SCH-001', name: 'Mr. Samuel Greene', password: 'password123', phone: '+679 123 4568' },
+    { uid: 'uid-teacher-2', displayName: 'Mrs. Helen Chu', email: 'h.chu@natabuahigh.ac.fj', role: 'teacher', schoolId: 'SCH-002', name: 'Mrs. Helen Chu', password: 'password123', phone: '+679 234 5679' },
+    { uid: 'uid-librarian-1', displayName: 'Mr. David Chen', email: 'd.chen@adiscakobau.ac.fj', role: 'librarian', schoolId: 'SCH-003', name: 'Mr. David Chen', password: 'password123', phone: '+679 345 6789' },
+    { uid: 'uid-kinder-1', displayName: 'Ms. Kinder Teacher', email: 'kinder@suvagrammar.ac.fj', role: 'kindergarten', schoolId: 'SCH-001', name: 'Ms. Kinder Teacher', password: 'password123', phone: '+679 111 2222' }
+];
+
+export const staffSeedData = [
+  { id: 'staff-001', name: 'Dr. Evelyn Reed', role: 'head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'e.reed@suvagrammar.ac.fj', phone: '+679 123 4567', staffId: 'T001', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'staff-002', name: 'Mr. Samuel Greene', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-001', email: 's.greene@suvagrammar.ac.fj', phone: '+679 123 4568', staffId: 'T002', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'staff-003', name: 'Ms. Clara Bell', role: 'primary-admin', position: 'Administration', status: 'On Leave', schoolId: 'SCH-002', email: 'c.bell@natabuahigh.ac.fj', phone: '+679 234 5678', staffId: 'T003', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'staff-004', name: 'Mr. David Chen', role: 'librarian', position: 'Academics', status: 'Active', schoolId: 'SCH-003', email: 'd.chen@adiscakobau.ac.fj', phone: '+679 345 6789', staffId: 'T004', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'staff-005', name: 'Mrs. Helen Chu', role: 'teacher', position: 'Academics', status: 'Active', schoolId: 'SCH-002', email: 'h.chu@natabuahigh.ac.fj', phone: '+679 234 5679', staffId: 'T005', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+  { id: 'staff-006', name: 'Mr. Johnathan Lee', role: 'assistant-head-teacher', position: 'Administration', status: 'Active', schoolId: 'SCH-001', email: 'j.lee@suvagrammar.ac.fj', phone: '+679 123 4569', staffId: 'T006', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() },
+];
+
+export const libraryBooksSeedData = [
   {
-    id: 'book_1',
-    title: 'To Kill a Mockingbird',
-    author: 'Harper Lee',
-    category: 'Fiction',
-    isbn: '978-0-06-112008-4',
+    id: 'book-001',
+    title: 'The Coral Islands',
+    author: 'R. M. Ballantyne',
+    schoolId: 'SCH-001',
+    category: 'Adventure',
     totalCopies: 5,
-    availableCopies: 3,
-    createdAt: '2023-01-10T00:00:00Z',
-    updatedAt: '2023-01-10T00:00:00Z',
-  },
-  {
-    id: 'book_2',
-    title: '1984',
-    author: 'George Orwell',
-    category: 'Dystopian',
-    isbn: '978-0-452-28423-4',
-    totalCopies: 3,
-    availableCopies: 0,
-    createdAt: '2023-01-11T00:00:00Z',
-    updatedAt: '2023-01-11T00:00:00Z',
-  },
-  {
-    id: 'book_3',
-    title: 'A Brief History of Time',
-    author: 'Stephen Hawking',
-    category: 'Science',
-    isbn: '978-0-553-38016-3',
-    totalCopies: 4,
-    availableCopies: 4,
-    createdAt: '2023-01-12T00:00:00Z',
-    updatedAt: '2023-01-12T00:00:00Z',
-  },
-   {
-    id: 'book_4',
-    title: 'The Great Gatsby',
-    author: 'F. Scott Fitzgerald',
-    category: 'Fiction',
-    isbn: '978-0-7432-7356-5',
-    totalCopies: 6,
     availableCopies: 5,
-    createdAt: '2023-01-13T00:00:00Z',
-    updatedAt: '2023-01-13T00:00:00Z',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
+  {
+    id: 'book-002',
+    title: 'A History of Fiji',
+    author: 'I. C. Campbell',
+    schoolId: 'SCH-002',
+    category: 'History',
+    totalCopies: 3,
+    availableCopies: 3,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  }
+];
+
+export const examResultsSeedData = [
+  {
+    id: 'exam-001',
+    studentId: 'stu-001',
+    studentName: 'Ratu Penaia',
+    studentYear: '8',
+    schoolId: 'SCH-001',
+    subject: 'Math',
+    score: '88',
+    grade: 'A+',
+    examType: 'Final',
+    examDate: '2024-11-15',
+    term: '4',
+    year: '2024',
+    recordedByUserId: 'uid-teacher-1',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+  },
+];
+
+export const disciplinaryRecordsSeedData = [
+  {
+    id: 'disc-001',
+    studentId: 'stu-002',
+    studentName: 'Adi Litia',
+    studentDob: '2010-02-20',
+    studentYear: '7',
+    schoolId: 'SCH-002',
+    issues: ['Late arrival'],
+    comments: 'Student was 15 minutes late for morning assembly.',
+    actionComments: 'Verbal warning given.',
+    incidentDate: '2024-05-12',
+    raisedBy: 'Mr. Smith',
+    parentsInformed: 'Yes',
+    userId: 'uid-teacher-2',
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
+    drugType: undefined,
+    otherIssue: undefined
+  },
+];
+
+export const counsellingRecordsSeedData = [
+    {
+        id: 'counselling-001',
+        sessionDate: '2024-05-10',
+        studentName: 'Sereana Vula',
+        studentId: 'stu-003',
+        studentDob: '2011-08-15',
+        studentYear: '6',
+        counsellingType: 'Academic',
+        sessionDetails: 'Discussed exam anxiety and study strategies. Student is worried about upcoming math exam.',
+        actionPlan: 'Scheduled follow-up session. Provided with breathing exercises and a study timetable template.',
+        parentsContacted: 'Yes',
+        counsellorName: 'Mrs. Davis',
+        userId: 'uid-head-teacher-1',
+        schoolId: 'SCH-001',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    }
+];
+
+export const ohsRecordsSeedData = [
+    {
+        id: 'ohs-001',
+        incidentDate: '2024-04-22',
+        reportedBy: 'Mr. Kumar',
+        compiledBy: 'Mr. Kumar',
+        notifiedTo: ['Ministry of Health'],
+        ambulanceCalled: false,
+        headReport: 'Student slipped on a wet floor near the library. Minor bruise on the knee.',
+        actionTaken: 'Applied first aid. Placed "wet floor" sign. Janitor reminded to use signs.',
+        parentsNotified: 'Yes',
+        schoolId: 'SCH-001',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+    }
 ];
