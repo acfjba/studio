@@ -174,7 +174,7 @@ export default function FirebaseConfigPage() {
                     </CardTitle>
                     <CardDescription>
                            Use these actions to manage the data in your Firestore database for testing and demonstration purposes.
-                        </Description>
+                        </CardDescription>
                 </CardHeader>
                 <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                      <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
