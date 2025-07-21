@@ -11,7 +11,7 @@ export const schoolsSeedData = [
 ];
 
 export const usersSeedData = [
-    { id: 'uid-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'adminpass', phone: 'N/A' },
+    { id: 'uid-sysadmin', displayName: 'System Admin', email: 'sysadmin@system.com', role: 'system-admin', schoolId: null, name: 'System Admin', password: 'password123', phone: 'N/A' },
     { id: 'uid-head-teacher-1', displayName: 'Dr. Evelyn Reed', email: 'e.reed@suvagrammar.ac.fj', role: 'head-teacher', schoolId: 'SCH-001', name: 'Dr. Evelyn Reed', password: 'password123', phone: '+679 123 4567' },
     { id: 'uid-asst-head-teacher-1', displayName: 'Mr. Johnathan Lee', email: 'j.lee@suvagrammar.ac.fj', role: 'assistant-head-teacher', schoolId: 'SCH-001', name: 'Mr. Johnathan Lee', password: 'password123', phone: '+679 123 4569' },
     { id: 'uid-primary-admin-1', displayName: 'Ms. Clara Bell', email: 'c.bell@natabuahigh.ac.fj', role: 'primary-admin', schoolId: 'SCH-002', name: 'Ms. Clara Bell', password: 'password123', phone: '+679 234 5678' },
@@ -37,6 +37,7 @@ export const libraryBooksSeedData = [
     author: 'R. M. Ballantyne',
     schoolId: 'SCH-001',
     category: 'Adventure',
+    isbn: '978-1503270389',
     totalCopies: 5,
     availableCopies: 5,
     createdAt: new Date().toISOString(),
@@ -48,6 +49,7 @@ export const libraryBooksSeedData = [
     author: 'I. C. Campbell',
     schoolId: 'SCH-002',
     category: 'History',
+    isbn: '978-9820108610',
     totalCopies: 3,
     availableCopies: 3,
     createdAt: new Date().toISOString(),
@@ -70,6 +72,7 @@ export const examResultsSeedData = [
     examDate: '2024-11-15',
     term: '4',
     year: '2024',
+    comments: 'Excellent work!',
     recordedByUserId: 'uid-teacher-1',
     createdAt: new Date().toISOString(),
     updatedAt: new Date().toISOString(),
@@ -79,20 +82,22 @@ export const examResultsSeedData = [
 export const disciplinaryRecordsSeedData = [
   {
     id: 'disc-001',
-    studentId: 'stu-002',
+    incidentDate: '2024-05-12',
     studentName: 'Adi Litia',
+    studentId: 'stu-002',
     studentDob: '2010-02-20',
     studentYear: '7',
-    schoolId: 'SCH-002',
     issues: ['Absent' as const],
+    drugType: '',
+    otherIssue: '',
     comments: 'Student was late for morning assembly.',
-    actionComments: 'Verbal warning given.',
-    incidentDate: '2024-05-12',
     raisedBy: 'Mr. Smith',
     parentsInformed: 'Yes' as const,
+    actionComments: 'Verbal warning given.',
+    schoolId: 'SCH-002',
     userId: 'uid-teacher-2',
-    drugType: '',
-    otherIssue: ''
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString(),
   },
 ];
 

@@ -9,7 +9,9 @@ import {
     staffSeedData,
     libraryBooksSeedData,
     examResultsSeedData,
-    disciplinaryRecordsSeedData
+    disciplinaryRecordsSeedData,
+    counsellingRecordsSeedData,
+    ohsRecordsSeedData
 } from '@/lib/seed-data';
 
 export async function seedDatabase() {
@@ -32,7 +34,7 @@ export async function seedDatabase() {
   );
    console.log("Seeding library books...");
   libraryBooksSeedData.forEach((bk) =>
-    batch.set(doc(db, 'libraryBooks', bk.id), bk),
+    batch.set(doc(db, 'books', bk.id), bk),
   );
    console.log("Seeding exam results...");
   examResultsSeedData.forEach((ex) =>
@@ -40,8 +42,16 @@ export async function seedDatabase() {
   );
    console.log("Seeding disciplinary records...");
   disciplinaryRecordsSeedData.forEach((dr) =>
-    batch.set(doc(db, 'disciplinaryRecords', dr.id), dr),
+    batch.set(doc(db, 'disciplinary', dr.id), dr),
   );
+   console.log("Seeding counselling records...");
+  counsellingRecordsSeedData.forEach((cr) => {
+    batch.set(doc(db, 'counselling', cr.id), cr);
+  });
+   console.log("Seeding OHS records...");
+   ohsRecordsSeedData.forEach((or) => {
+    batch.set(doc(db, 'ohs', or.id), or);
+   });
   
   // ---------- Users + Auth Claims ----------
   console.log("Processing Auth users and Firestore user documents...");
@@ -64,7 +74,7 @@ export async function seedDatabase() {
                 displayName: u.displayName,
                 // In a real app, you would not hardcode passwords.
                 // This is for demonstration purposes only.
-                password: 'password123',
+                password: u.password,
             });
             console.log(`Created Auth user: ${u.email}`);
         }
