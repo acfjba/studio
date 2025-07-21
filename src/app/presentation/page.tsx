@@ -79,24 +79,72 @@ export default function PresentationPage() {
                 </Slide>
                 
                 <Slide>
-                    <h2 className="text-4xl font-headline font-bold text-accent mb-6">The Head Teacher's Panel</h2>
-                     <p className="text-lg text-foreground mb-6">A powerful command center for school leadership to monitor progress, manage tasks, and assess performance.</p>
-                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 text-lg">
-                        <div className="flex items-start"><BarChart3 className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">School Overview:</span> Get a quick glance at key statistics for submissions and school activity.</p></div>
-                        <div className="flex items-start"><Bell className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Pending Tasks:</span> Review and approve weekly workbook plans submitted by teachers in a centralized panel.</p></div>
-                        <div className="flex items-start"><FileText className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Generate Reports:</span> Analyze teacher submission timeliness and export detailed reports.</p></div>
-                        <div className="flex items-start"><UserCheck className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Teacher Assessment:</span> Use an automated checklist to track the completion of key administrative tasks for each teacher.</p></div>
+                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">The Head Teacher's Panel</h2>
+                     <p className="text-lg text-foreground mb-8 text-center">A powerful command center for school leadership to monitor progress, manage tasks, and assess performance.</p>
+                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
+                        <div className="flex items-start">
+                            <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">School Overview</p>
+                                <p className="text-muted-foreground text-sm">Get a quick glance at key school-wide statistics, including workbook submission status, and access shortcuts to all major administrative and record-keeping modules.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <Bell className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Pending Tasks</p>
+                                <p className="text-muted-foreground text-sm">Review, accept, or reject weekly workbook plans submitted by teachers in a centralized, easy-to-manage panel. Keep track of all pending approvals in one place.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <FileText className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Generate Reports</p>
+                                <p className="text-muted-foreground text-sm">Analyze teacher submission timeliness with detailed reports. Identify punctual and late submissions, and export the data to PDF or Excel (CSV) for record-keeping.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <UserCheck className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Teacher Assessment</p>
+                                <p className="text-muted-foreground text-sm">Use an automated checklist, populated with data from across the platform, to track the completion of key administrative tasks for each teacher and add your own assessment notes.</p>
+                            </div>
+                        </div>
                     </div>
                 </Slide>
                 
                  <Slide>
-                    <h2 className="text-4xl font-headline font-bold text-accent mb-6">The Primary Admin's Dashboard</h2>
-                    <p className="text-lg text-foreground mb-6">The central hub for comprehensive school administration, from user management to operational oversight.</p>
-                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 text-lg">
-                        <div className="flex items-start"><UserCog className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">User Management:</span> Maintain staff records, manage user accounts, and send invitations to new teachers.</p></div>
-                        <div className="flex items-start"><GraduationCap className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Academic Records:</span> Access and manage all academic data, including exam results, disciplinary records, and counselling notes.</p></div>
-                        <div className="flex items-start"><Settings2 className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">School Operations:</span> Oversee Health Inspections, OHS reports, and the complete Library Service module.</p></div>
-                        <div className="flex items-start"><DatabaseZap className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Data &amp; Reports:</span> Upload bulk data via Excel/ZIP, and view platform-wide KPI reports for data-driven decisions.</p></div>
+                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">The Primary Admin's Dashboard</h2>
+                    <p className="text-lg text-foreground mb-8 text-center">The central hub for comprehensive school administration, from user management to operational oversight.</p>
+                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
+                        <div className="flex items-start">
+                            <UserCog className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">User & Staff Management</p>
+                                <p className="text-muted-foreground text-sm">A complete interface to manage all staff records. Add, edit, or remove staff members and invite new teachers to the platform with role assignments.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <GraduationCap className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Academic Records</p>
+                                <p className="text-muted-foreground text-sm">Full access to manage all school-wide academic data, including workbook plans, lesson plans, exam results, and disciplinary and counselling records.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <Settings2 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">School Operations</p>
+                                <p className="text-muted-foreground text-sm">Oversee all operational modules, including Health & Safety (OHS) incident reports, the full Library Service, and management of the Primary School fixed asset inventory.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <DatabaseZap className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Data & Reporting</p>
+                                <p className="text-muted-foreground text-sm">Utilize powerful reporting tools to view school-wide KPIs. Upload bulk data easily using Excel or ZIP files to populate the system efficiently.</p>
+                            </div>
+                        </div>
                      </div>
                 </Slide>
 
@@ -136,13 +184,37 @@ export default function PresentationPage() {
                 </Slide>
 
                 <Slide>
-                    <h2 className="text-4xl font-headline font-bold text-accent mb-6">Data Management &amp; Reporting</h2>
-                    <p className="text-lg text-foreground mb-6">Robust tools for data handling, printing, and exporting across all modules.</p>
-                    <div className="grid md:grid-cols-2 gap-x-8 gap-y-4 text-lg">
-                        <div className="flex items-start"><Printer className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Print Forms:</span> Generate clean, printable versions of any form for physical records or review.</p></div>
-                        <div className="flex items-start"><Download className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Save as PDF:</span> Easily save any form or report as a PDF document directly from your browser's print dialog.</p></div>
-                        <div className="flex items-start"><FileSpreadsheet className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Export to Excel:</span> Download key data like reports and inventories as CSV files for use in Excel or other spreadsheet software.</p></div>
-                        <div className="flex items-start"><CheckCircle className="h-6 w-6 text-primary mr-3 mt-1 shrink-0" /><p><span className="font-semibold">Consistent &amp; Reliable:</span> Standardized export options are available on all major data entry and reporting pages.</p></div>
+                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Data Management &amp; Reporting</h2>
+                    <p className="text-lg text-foreground mb-8 text-center">Robust tools for data handling, printing, and exporting across all modules.</p>
+                    <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
+                        <div className="flex items-start">
+                            <Printer className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Print Forms & Reports</p>
+                                <p className="text-muted-foreground text-sm">Generate clean, print-optimized versions of any data entry form or summary report, perfect for physical record-keeping, meetings, or offline review.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <Download className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Save as PDF</p>
+                                <p className="text-muted-foreground text-sm">Easily save any form or report as a professional-looking PDF document directly from your browser's print dialog, ensuring universal compatibility and easy sharing.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <FileSpreadsheet className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Export to Excel (CSV)</p>
+                                <p className="text-muted-foreground text-sm">Download key data tables, such as exam results or inventory lists, as CSV files. This allows for advanced analysis and integration with Excel or other spreadsheet software.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Consistent & Reliable</p>
+                                <p className="text-muted-foreground text-sm">These standardized export options are available on all major data entry and reporting pages, providing a consistent and reliable user experience across the entire platform.</p>
+                            </div>
+                        </div>
                     </div>
                 </Slide>
 
