@@ -51,7 +51,9 @@ export default function AcademicsPage() {
             <CardDescription>Access and update student performance and records.</CardDescription>
           </CardHeader>
           <CardContent>
-             <Button disabled>View Student Records</Button>
+            <Link href="/dashboard/academics/student-records">
+              <Button>View Student Records</Button>
+            </Link>
           </CardContent>
         </Card>
       </div>
