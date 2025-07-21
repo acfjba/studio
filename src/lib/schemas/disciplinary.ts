@@ -20,14 +20,14 @@ export const DisciplinaryRecordSchema = z.object({
     if (data.issues.includes('Drug') && (!data.drugType || data.drugType.trim().length < 2)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please specify the type of drug.",
+        message: "Please specify the type of drug when 'Drug' is selected.",
         path: ["drugType"],
       });
     }
     if (data.issues.includes('Other') && (!data.otherIssue || data.otherIssue.trim().length < 2)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please describe the 'Other' issue.",
+        message: "Please describe the 'Other' issue when selected.",
         path: ["otherIssue"],
       });
     }

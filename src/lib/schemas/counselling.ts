@@ -28,7 +28,7 @@ export const CounsellingRecordFormInputSchema = z.object({
     if (data.counsellingType === 'Other' && (!data.otherCounsellingType || data.otherCounsellingType.trim().length < 2)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "Please specify the 'Other' counselling type.",
+        message: "Please specify the 'Other' counselling type when selected.",
         path: ["otherCounsellingType"],
       });
     }
