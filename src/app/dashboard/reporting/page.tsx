@@ -2,7 +2,7 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, FileText, ShieldCheck, Wifi, BookCheck, Users, Warehouse } from "lucide-react";
+import { TrendingUp, FileText, ShieldCheck, Wifi, BookCheck, Users, Warehouse, Settings2 } from "lucide-react";
 import Link from "next/link";
 
 export default function ReportingPage() {
@@ -13,6 +13,21 @@ export default function ReportingPage() {
         description="Generate and view detailed reports on school performance and platform status."
       />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+             <Card>
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <Settings2 className="w-5 h-5 text-primary" /> Custom Report Generator
+                </CardTitle>
+                <CardDescription>
+                    Build your own report by selecting from various data sources across the platform.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/dashboard/reporting/custom-report-generator">
+                        <Button>Build Custom Report</Button>
+                    </Link>
+                </CardContent>
+            </Card>
              <Card>
                 <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-headline">
