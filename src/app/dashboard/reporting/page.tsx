@@ -1,18 +1,16 @@
 
 import { PageHeader } from "@/components/layout/page-header";
-import { ReportingClient } from "@/components/reporting/reporting-client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, FileText, ShieldCheck, DollarSign } from "lucide-react";
+import { TrendingUp, FileText, ShieldCheck, Wifi } from "lucide-react";
 import Link from "next/link";
-
 
 export default function ReportingPage() {
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Reporting & Analytics"
-        description="Generate and view detailed reports on school performance."
+        description="Generate and view detailed reports on school performance and platform status."
       />
         <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <Card>
@@ -48,15 +46,15 @@ export default function ReportingPage() {
             <Card>
                 <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-headline">
-                    <DollarSign className="w-5 h-5 text-primary" /> Financial Reports
+                    <Wifi className="w-5 h-5 text-primary" /> Platform Status
                 </CardTitle>
                 <CardDescription>
-                    Access summaries of school financials, budget tracking, and expenses.
+                    Monitor school connectivity, latency, and data I/O analysis.
                 </CardDescription>
                 </CardHeader>
                 <CardContent>
-                 <Link href="/dashboard/reporting/financials" passHref>
-                    <Button>Generate Financial Report</Button>
+                 <Link href="/dashboard/reporting/platform-status" passHref>
+                    <Button>View Platform Status</Button>
                   </Link>
                 </CardContent>
             </Card>
@@ -74,7 +72,6 @@ export default function ReportingPage() {
                 </CardContent>
             </Card>
         </div>
-      <ReportingClient />
     </div>
   );
 }
