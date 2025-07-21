@@ -149,11 +149,11 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-               <Link href="/dashboard" legacyBehavior passHref>
-                 <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
+               <NavigationMenuLink asChild>
+                 <Link href="/dashboard" className={cn(navigationMenuTriggerStyle(), pathname === '/dashboard' && 'bg-accent/50')}>
                     Dashboard
-                 </NavigationMenuLink>
-               </Link>
+                 </Link>
+               </NavigationMenuLink>
             </NavigationMenuItem>
             
             {accessibleNavMenus.map(menu => (
