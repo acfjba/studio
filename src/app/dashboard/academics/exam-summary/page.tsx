@@ -69,7 +69,7 @@ export default function ExamSummaryPage() {
 
         const aggregatedData = studentYears.map(year => {
             const yearResults = filteredByTermAndYear.filter(r => r.studentYear === year);
-            const scores = yearResults.map(r => r.score).filter(s => typeof s === 'number') as number[];
+            const scores = yearResults.map(r => r.score).filter(s => typeof s === 'number' || (typeof s === 'string' && !isNaN(Number(s)))).map(s => Number(s));
             
             if (scores.length === 0) {
                 return {

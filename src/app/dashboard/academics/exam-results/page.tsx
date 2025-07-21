@@ -56,10 +56,8 @@ async function deleteExamResultFromBackend(id: string): Promise<{ success: boole
 const generateYearOptions = () => {
     const options = [{ value: "Kindergarten", label: "Kindergarten" }];
     for (let year = 1; year <= 8; year++) {
-        for (let cluster = 1; cluster <= 4; cluster++) {
-            const value = `${year}0${cluster}`;
-            options.push({ value: value, label: `Year ${year} - Cluster ${value}` });
-        }
+        const yearStr = year.toString();
+        options.push({ value: yearStr, label: `Year ${yearStr}` });
     }
     return options;
 };
@@ -389,5 +387,3 @@ export default function ExamResultsManagementPage() {
     </div>
   );
 }
-
-    
