@@ -1,14 +1,12 @@
 // src/lib/firebase/config.ts
 
 // This file is the central point for initializing the Firebase SDK for your application.
-// It reads your project's specific credentials from the .env file.
-// IMPORTANT: For Next.js, environment variables must be prefixed with NEXT_PUBLIC_ to be accessible in the browser.
+// It reads your project's specific credentials which are set in the next.config.ts file.
 
 import { initializeApp, getApp, getApps, type FirebaseOptions } from "firebase/app";
 import { getFirestore } from "firebase/firestore";
 
-// These variables are loaded from the .env file in your project's root directory.
-// They MUST be prefixed with NEXT_PUBLIC_ to be exposed to the client-side application.
+// These variables are loaded from the `env` block in your next.config.ts file.
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -19,9 +17,9 @@ const firebaseConfig: FirebaseOptions = {
 };
 
 // This function checks if all the necessary Firebase configuration values are present.
-// It helps prevent errors if the .env file is missing or incomplete.
+// It helps prevent errors if the configuration is missing or incomplete.
 function isAllConfigPresent() {
-    return Object.values(firebaseConfig).every(val => val);
+    return Object.values(firebaseConfig).every(val => !!val);
 }
 
 // Initialize Firebase only if it hasn't been initialized already.
