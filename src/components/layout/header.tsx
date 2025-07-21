@@ -149,7 +149,7 @@ export function Header() {
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem>
-               <Link href="/dashboard" passHref legacyBehavior>
+               <Link href="/dashboard" asChild>
                  <NavigationMenuLink active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                     Dashboard
                  </NavigationMenuLink>
