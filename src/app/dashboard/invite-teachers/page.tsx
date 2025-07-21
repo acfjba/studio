@@ -1,7 +1,8 @@
 
 "use client";
 
-import React, { useState, type ChangeEvent } from 'react';
+import React, { useState, type ChangeEvent, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -43,8 +44,26 @@ async function addMultipleUsersToBackend(users: UserFormData[]): Promise<{ succe
 
 export default function UserManagementPage() {
     const { toast } = useToast();
+    const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
     const [users, setUsers] = useState<UserWithPassword[]>(usersSeedData);
+    const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+
+
+    useEffect(() => {
+        const role = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
+        if (role !== 'system-admin') {
+            toast({
+                variant: 'destructive',
+                title: 'Access Denied',
+                description: 'You do not have permission to view this page.',
+            });
+            router.push('/dashboard');
+            setHasAccess(false);
+        } else {
+            setHasAccess(true);
+        }
+    }, [router, toast]);
 
     const singleUserForm = useForm<UserFormData>({
         resolver: zodResolver(SingleUserFormSchema),
@@ -145,6 +164,18 @@ export default function UserManagementPage() {
             setMultipleUsersData(""); // Clear textarea if a file is selected
         }
     };
+
+    if (hasAccess === null) {
+      return (
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+        </div>
+      );
+    }
+  
+    if (!hasAccess) {
+        return null; // Render nothing while redirecting
+    }
 
     return (
         <div className="flex flex-col gap-8">
