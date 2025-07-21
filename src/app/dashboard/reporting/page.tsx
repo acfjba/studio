@@ -2,7 +2,7 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { TrendingUp, FileText, ShieldCheck, Wifi } from "lucide-react";
+import { TrendingUp, FileText, ShieldCheck, Wifi, BookCheck, Users, Warehouse } from "lucide-react";
 import Link from "next/link";
 
 export default function ReportingPage() {
@@ -12,7 +12,52 @@ export default function ReportingPage() {
         title="Reporting & Analytics"
         description="Generate and view detailed reports on school performance and platform status."
       />
-        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+        <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+             <Card>
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <BookCheck className="w-5 h-5 text-primary" /> Academic Reports
+                </CardTitle>
+                <CardDescription>
+                    Generate reports on student performance, exam results, and subject analytics.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/dashboard/reporting/academic-reports">
+                        <Button>Generate Academic Report</Button>
+                    </Link>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <Warehouse className="w-5 h-5 text-primary" /> Inventory Reports
+                </CardTitle>
+                <CardDescription>
+                    View reports on stock levels, usage, and value of school inventory.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/dashboard/reporting/inventory-reports">
+                        <Button>Generate Inventory Report</Button>
+                    </Link>
+                </CardContent>
+            </Card>
+            <Card>
+                <CardHeader>
+                <CardTitle className="flex items-center gap-2 font-headline">
+                    <Users className="w-5 h-5 text-primary" /> Staff Reports
+                </CardTitle>
+                <CardDescription>
+                    Create reports on staff attendance, roles, and performance metrics.
+                </CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <Link href="/dashboard/reporting/staff-reports">
+                        <Button>Generate Staff Report</Button>
+                    </Link>
+                </CardContent>
+            </Card>
             <Card>
                 <CardHeader>
                 <CardTitle className="flex items-center gap-2 font-headline">
@@ -56,19 +101,6 @@ export default function ReportingPage() {
                  <Link href="/dashboard/reporting/platform-status" passHref>
                     <Button>View Platform Status</Button>
                   </Link>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader>
-                <CardTitle className="flex items-center gap-2 font-headline">
-                    <FileText className="w-5 h-5 text-primary" /> Custom Reports
-                </CardTitle>
-                <CardDescription>
-                    Build and save custom reports based on your needs.
-                </CardDescription>
-                </CardHeader>
-                <CardContent>
-                <Button disabled>Generate Custom Report</Button>
                 </CardContent>
             </Card>
         </div>
