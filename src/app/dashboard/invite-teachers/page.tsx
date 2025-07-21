@@ -15,7 +15,7 @@ import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles, SingleUserFormSchema, type UserFormData, type UserWithPassword } from "@/lib/schemas/user";
 import { Separator } from '@/components/ui/separator';
-import { sampleUsersSeedData } from '@/lib/seed-data';
+import { usersSeedData } from '@/lib/seed-data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
@@ -44,7 +44,7 @@ async function addMultipleUsersToBackend(users: UserFormData[]): Promise<{ succe
 export default function UserManagementPage() {
     const { toast } = useToast();
     const [file, setFile] = useState<File | null>(null);
-    const [users, setUsers] = useState<UserWithPassword[]>(sampleUsersSeedData);
+    const [users, setUsers] = useState<UserWithPassword[]>(usersSeedData);
 
     const singleUserForm = useForm<UserFormData>({
         resolver: zodResolver(SingleUserFormSchema),
@@ -67,7 +67,7 @@ export default function UserManagementPage() {
             
             const newUser: UserWithPassword = {
                 ...data,
-                uid: `new_user_${Date.now()}`,
+                id: `new_user_${Date.now()}`,
                 displayName: data.name,
             };
             setUsers(prevUsers => [newUser, ...prevUsers]);
@@ -125,7 +125,7 @@ export default function UserManagementPage() {
         if (result.success) {
             const addedUsers = result.report.success.map(u => ({
                 ...u,
-                uid: `new_user_${Date.now()}_${Math.random()}`,
+                id: `new_user_${Date.now()}_${Math.random()}`,
                 displayName: u.name,
             }));
             setUsers(prevUsers => [...addedUsers, ...prevUsers]);
@@ -305,7 +305,6 @@ export default function UserManagementPage() {
                                     <TableRow>
                                         <TableHead>Name</TableHead>
                                         <TableHead>Email</TableHead>
-                                        <TableHead>Phone</TableHead>
                                         <TableHead>Role</TableHead>
                                         <TableHead>School ID</TableHead>
                                         <TableHead>Password</TableHead>
@@ -313,10 +312,9 @@ export default function UserManagementPage() {
                                 </TableHeader>
                                 <TableBody>
                                     {users.map((user) => (
-                                        <TableRow key={user.uid}>
+                                        <TableRow key={user.id}>
                                             <TableCell>{user.displayName}</TableCell>
                                             <TableCell>{user.email}</TableCell>
-                                            <TableCell>{user.phone || 'N/A'}</TableCell>
                                             <TableCell>{user.role}</TableCell>
                                             <TableCell>{user.schoolId || 'N/A'}</TableCell>
                                             <TableCell className="font-mono">{user.password}</TableCell>
@@ -331,3 +329,5 @@ export default function UserManagementPage() {
         </div>
     );
 }
+
+    
