@@ -2,7 +2,8 @@
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from './config';
-import { staffData, schoolData, sampleLibraryBooksData, sampleExamResultsData, sampleUsersSeedData } from '@/lib/data';
+import { staffData, schoolData, sampleExamResultsData } from '@/lib/data';
+import { sampleUsersSeedData, sampleLibraryBooksData } from '@/lib/seed-data';
 
 export async function seedDatabase() {
   if (!isFirebaseConfigured || !db) {

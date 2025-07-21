@@ -39,7 +39,6 @@ import { TooltipProvider, Tooltip as UiTooltip, TooltipContent, TooltipTrigger }
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { Switch } from "@/components/ui/switch";
 import { isFirebaseConfigured } from '@/lib/firebase/config';
-import { seedDatabase } from '@/lib/firebase/seed';
 
 
 interface AdminMetrics {
@@ -353,11 +352,18 @@ export default function PlatformManagementPage() {
       toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
       
       try {
-          await seedDatabase();
-          toast({ title: "Database Seeded Successfully", description: "Sample data has been loaded into Firestore." });
+          const response = await fetch('/api/seed', { method: 'POST' });
+          const result = await response.json();
+
+          if (!response.ok) {
+              throw new Error(result.message || 'Failed to seed database.');
+          }
+
+          toast({ title: "Database Seeded Successfully", description: result.message });
       } catch (error) {
           console.error("Error seeding database:", error);
-          toast({ variant: "destructive", title: "Seeding Failed", description: "Could not seed the database. Check console for errors." });
+          const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+          toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
       }
       
       setIsManagingData(false);
