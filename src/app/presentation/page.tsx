@@ -45,34 +45,34 @@ export default function PresentationPage() {
 
                 <Slide>
                     <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">The Teacher's Toolkit</h2>
-                    <p className="text-lg text-foreground mb-8 text-center">A comprehensive digital toolkit designed to streamline daily tasks, enhance planning, and support professional growth.</p>
+                    <p className="text-lg text-foreground mb-8 text-center">A comprehensive digital toolkit designed to streamline daily tasks, enhance planning, and support professional growth by centralizing all core responsibilities.</p>
                     <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
                             <ClipboardList className="h-7 w-7 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Comprehensive Planning Suite</p>
-                                <p className="text-muted-foreground text-sm">Digitally create, manage, and submit your **Weekly Workbook Plans**, design detailed **Lesson Plans** with objectives and resources, and track your career goals with the **Individual Work Plan (IWP)**.</p>
+                                <p className="text-muted-foreground text-sm">Digitally create, manage, and submit your **Weekly Workbook Plans**, design detailed **Lesson Plans** with objectives and resources, and track your career goals with the **Individual Work Plan (IWP)**. This integrated suite ensures all planning is aligned and easily accessible.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <GraduationCap className="h-7 w-7 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Student Record Management</p>
-                                <p className="text-muted-foreground text-sm">Log important student data efficiently. Submit confidential **Counselling Notes**, record **Disciplinary Incidents**, and enter **Exam Results** directly into the system, ensuring records are always up-to-date.</p>
+                                <p className="text-muted-foreground text-sm">Log important student data efficiently and securely. Submit confidential **Counselling Notes**, record **Disciplinary Incidents** with detailed action logs, and enter **Exam Results** directly into the system, ensuring records are always up-to-date and accessible for reporting.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <ShieldAlert className="h-7 w-7 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Health &amp; Safety Reporting</p>
-                                <p className="text-muted-foreground text-sm">Conduct and log daily classroom **Health Inspections** and report any **OHS Incidents** immediately using dedicated, easy-to-use forms to maintain a safe and healthy school environment.</p>
+                                <p className="text-muted-foreground text-sm">Conduct and log daily classroom **Health Inspections** and report any **OHS Incidents** immediately using dedicated, easy-to-use forms. This proactive approach helps maintain a safe and healthy school environment for both students and staff.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
-                            <Boxes className="h-7 w-7 text-primary mr-4 mt-1 shrink-0" />
+                            <Users className="h-7 w-7 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Resource &amp; Inventory Management</p>
-                                <p className="text-muted-foreground text-sm">Manage your **Classroom Inventory** by tracking textbooks, stationery, and other supplies. View the full **Library Catalogue** and manage book check-outs and returns seamlessly.</p>
+                                <p className="font-semibold">Teacher Ratings and Feedback</p>
+                                <p className="text-muted-foreground text-sm">Participate in a constructive feedback loop by rating peers and management. The system allows for transparent and fair assessments, fostering a culture of continuous improvement and professional development. View your own rating history at any time.</p>
                             </div>
                         </div>
                     </div>
@@ -80,34 +80,34 @@ export default function PresentationPage() {
                 
                 <Slide>
                     <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">The Head Teacher's Panel</h2>
-                     <p className="text-lg text-foreground mb-8 text-center">A powerful command center for school leadership to monitor progress, manage tasks, and assess performance.</p>
+                     <p className="text-lg text-foreground mb-8 text-center">A powerful command center for school leadership to monitor progress, manage administrative workflows, and assess overall performance with data-driven insights.</p>
                      <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
                             <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">School Overview</p>
-                                <p className="text-muted-foreground text-sm">Get a quick glance at key school-wide statistics, including workbook submission status, and access shortcuts to all major administrative and record-keeping modules.</p>
+                                <p className="font-semibold">School Overview & Quick Access</p>
+                                <p className="text-muted-foreground text-sm">Get a high-level glance at key school-wide statistics, including workbook submission status, and access shortcuts to all major administrative and record-keeping modules. This central hub streamlines navigation to critical management tasks.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <Bell className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Pending Tasks</p>
-                                <p className="text-muted-foreground text-sm">Review, accept, or reject weekly workbook plans submitted by teachers in a centralized, easy-to-manage panel. Keep track of all pending approvals in one place.</p>
+                                <p className="font-semibold">Pending Task Management</p>
+                                <p className="text-muted-foreground text-sm">Efficiently review, accept, or reject weekly workbook plans submitted by teachers in a centralized, easy-to-manage panel. This ensures timely feedback and keeps academic planning on track across the school.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <FileText className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Generate Reports</p>
-                                <p className="text-muted-foreground text-sm">Analyze teacher submission timeliness with detailed reports. Identify punctual and late submissions, and export the data to PDF or Excel (CSV) for record-keeping.</p>
+                                <p className="font-semibold">Generate Detailed Reports</p>
+                                <p className="text-muted-foreground text-sm">Analyze teacher submission timeliness with detailed, exportable reports. Identify trends in punctuality and late submissions, and export the data to PDF or Excel (CSV) for record-keeping and staff reviews.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <UserCheck className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Teacher Assessment</p>
-                                <p className="text-muted-foreground text-sm">Use an automated checklist, populated with data from across the platform, to track the completion of key administrative tasks for each teacher and add your own assessment notes.</p>
+                                <p className="font-semibold">Automated Teacher Assessment</p>
+                                <p className="text-muted-foreground text-sm">Utilize an automated checklist, populated with live data from across the platform, to track the completion of key administrative tasks for each teacher. Add your own confidential assessment notes to build a comprehensive performance profile.</p>
                             </div>
                         </div>
                     </div>
@@ -115,34 +115,34 @@ export default function PresentationPage() {
                 
                  <Slide>
                     <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">The Primary Admin's Dashboard</h2>
-                    <p className="text-lg text-foreground mb-8 text-center">The central hub for comprehensive school administration, from user management to operational oversight.</p>
+                    <p className="text-lg text-foreground mb-8 text-center">The central hub for comprehensive school administration, giving you complete control over user management, operational modules, and school-wide data.</p>
                      <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
                             <UserCog className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">User & Staff Management</p>
-                                <p className="text-muted-foreground text-sm">A complete interface to manage all staff records. Add, edit, or remove staff members and invite new teachers to the platform with role assignments.</p>
+                                <p className="text-muted-foreground text-sm">A complete interface to manage all staff records. Add, edit, or remove staff members and invite new teachers to the platform with specific role assignments, ensuring your user base is always current.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <GraduationCap className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Academic Records</p>
-                                <p className="text-muted-foreground text-sm">Full access to manage all school-wide academic data, including workbook plans, lesson plans, exam results, and disciplinary and counselling records.</p>
+                                <p className="font-semibold">Total Academic Records Access</p>
+                                <p className="text-muted-foreground text-sm">Gain full access to manage all school-wide academic data. This includes overseeing all workbook plans, lesson plans, exam results, and both disciplinary and counselling records from a single, unified interface.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <Settings2 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">School Operations</p>
-                                <p className="text-muted-foreground text-sm">Oversee all operational modules, including Health & Safety (OHS) incident reports, the full Library Service, and management of the Primary School fixed asset inventory.</p>
+                                <p className="font-semibold">School Operations Control</p>
+                                <p className="text-muted-foreground text-sm">Oversee all critical operational modules for the school. This includes managing Health & Safety (OHS) incident reports, the full Library Service, and any other day-to-day operational tools configured on the platform.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <DatabaseZap className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Data & Reporting</p>
-                                <p className="text-muted-foreground text-sm">Utilize powerful reporting tools to view school-wide KPIs. Upload bulk data easily using Excel or ZIP files to populate the system efficiently.</p>
+                                <p className="font-semibold">Data & Reporting Tools</p>
+                                <p className="text-muted-foreground text-sm">Utilize powerful reporting tools to view school-wide Key Performance Indicators (KPIs). Upload bulk data easily using Excel or ZIP files to populate the system efficiently, saving time and reducing manual entry.</p>
                             </div>
                         </div>
                      </div>
@@ -150,27 +150,27 @@ export default function PresentationPage() {
 
                 <Slide>
                      <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Specialized Data Modules</h2>
-                     <p className="text-lg text-foreground mb-8 text-center">Powerful, dedicated modules for managing critical student and school data with security and detail.</p>
+                     <p className="text-lg text-foreground mb-8 text-center">Powerful, dedicated modules for managing critical student and school data with security, detail, and ease of use, ensuring all information is consistent and accessible.</p>
                      <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
                             <Library className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Library Service</p>
-                                <p className="text-muted-foreground text-sm">A complete library management system. Catalogue every book, track total vs. available copies, and manage student and staff loans. The system logs issue dates, due dates, and return status, providing a clear overview of all library activity.</p>
+                                <p className="text-muted-foreground text-sm">A complete library management system. Catalogue every book, track total vs. available copies in real-time, and manage student and staff loans. The system logs issue dates, due dates, and return status, providing a clear overview of all library activity.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <Gavel className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Disciplinary Records</p>
-                                <p className="text-muted-foreground text-sm">Log and manage all student disciplinary incidents in a secure, centralized module. Record incident details, specify issues like bullying or vandalism, document actions taken, and track whether parents have been notified.</p>
+                                <p className="text-muted-foreground text-sm">Log and manage all student disciplinary incidents in a secure, centralized module. Record incident details, specify issues like bullying or vandalism, document actions taken, and track whether parents have been notified, creating a comprehensive and actionable record.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <HeartHandshake className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Counselling Module</p>
-                                <p className="text-muted-foreground text-sm">Maintain confidential and detailed records of student counselling sessions. Document session details, create action plans, log follow-ups, and securely record whether parental contact was made, ensuring a complete history of student support.</p>
+                                <p className="text-muted-foreground text-sm">Maintain confidential and detailed records of student counselling sessions. Document session details, create action plans, log follow-ups, and securely record whether parental contact was made, ensuring a complete and private history of student support.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
@@ -185,34 +185,34 @@ export default function PresentationPage() {
 
                 <Slide>
                     <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Data Management &amp; Reporting</h2>
-                    <p className="text-lg text-foreground mb-8 text-center">Robust tools for data handling, printing, and exporting across all modules.</p>
+                    <p className="text-lg text-foreground mb-8 text-center">Robust, standardized tools for data handling, printing, and exporting are integrated across all modules to ensure your data is always accessible and usable.</p>
                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
                             <Printer className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Print Forms & Reports</p>
-                                <p className="text-muted-foreground text-sm">Generate clean, print-optimized versions of any data entry form or summary report, perfect for physical record-keeping, meetings, or offline review.</p>
+                                <p className="text-muted-foreground text-sm">Generate clean, print-optimized versions of any data entry form or summary report with a single click. This is perfect for physical record-keeping, staff meetings, or offline review where a hard copy is required.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <Download className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Save as PDF</p>
-                                <p className="text-muted-foreground text-sm">Easily save any form or report as a professional-looking PDF document directly from your browser's print dialog, ensuring universal compatibility and easy sharing.</p>
+                                <p className="text-muted-foreground text-sm">Easily save any form or report as a professional-looking PDF document directly from your browser's print dialog. This ensures universal compatibility for easy sharing and digital archiving.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <FileSpreadsheet className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Export to Excel (CSV)</p>
-                                <p className="text-muted-foreground text-sm">Download key data tables, such as exam results or inventory lists, as CSV files. This allows for advanced analysis and integration with Excel or other spreadsheet software.</p>
+                                <p className="text-muted-foreground text-sm">Download key data tables, such as exam results, staff lists, or inventory summaries, as CSV files. This allows for advanced analysis and integration with external tools like Excel or Google Sheets.</p>
                             </div>
                         </div>
                         <div className="flex items-start">
                             <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Consistent & Reliable</p>
-                                <p className="text-muted-foreground text-sm">These standardized export options are available on all major data entry and reporting pages, providing a consistent and reliable user experience across the entire platform.</p>
+                                <p className="font-semibold">Consistent & Reliable Experience</p>
+                                <p className="text-muted-foreground text-sm">These standardized export options are available on all major data entry and reporting pages, providing a consistent and reliable user experience. You can always expect to find these tools where you need them most.</p>
                             </div>
                         </div>
                     </div>
