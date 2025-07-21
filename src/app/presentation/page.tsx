@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { 
     ArrowRight, BookOpenText, CheckCircle, Home, Library, ShieldCheck, Star, UserCheck, Users, 
-    BarChart3, Bell, FileText, UserCog, Settings2, DatabaseZap, GraduationCap, ClipboardEdit, 
-    HeartHandshake, Gavel, HeartPulse, ClipboardList, Printer, Download, FileSpreadsheet,
-    ShieldAlert, Boxes
+    BarChart3, Bell, FileText, UserCog, Settings2, DatabaseZap, GraduationCap, ClipboardList, 
+    HeartHandshake, Gavel, Printer, Download, FileSpreadsheet,
+    ShieldAlert, Boxes, Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -146,6 +146,41 @@ export default function PresentationPage() {
                             </div>
                         </div>
                      </div>
+                </Slide>
+
+                <Slide>
+                     <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Comprehensive Inventory Management</h2>
+                     <p className="text-lg text-foreground mb-8 text-center">A dual-system approach to track everything from classroom consumables to high-value school assets, providing a complete financial and operational overview.</p>
+                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
+                        <div className="flex items-start">
+                            <Boxes className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Classroom Stock Inventory</p>
+                                <p className="text-muted-foreground text-sm">Managed by teachers for each year level, this system tracks daily consumables like textbooks, stationery, and supplies. It calculates current stock based on start-of-term quantities, items added, and items lost or damaged, providing a real-time view of classroom resources.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <Building2 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Primary School Inventory</p>
+                                <p className="text-muted-foreground text-sm">Overseen by administration, this module manages the school's fixed assets, such as desks, chairs, computers, and projectors. Each item is tracked with its quantity and estimated value, allowing for accurate asset valuation and long-term financial planning.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Aggregated Summary Reports</p>
+                                <p className="text-muted-foreground text-sm">Both inventory systems feed into powerful summary reports. View aggregated stock levels across all classrooms to identify school-wide shortages or surpluses. Analyze the total value of all primary assets with detailed charts, providing crucial data for financial reporting and budgeting.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">AI-Powered Forecasting</p>
+                                <p className="text-muted-foreground text-sm">Leverage the power of AI to analyze historical inventory data. The system can forecast future needs for consumables, provide intelligent reorder recommendations, and estimate potential cost savings from proactive management, helping to optimize purchasing and reduce waste.</p>
+                            </div>
+                        </div>
+                    </div>
                 </Slide>
 
                 <Slide>
