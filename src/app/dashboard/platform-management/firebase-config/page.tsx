@@ -75,7 +75,7 @@ export default function FirebaseConfigPage() {
         setIsClearing(false);
     };
     
-    const firestoreUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/databases/-default-/data` : '#';
+    const firestoreUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/databases` : '#';
     const authUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/authentication/users` : '#';
     const functionsUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/functions` : '#';
     const rulesUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/rules` : '#';
@@ -113,6 +113,25 @@ export default function FirebaseConfigPage() {
                 </CardContent>
             </Card>
 
+            <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Important: One-Time Setup Required</AlertTitle>
+                <AlertDescription>
+                    Before you can seed data, you must create a Firestore database in your Firebase project. This is a one-time setup step.
+                    <br />
+                    1. <a href={firestoreUrl} target="_blank" rel="noopener noreferrer" className="font-bold underline">Click here to go to the Firestore Database page.</a>
+                    <br />
+                    2. Click "Create database".
+                    <br />
+                    3. Select **Production mode** (this is important for security rules).
+                    <br />
+                    4. Choose a location (e.g., us-central1) and click "Enable".
+                    <br />
+                    After the database is created, you can use the "Seed Database" button below.
+                </AlertDescription>
+            </Alert>
+
+
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
                 <Card>
                     <CardHeader>
@@ -129,9 +148,9 @@ export default function FirebaseConfigPage() {
                                 <KeyRound className="mr-2 h-4 w-4" /> Manage Users
                             </Button>
                         </a>
-                        <a href={firestoreUrl} target="_blank" rel="noopener noreferrer">
+                        <a href={rulesUrl} target="_blank" rel="noopener noreferrer">
                             <Button className="w-full" disabled={!projectId} variant="outline">
-                                <Database className="mr-2 h-4 w-4" /> View Database
+                                <Database className="mr-2 h-4 w-4" /> Manage Security Rules
                             </Button>
                         </a>
                     </CardContent>
@@ -142,7 +161,7 @@ export default function FirebaseConfigPage() {
                             <Server className="w-5 h-5 text-primary" /> Backend Connection
                         </CardTitle>
                         <CardDescription>
-                           A secure backend connection with admin rights is handled by <strong className="text-foreground">Firebase Cloud Functions</strong>. These are separate from this web app and run on Google's servers.
+                           A secure backend connection with admin rights is handled by <strong className="text-foreground">Firebase App Hosting</strong>. This allows secure operations like seeding data.
                         </CardDescription>
                     </CardHeader>
                     <CardContent>
