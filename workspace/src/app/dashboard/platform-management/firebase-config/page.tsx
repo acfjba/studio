@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { 
@@ -13,12 +13,16 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
 import { isFirebaseConfigured } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
-import { seedDatabaseAction } from '@/app/actions';
 
 export default function FirebaseConfigPage() {
+    const [projectId, setProjectId] = useState<string | null>(null);
     const [isSeeding, setIsSeeding] = useState(false);
+    const [isClearing, setIsClearing] = useState(false);
     const { toast } = useToast();
-    const projectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || null;
+
+    useEffect(() => {
+        setProjectId(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || null);
+    }, []);
 
     const handleSeedDatabase = async () => {
         if (!isFirebaseConfigured) {
@@ -36,17 +40,18 @@ export default function FirebaseConfigPage() {
 
         setIsSeeding(true);
         toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
-
+        
         try {
-            const result = await seedDatabaseAction();
+            const response = await fetch('/api/seed', { method: 'POST' });
+            const result = await response.json();
 
-            if (result.error) {
-                 toast({ variant: "destructive", title: "Seeding Failed", description: result.message });
-            } else {
-                toast({ title: "Database Seeded Successfully", description: result.message });
+            if (!response.ok) {
+                throw new Error(result.message || 'An unknown error occurred during seeding.');
             }
+
+            toast({ title: "Database Seeded Successfully", description: result.message });
         } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred during seeding.";
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
             toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
         } finally {
             setIsSeeding(false);
@@ -61,17 +66,18 @@ export default function FirebaseConfigPage() {
         if (!window.confirm("This will delete all data in your Firestore database. This is irreversible. Are you sure?")) {
             return;
         }
-        setIsSeeding(true); // Re-use seeding state for loading indicator
+        setIsClearing(true);
         toast({ title: "Clearing Database...", description: "This is a simulation. In a real app, this would be a high-privilege operation.", variant: "destructive" });
         await new Promise(res => setTimeout(res, 2000));
         toast({ title: "Database Cleared (Simulated)", description: "The database has been cleared." });
-        setIsSeeding(false);
+        setIsClearing(false);
     };
     
     const firestoreUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/databases` : '#';
     const authUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/authentication/users` : '#';
     const functionsUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/functions` : '#';
     const rulesUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/rules` : '#';
+
 
     return (
         <div className="flex flex-col gap-8">
@@ -179,9 +185,9 @@ export default function FirebaseConfigPage() {
                            {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                            {isSeeding ? "Seeding..." : "Seed Database"}
                         </Button>
-                     <Button className="w-full" onClick={handleClearData} disabled={isSeeding || !isFirebaseConfigured} variant="destructive">
-                           {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                           {isSeeding ? "Clearing..." : "Clear All Data (Simulated)"}
+                     <Button className="w-full" onClick={handleClearData} disabled={isClearing || !isFirebaseConfigured} variant="destructive">
+                           {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                           {isClearing ? "Clearing..." : "Clear All Data (Simulated)"}
                         </Button>
                 </CardContent>
             </Card>
