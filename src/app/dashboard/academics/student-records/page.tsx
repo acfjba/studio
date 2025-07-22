@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Search, Building, AlertCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
-import { usersSeedData, schoolData } from '@/lib/seed-data';
+import { usersSeedData, schoolData } from '@/lib/data';
 
 interface StudentRecord {
   id: string;

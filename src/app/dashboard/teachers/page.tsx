@@ -10,7 +10,7 @@ import { Input } from "@/components/ui/input";
 import { Star, Search, AlertCircle, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usersSeedData } from '@/lib/seed-data';
+import { usersSeedData } from '@/lib/data';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 

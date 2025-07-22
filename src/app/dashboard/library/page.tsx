@@ -9,7 +9,7 @@ import { Library, PlusCircle, AlertCircle, Edit2, Trash2, MailWarning, ArrowRigh
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookFormSchema, LibraryTransactionFormSchema, type Book, type BookFormData, type LibraryTransaction, type LibraryTransactionFormData } from "@/lib/schemas/library";
-import { sampleLibraryBooksData } from '@/lib/seed-data';
+import { sampleLibraryBooksData } from '@/lib/data';
 import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";

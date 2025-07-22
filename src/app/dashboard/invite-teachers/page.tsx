@@ -16,7 +16,7 @@ import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles, SingleUserFormSchema, type UserFormData, type UserWithPassword } from "@/lib/schemas/user";
 import { Separator } from '@/components/ui/separator';
-import { usersSeedData } from '@/lib/seed-data';
+import { usersSeedData } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
@@ -360,5 +360,3 @@ export default function UserManagementPage() {
         </div>
     );
 }
-
-    
