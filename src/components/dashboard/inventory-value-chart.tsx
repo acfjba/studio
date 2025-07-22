@@ -1,7 +1,8 @@
+
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { inventoryChartData } from '@/lib/data';
+import inventoryChartData from '@/data/inventory-chart.json';
 import { useTheme } from 'next-themes';
 
 const RADIAN = Math.PI / 180;

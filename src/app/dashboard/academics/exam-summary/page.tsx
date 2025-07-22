@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BarChart, Bar, LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, BookCopy, FileCheck2, BarChartBig, ListOrdered, AlertCircle } from "lucide-react";
-import { sampleExamResultsData } from '@/lib/data';
+import sampleExamResultsData from '@/data/exam-results.json';
 import type { ExamResult } from '@/lib/schemas/exam-results';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -46,7 +46,7 @@ export default function ExamSummaryPage() {
     useEffect(() => {
         setIsLoading(true);
         // Simulate fetching data
-        setDetailedResults(sampleExamResultsData);
+        setDetailedResults(sampleExamResultsData as ExamResult[]);
         // Find the most recent year in the data and set it as the default filter
         if (sampleExamResultsData.length > 0) {
             const latestYear = Math.max(...sampleExamResultsData.map(r => parseInt(r.year, 10))).toString();
@@ -69,7 +69,7 @@ export default function ExamSummaryPage() {
 
         const aggregatedData = studentYears.map(year => {
             const yearResults = filteredByTermAndYear.filter(r => r.studentYear === year);
-            const scores = yearResults.map(r => r.score).filter(s => typeof s === 'number' || (typeof s === 'string' && !isNaN(Number(s)))).map(s => Number(s));
+            const scores = yearResults.map(r => Number(r.score)).filter(s => !isNaN(s));
             
             if (scores.length === 0) {
                 return {

@@ -1,7 +1,8 @@
+
 'use client';
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Tooltip } from 'recharts';
-import { overviewChartData } from '@/lib/data';
+import overviewChartData from '@/data/overview-chart.json';
 
 export function OverviewChart() {
   return (

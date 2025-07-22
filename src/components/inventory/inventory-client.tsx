@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -35,7 +36,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { forecastInventoryNeeds, type ForecastInventoryNeedsOutput } from '@/ai/flows/forecast-inventory-needs';
-import { inventoryData as initialInventoryData } from '@/lib/data';
+import initialInventoryData from '@/data/inventory.json';
 
 const forecastSchema = z.object({
   forecastMonths: z.coerce.number().min(1).max(24),

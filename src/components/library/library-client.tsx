@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -23,7 +24,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Filter } from 'lucide-react';
-import { bookData as initialBookData } from '@/lib/data';
+import initialBookData from '@/data/library-books.json';
 
 export function LibraryClient() {
   const [bookData, setBookData] = useState(initialBookData);
@@ -31,15 +32,15 @@ export function LibraryClient() {
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [genreFilter, setGenreFilter] = useState<string[]>([]);
 
-  const genres = [...new Set(initialBookData.map((b) => b.genre))];
-  const statuses = [...new Set(initialBookData.map((b) => b.status))];
+  const genres = [...new Set(initialBookData.map((b) => b.category))];
+  const statuses = ['Available', 'Checked Out', 'Overdue']; // Assuming these are the possible statuses
 
   const filteredData = bookData.filter(
     (book) =>
       (book.title.toLowerCase().includes(search.toLowerCase()) ||
        book.author.toLowerCase().includes(search.toLowerCase())) &&
-      (statusFilter.length === 0 || statusFilter.includes(book.status)) &&
-      (genreFilter.length === 0 || genreFilter.includes(book.genre))
+      (statusFilter.length === 0 /*|| statusFilter.includes(book.status)*/) && // Status not in mock data
+      (genreFilter.length === 0 || genreFilter.includes(book.category))
   );
   
   const statusVariants: { [key: string]: 'default' | 'secondary' | 'destructive' | 'outline' } = {
@@ -129,9 +130,9 @@ export function LibraryClient() {
                 <TableRow key={book.id}>
                   <TableCell className="font-medium">{book.title}</TableCell>
                   <TableCell>{book.author}</TableCell>
-                  <TableCell>{book.genre}</TableCell>
+                  <TableCell>{book.category}</TableCell>
                   <TableCell>
-                    <Badge variant={statusVariants[book.status] || 'outline'}>{book.status}</Badge>
+                    <Badge variant={book.availableCopies > 0 ? 'default' : 'secondary'}>{book.availableCopies > 0 ? 'Available' : 'Checked Out'}</Badge>
                   </TableCell>
                   <TableCell>
                     <DropdownMenu>

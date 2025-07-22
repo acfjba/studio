@@ -1,3 +1,4 @@
+
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
