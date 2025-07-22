@@ -13,13 +13,9 @@ import {
     counsellingRecordsSeedData,
     ohsRecordsSeedData
 } from '@/lib/seed-data';
+import { adminDb, adminAuth } from './admin';
 
 export async function seedDatabase() {
-  // Dynamically import the admin SDK *inside* the function.
-  // This is a robust pattern for serverless environments to ensure server-only
-  // code is not bundled with client-side modules.
-  const { adminDb, adminAuth } = await import('./admin');
-
   const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
