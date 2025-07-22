@@ -70,7 +70,6 @@ const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { href: '/dashboard/inventory/summary', icon: BarChart2, label: 'Primary Inventory Summary', description: 'View aggregated asset value.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-  { href: '/dashboard/invite-teachers', icon: UserPlus, label: 'User Management', description: 'Invite users and manage roles.', roles: ['system-admin'] },
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin', 'teacher', 'primary-admin', 'assistant-head-teacher', 'kindergarten'] },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
@@ -81,6 +80,7 @@ const operationsLinks = [
 const platformLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
+    { href: '/dashboard/invite-teachers', icon: UserPlus, label: 'User Management', description: 'Invite users and manage roles.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/school-management', icon: Building, label: 'School Management', description: 'View and manage schools.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/firebase-config', icon: Database, label: 'Firebase Config', description: 'View Firebase status and manage data.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/app-settings', icon: Settings, label: 'App Settings', description: 'Configure system-wide settings.', roles: ['system-admin'] },
@@ -121,6 +121,7 @@ export function Header() {
 
   const hasAccess = (allowedRoles: string[]) => {
     if (!userRole) return false;
+    if (userRole === 'system-admin') return true; // System admin has access to everything
     return allowedRoles.includes(userRole);
   };
   

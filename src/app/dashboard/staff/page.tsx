@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { PlusCircle, Search, Edit3, Trash2, Eye, UsersRound, AlertCircle, AlertTriangle } from "lucide-react";
+import { PlusCircle, Search, Edit3, Trash2, Eye, UsersRound, AlertCircle, AlertTriangle, Mail } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -20,21 +20,27 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from 'zod';
 import { StaffMemberSchema, type StaffMember, StaffMemberFormDataSchema } from "@/lib/schemas/staff";
 import { staffData as sampleStaffSeedData } from '@/lib/data';
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { userRoles } from '@/lib/schemas/user';
 
-// --- Firestore Actions (only work if db is configured) ---
+// --- Firestore Actions ---
 
-async function getStaffListFromFirestore(): Promise<StaffMember[]> {
+async function getStaffListFromFirestore(schoolId?: string): Promise<StaffMember[]> {
     if (!db) throw new Error("Firestore is not configured.");
-    const staffCollectionRef = collection(db, 'staff');
+    let staffCollectionRef = query(collection(db, 'staff'));
+    if (schoolId) {
+        staffCollectionRef = query(collection(db, 'staff'), where("schoolId", "==", schoolId));
+    }
     const staffSnapshot = await getDocs(staffCollectionRef);
-    const staffList = staffSnapshot.docs.map(doc => {
+    return staffSnapshot.docs.map(doc => {
         const data = doc.data();
         return {
             ...data,
@@ -43,15 +49,14 @@ async function getStaffListFromFirestore(): Promise<StaffMember[]> {
             updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
         } as StaffMember;
     });
-    return staffList;
 }
 
-async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>): Promise<StaffMember> {
+async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId?: string): Promise<StaffMember> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollectionRef = collection(db, 'staff');
     const fullStaffData = {
         ...staffData,
-        schoolId: localStorage.getItem('schoolId') || 'default-school',
+        schoolId: schoolId || 'default-school',
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     };
@@ -63,10 +68,9 @@ async function updateStaffInFirestore(staffData: Omit<StaffMember, 'createdAt' |
     if (!db || !staffData.id) throw new Error("Firestore is not configured or staff ID is missing.");
     const staffDocRef = doc(db, 'staff', staffData.id);
     
-    // Create a new object for update to avoid passing readonly properties.
     const dataToUpdate: any = { ...staffData, updatedAt: serverTimestamp() };
-    delete dataToUpdate.id; // Don't try to update the document ID
-    delete dataToUpdate.createdAt; // Don't try to update the creation timestamp
+    delete dataToUpdate.id;
+    delete dataToUpdate.createdAt;
 
     await updateDoc(staffDocRef, dataToUpdate);
     return { ...staffData, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
@@ -78,52 +82,61 @@ async function deleteStaffFromFirestore(staffId: string): Promise<void> {
     await deleteDoc(staffDocRef);
 }
 
+// --- Invite Logic ---
+const InviteFormSchema = z.object({
+  email: z.string().email("Invalid email address."),
+  role: z.enum(userRoles, { required_error: "Please select a role."}),
+});
+type InviteFormData = z.infer<typeof InviteFormSchema>;
+
+async function sendInviteToBackend(data: InviteFormData, schoolId: string) {
+    console.log("Simulating sending invite:", { ...data, schoolId });
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    return { success: true };
+}
+
+
 export default function StaffRecordsPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const [staffList, setStaffList] = useState<StaffMember[]>([]);
   const [editingStaff, setEditingStaff] = useState<StaffMember | null>(null);
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [schoolId, setSchoolId] = useState<string|null>(null);
   const { toast } = useToast();
 
-  const addForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({
-    resolver: zodResolver(StaffMemberFormDataSchema),
-  });
+  const addForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({ resolver: zodResolver(StaffMemberFormDataSchema) });
+  const editForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({ resolver: zodResolver(StaffMemberFormDataSchema) });
+  const inviteForm = useForm<InviteFormData>({ resolver: zodResolver(InviteFormSchema) });
 
-  const editForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({
-    resolver: zodResolver(StaffMemberFormDataSchema),
-  });
-
-  const fetchStaffList = useCallback(async () => {
+  const fetchStaffList = useCallback(async (currentSchoolId: string | null) => {
     setIsLoading(true);
     try {
         if (isFirebaseConfigured) {
-            const result = await getStaffListFromFirestore();
+            const result = await getStaffListFromFirestore(currentSchoolId ?? undefined);
             setStaffList(result);
         } else {
-            setStaffList(sampleStaffSeedData);
+            setStaffList(sampleStaffSeedData.filter(s => !currentSchoolId || s.schoolId === currentSchoolId));
         }
     } catch (error) {
         console.error("Error fetching staff:", error);
         toast({ variant: "destructive", title: "Error Fetching Staff", description: "Could not load live data. Using local mock data as a fallback." });
-        setStaffList(sampleStaffSeedData);
+        setStaffList(sampleStaffSeedData.filter(s => !currentSchoolId || s.schoolId === currentSchoolId));
     }
     setIsLoading(false);
   }, [toast]);
 
   useEffect(() => {
-    fetchStaffList();
+    const id = localStorage.getItem('schoolId');
+    setSchoolId(id);
+    fetchStaffList(id);
   }, [fetchStaffList]);
 
   useEffect(() => {
     if (editingStaff) {
-      editForm.setValue("staffId", editingStaff.staffId);
-      editForm.setValue("name", editingStaff.name);
-      editForm.setValue("role", editingStaff.role);
-      editForm.setValue("position", editingStaff.position);
-      editForm.setValue("status", editingStaff.status);
-      editForm.setValue("email", editingStaff.email);
-      editForm.setValue("phone", editingStaff.phone || ''); 
+      Object.entries(editingStaff).forEach(([key, value]) => {
+          editForm.setValue(key as keyof StaffMember, value);
+      });
     }
   }, [editingStaff, editForm]);
 
@@ -132,50 +145,19 @@ export default function StaffRecordsPage() {
     (staff.staffId && staff.staffId.toLowerCase().includes(searchTerm.toLowerCase())) ||
     staff.role.toLowerCase().includes(searchTerm.toLowerCase())
   );
-
-  const handleAddStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>> = async (data) => {
-    if (!isFirebaseConfigured) {
-        const newStaffMember: StaffMember = { ...data, id: `mock-${Date.now()}`, schoolId: 'SCH-MOCK', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-        setStaffList(prev => [...prev, newStaffMember]);
-        toast({ title: "Staff Added (Simulated)", description: `${data.name} has been added to the local list.` });
-        setIsAddModalOpen(false);
-        addForm.reset();
-        return;
-    }
-    try {
-        const newStaffMember = await addStaffToFirestore(data);
-        setStaffList(prev => [...prev, newStaffMember]);
-        toast({ title: "Staff Added", description: `${newStaffMember.name} has been added to Firestore.` });
-        setIsAddModalOpen(false);
-        addForm.reset();
-    } catch (error) {
-        console.error("Error adding staff to Firestore:", error);
-        toast({ variant: "destructive", title: "Error Adding Staff", description: "An unknown error occurred." });
-    }
-  };
   
-  const handleEditStaffClick = (staff: StaffMember) => {
-    setEditingStaff(staff);
-  };
-
-  const handleUpdateStaffSubmitHandler: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>> = async (data) => {
-    if (!editingStaff || !editingStaff.id) return;
-     if (!isFirebaseConfigured) {
-        setStaffList(staffList.map(s => s.id === editingStaff.id ? { ...editingStaff, ...data, updatedAt: new Date().toISOString() } : s));
-        toast({ title: "Staff Updated (Simulated)", description: `${data.name}'s record has been updated in the local list.` });
-        setEditingStaff(null);
-        return;
-    }
-    try {
-        const staffToUpdate = { ...editingStaff, ...data };
-        const updatedStaff = await updateStaffInFirestore(staffToUpdate);
-        setStaffList(staffList.map(s => s.id === updatedStaff.id ? updatedStaff : s));
-        toast({ title: "Staff Updated", description: `${updatedStaff.name}'s record has been updated in Firestore.` });
-        setEditingStaff(null);
-    } catch (error) {
-        console.error("Error updating staff in Firestore:", error);
-        toast({ variant: "destructive", title: "Error Updating Staff", description: "An unknown error occurred." });
-    }
+  const handleInviteSubmit: SubmitHandler<InviteFormData> = async (data) => {
+      if (!schoolId) {
+          toast({ variant: 'destructive', title: 'Error', description: 'Your school ID is not set. Cannot send invite.' });
+          return;
+      }
+      const result = await sendInviteToBackend(data, schoolId);
+      if(result.success) {
+          toast({ title: 'Invite Sent (Simulated)', description: `An invitation has been sent to ${data.email}.`});
+          inviteForm.reset();
+      } else {
+          toast({ variant: 'destructive', title: 'Failed to Send Invite'});
+      }
   };
 
   const handleDeleteStaff = async (staffIdToDelete: string, staffName?: string) => {
@@ -187,7 +169,7 @@ export default function StaffRecordsPage() {
         }
         try {
             await deleteStaffFromFirestore(staffIdToDelete);
-            setStaffList(staffList.filter(s => s.id !== staffIdToDelete));
+            await fetchStaffList(schoolId);
             toast({ title: "Staff Deleted", description: `${staffName || 'Staff member'}'s record has been removed.`, variant: "default" });
         } catch (error) {
             console.error("Error deleting staff from Firestore:", error);
@@ -198,78 +180,51 @@ export default function StaffRecordsPage() {
 
   return (
       <div className="flex flex-col gap-8">
-        <PageHeader title="Staff Records" description={`Manage staff information. ${isFirebaseConfigured ? "Data is LIVE from Firestore." : "Data is from a local simulation."}`} >
-             <Dialog open={isAddModalOpen} onOpenChange={(isOpen) => {
-              setIsAddModalOpen(isOpen);
-              if (!isOpen) addForm.reset();
-            }}>
-              <DialogTrigger asChild>
-                <Button>
-                  <PlusCircle className="mr-2 h-5 w-5" /> Add New Staff
-                </Button>
-              </DialogTrigger>
-              <DialogContent className="sm:max-w-lg">
-                <DialogHeader>
-                  <DialogTitle>Add New Staff Member</DialogTitle>
-                  <DialogDescription>
-                    Fill in the details below to add a new staff member.
-                  </DialogDescription>
-                </DialogHeader>
-                <form onSubmit={addForm.handleSubmit(handleAddStaffSubmitHandler)} className="grid gap-4 py-4">
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="staffIdAdd" className="text-right col-span-1">Staff ID</Label>
-                    <Input id="staffIdAdd" {...addForm.register('staffId')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.staffId && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.staffId.message}</p>}
-                  
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="nameAdd" className="text-right col-span-1">Name</Label>
-                    <Input id="nameAdd" {...addForm.register('name')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.name && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.name.message}</p>}
-
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="roleAdd" className="text-right col-span-1">Role</Label>
-                    <Input id="roleAdd" {...addForm.register('role')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.role && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.role.message}</p>}
-                  
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="positionAdd" className="text-right col-span-1">Position</Label>
-                    <Input id="positionAdd" {...addForm.register('position')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.position && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.position.message}</p>}
-                  
-                   <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="statusAdd" className="text-right col-span-1">Status</Label>
-                    <Input id="statusAdd" {...addForm.register('status')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.status && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.status.message}</p>}
-
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="emailAdd" className="text-right col-span-1">Email</Label>
-                    <Input id="emailAdd" type="email" {...addForm.register('email')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.email && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.email.message}</p>}
-                  
-                  <div className="grid grid-cols-4 items-center gap-4">
-                    <Label htmlFor="phoneAdd" className="text-right col-span-1">Phone</Label>
-                    <Input id="phoneAdd" {...addForm.register('phone')} className="col-span-3" />
-                  </div>
-                  {addForm.formState.errors.phone && <p className="col-start-2 col-span-3 text-destructive text-xs">{addForm.formState.errors.phone.message}</p>}
-
-                  <DialogFooter>
-                    <DialogClose asChild>
-                        <Button type="button" variant="outline">Cancel</Button>
-                    </DialogClose>
-                    <Button type="submit" disabled={addForm.formState.isSubmitting}>
-                      {addForm.formState.isSubmitting ? "Saving..." : "Save Staff"}
-                    </Button>
-                  </DialogFooter>
-                </form>
-              </DialogContent>
+        <PageHeader title="Staff Records" description={`Manage staff information for your school. ${!isFirebaseConfigured ? "(Simulated Data)" : ""}`} >
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Button><Mail className="mr-2 h-4 w-4" /> Invite New Staff</Button>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Invite New Staff Member</DialogTitle>
+                        <DialogDescription>
+                            An invitation link will be sent to the email address you provide.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <form id="invite-form" onSubmit={inviteForm.handleSubmit(handleInviteSubmit)} className="space-y-4">
+                        <div>
+                            <Label htmlFor="email-invite">Email Address</Label>
+                            <Input id="email-invite" type="email" {...inviteForm.register('email')} />
+                            {inviteForm.formState.errors.email && <p className="text-destructive text-sm mt-1">{inviteForm.formState.errors.email.message}</p>}
+                        </div>
+                        <div>
+                            <Label htmlFor="role-invite">Role</Label>
+                             <Controller
+                                name="role"
+                                control={inviteForm.control}
+                                render={({ field }) => (
+                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                        <SelectTrigger id="role-invite"><SelectValue placeholder="Select a role" /></SelectTrigger>
+                                        <SelectContent>
+                                            {userRoles.filter(r => r !== 'system-admin').map(role => <SelectItem key={role} value={role}>{role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</SelectItem>)}
+                                        </SelectContent>
+                                    </Select>
+                                )}
+                            />
+                            {inviteForm.formState.errors.role && <p className="text-destructive text-sm mt-1">{inviteForm.formState.errors.role.message}</p>}
+                        </div>
+                    </form>
+                     <DialogFooter>
+                        <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
+                        <Button type="submit" form="invite-form" disabled={inviteForm.formState.isSubmitting}>
+                           {inviteForm.formState.isSubmitting ? 'Sending...' : 'Send Invite'}
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
             </Dialog>
         </PageHeader>
+
         {!isFirebaseConfigured && (
             <Card className="bg-amber-50 border-amber-300">
                 <CardHeader>
@@ -280,11 +235,11 @@ export default function StaffRecordsPage() {
                 <CardContent>
                     <p className="text-amber-700">
                         The connection to the live Firebase database is not configured. This page is currently displaying local sample data.
-                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
                     </p>
                 </CardContent>
             </Card>
         )}
+
         <Card className="shadow-xl rounded-lg">
           <CardContent className="pt-6">
             <div className="mb-6">
@@ -294,7 +249,7 @@ export default function StaffRecordsPage() {
                 <Input
                   id="searchStaff"
                   type="search"
-                  placeholder="Search by name, ID, or position..."
+                  placeholder="Search by name, ID, or role..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="pl-10 w-full"
@@ -315,7 +270,7 @@ export default function StaffRecordsPage() {
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-foreground">
-                            {searchTerm ? `No staff matched your search for "${searchTerm}".` : "No staff records found. You can add new staff members."}
+                            {searchTerm ? `No staff matched your search for "${searchTerm}".` : "No staff records found for this school."}
                         </p>
                     </CardContent>
                 </Card>
@@ -341,12 +296,6 @@ export default function StaffRecordsPage() {
                         <TableCell>{staff.email}</TableCell>
                         <TableCell>{staff.phone}</TableCell>
                         <TableCell className="text-center space-x-1">
-                          <Button variant="ghost" size="icon" onClick={() => alert(`View details for ${staff.name}`)} title="View Details">
-                            <Eye className="h-4 w-4 text-primary" />
-                          </Button>
-                          <Button variant="ghost" size="icon" onClick={() => handleEditStaffClick(staff)} title="Edit Staff">
-                            <Edit3 className="h-4 w-4 text-accent" />
-                          </Button>
                            <Button variant="ghost" size="icon" onClick={() => staff.id && handleDeleteStaff(staff.id, staff.name)} title="Delete Staff">
                             <Trash2 className="h-4 w-4 text-destructive" />
                           </Button>
@@ -356,75 +305,6 @@ export default function StaffRecordsPage() {
                 </TableBody>
               </Table>
             </div>
-            )}
-             {editingStaff && (
-              <Dialog open={!!editingStaff} onOpenChange={(isOpen) => { 
-                  if (!isOpen) {
-                    setEditingStaff(null); 
-                    editForm.reset();
-                  } 
-                }}>
-                <DialogContent className="sm:max-w-lg">
-                  <DialogHeader>
-                    <DialogTitle>Edit Staff Member: {editingStaff.name}</DialogTitle>
-                    <DialogDescription>
-                      Update the details below.
-                    </DialogDescription>
-                  </DialogHeader>
-                  <form onSubmit={editForm.handleSubmit(handleUpdateStaffSubmitHandler)} className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="staffIdEdit" className="text-right col-span-1">Staff ID</Label>
-                      <Input id="staffIdEdit" {...editForm.register('staffId')} className="col-span-3" />
-                    </div>
-                    {editForm.formState.errors.staffId && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.staffId.message}</p>}
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="nameEdit" className="text-right col-span-1">Name</Label>
-                      <Input id="nameEdit" {...editForm.register('name')} className="col-span-3" />
-                    </div>
-                    {editForm.formState.errors.name && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.name.message}</p>}
-
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="roleEdit" className="text-right col-span-1">Role</Label>
-                        <Input id="roleEdit" {...editForm.register('role')} className="col-span-3" />
-                    </div>
-                    {editForm.formState.errors.role && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.role.message}</p>}
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="positionEdit" className="text-right col-span-1">Position</Label>
-                      <Input id="positionEdit" {...editForm.register('position')} className="col-span-3" />
-                    </div>
-                    {editForm.formState.errors.position && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.position.message}</p>}
-                    
-                     <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="statusEdit" className="text-right col-span-1">Status</Label>
-                        <Input id="statusEdit" {...editForm.register('status')} className="col-span-3" />
-                    </div>
-                    {editForm.formState.errors.status && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.status.message}</p>}
-                    
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="emailEdit" className="text-right col-span-1">Email</Label>
-                      <Input id="emailEdit" type="email" {...editForm.register('email')} className="col-span-3" />
-                    </div>
-                    {editForm.formState.errors.email && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.email.message}</p>}
-
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <Label htmlFor="phoneEdit" className="text-right col-span-1">Phone</Label>
-                      <Input id="phoneEdit" {...editForm.register('phone')} className="col-span-3" />
-                    </div>
-                     {editForm.formState.errors.phone && <p className="col-start-2 col-span-3 text-destructive text-xs">{editForm.formState.errors.phone.message}</p>}
-
-                    <DialogFooter>
-                       <DialogClose asChild>
-                         <Button type="button" variant="outline">Cancel</Button>
-                       </DialogClose>
-                       <Button type="submit" disabled={editForm.formState.isSubmitting}>
-                        {editForm.formState.isSubmitting ? "Updating..." : "Update Staff"}
-                       </Button>
-                    </DialogFooter>
-                  </form>
-                </DialogContent>
-              </Dialog>
             )}
           </CardContent>
         </Card>
