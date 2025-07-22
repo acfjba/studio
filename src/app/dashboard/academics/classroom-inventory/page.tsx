@@ -87,8 +87,6 @@ export default function ClassroomInventoryPage() {
     return editableRoles.includes(userRole || '');
   }, [userRole]);
 
-  const canViewSummary = useMemo(() => userRole === 'head-teacher' || userRole === 'assistant-head-teacher' || userRole === 'primary-admin' || userRole === 'system-admin', [userRole]);
-
   // In a real app, user role would be fetched from an auth context
   // For this demo, we'll just simulate it.
   useEffect(() => {
@@ -423,3 +421,5 @@ export default function ClassroomInventoryPage() {
       </div>
   );
 }
+
+    

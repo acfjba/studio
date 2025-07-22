@@ -81,13 +81,12 @@ export default function PrimarySchoolInventoryPage() {
     loadInventory();
   }, [loadInventory]);
   
-  const handleInputChange = (itemId: string, field: keyof EditablePrimaryInventoryItem, value: string | number) => {
+  const handleInputChange = (itemId: string, field: keyof EditablePrimaryInventoryItem, value: string) => {
     setInventoryItems(prevItems =>
       prevItems.map(item => {
         if (item.id === itemId) {
           if (field === 'quantity' || field === 'value') {
-            const strVal = String(value);
-            if (strVal === '' || /^\d*\.?\d*$/.test(strVal)) {
+            if (value === '' || /^\d*\.?\d*$/.test(value)) {
               return { ...item, [field]: value };
             }
             return item;
@@ -281,3 +280,5 @@ export default function PrimarySchoolInventoryPage() {
       </div>
   );
 }
+
+    
