@@ -1,22 +1,34 @@
-
-'use server';
-
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
-import { 
-    staffSeedData, 
-    schoolsSeedData, 
-    usersSeedData,
-    libraryBooksSeedData,
-    examResultsSeedData,
-    disciplinaryRecordsSeedData,
-    counsellingRecordsSeedData,
-    ohsRecordsSeedData
-} from '@/lib/seed-data';
 import { adminDb, adminAuth } from './admin';
+import fs from 'fs';
+import path from 'path';
+
+// Helper function to read a JSON file from the data folder
+function readSeedData<T>(filename: string): T[] {
+  const filePath = path.join(process.cwd(), 'src', 'data', filename);
+  try {
+    const fileContents = fs.readFileSync(filePath, 'utf8');
+    return JSON.parse(fileContents) as T[];
+  } catch (error) {
+    console.error(`Error reading or parsing ${filename}:`, error);
+    throw new Error(`Could not load data from ${filename}.`);
+  }
+}
 
 export async function seedDatabase() {
   const batch = writeBatch(adminDb);
+
+  // --- Read data from local JSON files ---
+  const schoolsSeedData = readSeedData<{ id: string; name: string; address: string }>('schools.json');
+  const staffSeedData = readSeedData<any>('staff.json');
+  const usersSeedData = readSeedData<any>('users.json');
+  const libraryBooksSeedData = readSeedData<any>('library-books.json');
+  const examResultsSeedData = readSeedData<any>('exam-results.json');
+  const disciplinaryRecordsSeedData = readSeedData<any>('disciplinary-records.json');
+  const counsellingRecordsSeedData = readSeedData<any>('counselling-records.json');
+  const ohsRecordsSeedData = readSeedData<any>('ohs-records.json');
+
 
   // ---------- Schools ----------
   console.log("Seeding schools...");
