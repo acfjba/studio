@@ -13,7 +13,6 @@ import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
 import { isFirebaseConfigured } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
-import { seedDatabaseAction } from '@/app/actions';
 
 export default function FirebaseConfigPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
@@ -42,16 +41,22 @@ export default function FirebaseConfigPage() {
 
         setIsSeeding(true);
         toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
-
-        const result = await seedDatabaseAction();
-
-        if (result.error) {
-             toast({ variant: "destructive", title: "Seeding Failed", description: result.message });
-        } else {
-            toast({ title: "Database Seeded Successfully", description: result.message });
-        }
         
-        setIsSeeding(false);
+        try {
+            const response = await fetch('/api/seed', { method: 'POST' });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'An unknown error occurred during seeding.');
+            }
+
+            toast({ title: "Database Seeded Successfully", description: result.message });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
+        } finally {
+            setIsSeeding(false);
+        }
     };
     
     const handleClearData = async () => {
