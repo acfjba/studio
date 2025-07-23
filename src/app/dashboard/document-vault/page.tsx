@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, Eye, Trash2, FolderArchive, AlertTriangle } from "lucide-react";
+import { Search, Download, Eye, Trash2, FolderArchive, AlertTriangle, FileArchive } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -75,6 +75,13 @@ export default function DocumentVaultPage() {
             toast({ title: "Document record deleted." });
         }
     };
+    
+    const handleDownloadZip = () => {
+        toast({
+            title: "Preparing ZIP File...",
+            description: `A ZIP file containing all ${documents.length} documents is being created for download. This is a simulation.`
+        });
+    };
 
     return (
         <div className="space-y-8">
@@ -96,16 +103,22 @@ export default function DocumentVaultPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <div className="relative">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                        <Input
-                            id="searchDocs"
-                            type="search"
-                            placeholder="Search by document name or type..."
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="pl-10 w-full max-w-md"
-                        />
+                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                        <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                            <Input
+                                id="searchDocs"
+                                type="search"
+                                placeholder="Search by document name or type..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="pl-10 w-full sm:w-80"
+                            />
+                        </div>
+                        <Button onClick={handleDownloadZip} disabled={isLoading || documents.length === 0}>
+                            <FileArchive className="mr-2 h-4 w-4" />
+                            Download all as ZIP
+                        </Button>
                     </div>
                 </CardHeader>
                 <CardContent>
