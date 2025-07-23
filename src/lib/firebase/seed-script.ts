@@ -6,7 +6,7 @@
  * To run this script, use the command: `npm run db:seed`
  */
 import { config } from 'dotenv';
-import { seedDatabase } from './seed';
+import { seedDatabase } from './server/seed';
 
 // Load environment variables from .env file
 config({ path: '.env' });
