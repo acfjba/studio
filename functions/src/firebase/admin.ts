@@ -1,4 +1,4 @@
-// src/lib/firebase/server/admin.ts
+// functions/src/firebase/admin.ts
 import admin from 'firebase-admin';
 
 // This file is for SERVER-SIDE use only.

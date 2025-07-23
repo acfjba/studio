@@ -1,4 +1,4 @@
-// src/lib/firebase/seed-script.ts
+// functions/src/firebase/seed-script.ts
 
 /**
  * This script is for command-line seeding for testing and development purposes.
@@ -6,10 +6,10 @@
  * To run this script, use the command: `npm run db:seed`
  */
 import { config } from 'dotenv';
-import { seedDatabase } from './server/seed';
+import { seedDatabase } from './seed';
 
-// Load environment variables from .env file
-config({ path: '.env' });
+// Load environment variables from .env file at the project root
+config({ path: '../../.env' });
 
 async function runSeed() {
   console.log('--- Starting Database Seed via Command Line ---');
