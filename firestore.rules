@@ -1,58 +1,64 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-
-    // By default, deny all reads and writes
-    match /{document=**} {
-      allow read, write: if false;
-    }
-
-    // Allow authenticated users to write to the test collection for connectivity checks.
-    match /test_connection/{testId} {
-      allow create: if request.auth != null;
-    }
     
-    // School-specific collections
-    // These rules allow a user to read/write if their auth token's schoolId
-    // matches the schoolId in the document.
-    
-    function isUserFromSchool(schoolId) {
-      return request.auth.token.schoolId == schoolId;
-    }
-    
+    // Helper function to check if the user has the 'system-admin' role.
     function isSystemAdmin() {
       return request.auth.token.role == 'system-admin';
     }
 
-    match /counselling/{recordId} {
-      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    // Helper function to check if the user is authenticated.
+    function isSignedIn() {
+      return request.auth != null;
     }
 
-    match /disciplinary/{recordId} {
-      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    // Helper function to check if the incoming data's schoolId matches the user's schoolId.
+    function isRequestingForOwnSchool() {
+      return request.auth.token.schoolId == request.resource.data.schoolId;
     }
     
-    match /ohs/{recordId} {
-      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    // Helper function to check if the user is trying to read data from their own school.
+    function canReadOwnSchoolData(resource) {
+      return request.auth.token.schoolId == resource.data.schoolId;
     }
 
-    match /books/{bookId} {
-      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
-    }
-    
-    match /transactions/{transactionId} {
-      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    // Default deny all access. This is a crucial security practice.
+    match /{document=**} {
+      allow read, write: if false;
     }
 
-    match /staff/{staffId} {
-      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
-    }
-    
-    // User documents can only be read by system admins or the user themselves
+    // Users can read their own document. Admins can read any user document.
     match /users/{userId} {
-      allow read: if isSystemAdmin() || request.auth.uid == userId;
+      allow get: if isSystemAdmin() || request.auth.uid == userId;
+      allow list: if isSystemAdmin();
       allow write: if isSystemAdmin();
+    }
+    
+    // Any signed-in user can read the list of schools. Only admins can write.
+    match /schools/{schoolId} {
+        allow read: if isSignedIn();
+        allow write: if isSystemAdmin();
+    }
+    
+    // The 'test_connection' collection is writable by any authenticated user for testing purposes.
+    match /test_connection/{docId} {
+      allow create: if isSignedIn();
+    }
+
+    // Rules for all school-specific data collections
+    match /(staff|counselling|disciplinary|ohs|books|transactions|examResults)/{docId} {
+      // READ: Allow if user is a system admin OR is reading data from their own school.
+      allow get, list: if isSystemAdmin() || canReadOwnSchoolData(resource);
+      
+      // CREATE: Allow if user is a system admin OR is creating data for their own school.
+      allow create: if isSystemAdmin() || isRequestingForOwnSchool();
+      
+      // UPDATE: Allow if user is a system admin OR is updating data within their own school.
+      allow update: if isSystemAdmin() || canReadOwnSchoolData(resource);
+      
+      // DELETE: Allow if user is a system admin OR is deleting data from their own school.
+      allow delete: if isSystemAdmin() || canReadOwnSchoolData(resource);
     }
   }
 }
