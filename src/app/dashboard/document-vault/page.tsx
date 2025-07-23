@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Download, Eye, Trash2, FolderArchive, AlertTriangle, FileArchive } from "lucide-react";
+import { Search, Download, Eye, Trash2, FolderArchive, AlertTriangle, FileArchive, FileDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 
@@ -76,10 +76,38 @@ export default function DocumentVaultPage() {
         }
     };
     
-    const handleDownloadZip = () => {
+    const handleDownloadIndex = () => {
+        if (documents.length === 0) {
+            toast({ variant: "destructive", title: "No documents to export." });
+            return;
+        }
+
+        const headers = ["ID", "Name", "Type", "Date Saved", "Original Path"];
+        const rows = documents.map(doc => [
+            doc.id,
+            `"${doc.name.replace(/"/g, '""')}"`,
+            `"${doc.type.replace(/"/g, '""')}"`,
+            new Date(doc.dateSaved).toLocaleString(),
+            doc.path,
+        ]);
+        
+        const csvContent = [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
+        
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute("download", "document_vault_index.csv");
+        document.body.appendChild(link);
+        link.click();
+        
+        // Clean up by removing the link and revoking the object URL
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        
         toast({
-            title: "Preparing ZIP File...",
-            description: `A ZIP file containing all ${documents.length} documents is being created for download. This is a simulation.`
+            title: "Download Started",
+            description: "The document vault index (CSV) is being downloaded."
         });
     };
 
@@ -115,9 +143,9 @@ export default function DocumentVaultPage() {
                                 className="pl-10 w-full sm:w-80"
                             />
                         </div>
-                        <Button onClick={handleDownloadZip} disabled={isLoading || documents.length === 0}>
-                            <FileArchive className="mr-2 h-4 w-4" />
-                            Download all as ZIP
+                        <Button onClick={handleDownloadIndex} disabled={isLoading || documents.length === 0}>
+                            <FileDown className="mr-2 h-4 w-4" />
+                            Download Index (CSV)
                         </Button>
                     </div>
                 </CardHeader>
