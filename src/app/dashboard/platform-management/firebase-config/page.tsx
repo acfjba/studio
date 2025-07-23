@@ -6,21 +6,23 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { 
     CheckCircle, AlertTriangle, ExternalLink, Database, KeyRound, 
-    Loader2, Server, Code, DatabaseZap, Copy
+    Loader2, Server, Code, DatabaseZap, Copy, TestTube2
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
-import { isFirebaseConfigured } from '@/lib/firebase/config';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { collection, doc, setDoc } from 'firebase/firestore';
 
 export default function FirebaseConfigPage() {
     const [projectId, setProjectId] = useState<string | null>(null);
     const [isSeeding, setIsSeeding] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
+    const [isTestingConnection, setIsTestingConnection] = useState(false);
     const { toast } = useToast();
 
     // State for connection keys
@@ -48,6 +50,42 @@ export default function FirebaseConfigPage() {
             geminiApiKey: process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 4)}...${process.env.GEMINI_API_KEY.slice(-4)}` : 'Not Set (Server-side)',
         });
     }, []);
+
+    const handleTestConnection = async () => {
+        if (!isFirebaseConfigured || !db) {
+            toast({
+                variant: "destructive",
+                title: "Firebase Not Configured",
+                description: "Cannot test connection. Please configure your .env file.",
+            });
+            return;
+        }
+
+        setIsTestingConnection(true);
+        toast({ title: "Testing Connection...", description: "Attempting to write to Firestore..." });
+
+        try {
+            const testDocRef = doc(collection(db, "test_connection"));
+            await setDoc(testDocRef, {
+                message: "Connection successful!",
+                timestamp: new Date().toISOString(),
+            });
+            toast({
+                title: "Connection Successful!",
+                description: "Successfully wrote a document to the 'test_connection' collection in Firestore.",
+            });
+        } catch (error) {
+            console.error("Firestore connection test failed:", error);
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            toast({
+                variant: "destructive",
+                title: "Connection Test Failed",
+                description: `Could not write to Firestore. Check your security rules and configuration. Error: ${errorMessage}`,
+            });
+        } finally {
+            setIsTestingConnection(false);
+        }
+    };
 
     const handleSeedDatabase = async () => {
         if (!isFirebaseConfigured) {
@@ -145,6 +183,12 @@ export default function FirebaseConfigPage() {
                                 </Alert>
                             )}
                         </CardContent>
+                        <CardFooter>
+                            <Button onClick={handleTestConnection} disabled={isTestingConnection || !isFirebaseConfigured} variant="outline">
+                                {isTestingConnection ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-2 h-4 w-4" />}
+                                {isTestingConnection ? "Testing..." : "Test Firestore Connection"}
+                            </Button>
+                        </CardFooter>
                     </Card>
 
                     <Alert variant="destructive">
