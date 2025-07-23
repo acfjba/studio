@@ -7,7 +7,7 @@ import {
     staffData, 
     usersSeedData,
     libraryBooksData,
-    examResultsData,
+    sampleExamResultsData,
     disciplinaryRecordsData,
     counsellingRecordsData,
     ohsRecordsData
@@ -42,7 +42,7 @@ export async function seedDatabase() {
 
   // ---------- Exam Results ----------
   console.log("Seeding exam results...");
-  examResultsData.forEach((ex) => {
+  sampleExamResultsData.forEach((ex) => {
     const { id, ...rest } = ex;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'examResults', id), data);
