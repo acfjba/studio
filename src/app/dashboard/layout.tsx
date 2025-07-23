@@ -3,7 +3,6 @@
 
 import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
-import { usePathname } from 'next/navigation';
 
 // export const metadata: Metadata = { // Metadata needs to be static or generated in a generateMetadata function
 //   title: "School Data Insights Dashboard",
@@ -15,12 +14,6 @@ export default function DashboardLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const pathname = usePathname();
-  const isPlatformManagementPage = pathname.startsWith('/dashboard/platform-management');
-
-  if (isPlatformManagementPage) {
-     return <div className="flex min-h-screen w-full flex-col">{children}</div>;
-  }
   
   return (
     <div className="flex min-h-screen w-full flex-col bg-background dark:bg-zinc-900">
