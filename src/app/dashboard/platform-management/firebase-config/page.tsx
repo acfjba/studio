@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -22,6 +23,7 @@ export default function FirebaseConfigPage() {
     const [isSeeding, setIsSeeding] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
     const [isTestingConnection, setIsTestingConnection] = useState(false);
+    const [isTestingCentralConnection, setIsTestingCentralConnection] = useState(false);
     const { toast } = useToast();
 
     // State for connection keys
@@ -47,7 +49,7 @@ export default function FirebaseConfigPage() {
         });
     }, []);
 
-    const handleTestConnection = async () => {
+    const handleTestConnection = async (collectionName: string, region?: string) => {
         if (!isFirebaseConfigured || !db) {
             toast({
                 variant: "destructive",
@@ -57,18 +59,21 @@ export default function FirebaseConfigPage() {
             return;
         }
 
-        setIsTestingConnection(true);
-        toast({ title: "Testing Connection...", description: "Attempting to write to Firestore..." });
+        const setLoading = region === 'us-central1' ? setIsTestingCentralConnection : setIsTestingConnection;
+        setLoading(true);
+
+        const toastTitle = region ? `Testing ${region} Connection...` : 'Testing Connection...';
+        toast({ title: toastTitle, description: "Attempting to write to Firestore..." });
 
         try {
-            const testDocRef = doc(collection(db, "test_connection"));
+            const testDocRef = doc(collection(db, collectionName));
             await setDoc(testDocRef, {
                 message: "Connection successful!",
                 timestamp: new Date().toISOString(),
             });
             toast({
                 title: "Connection Successful!",
-                description: "Successfully wrote a document to the 'test_connection' collection in Firestore.",
+                description: `Successfully wrote a document to the '${collectionName}' collection in Firestore.`,
             });
         } catch (error) {
             console.error("Firestore connection test failed:", error);
@@ -79,7 +84,7 @@ export default function FirebaseConfigPage() {
                 description: `Could not write to Firestore. Check your security rules and configuration. Error: ${errorMessage}`,
             });
         } finally {
-            setIsTestingConnection(false);
+            setLoading(false);
         }
     };
 
@@ -179,10 +184,14 @@ export default function FirebaseConfigPage() {
                                 </Alert>
                             )}
                         </CardContent>
-                        <CardFooter>
-                            <Button onClick={handleTestConnection} disabled={isTestingConnection || !isFirebaseConfigured} variant="outline">
+                        <CardFooter className="flex-wrap gap-2">
+                            <Button onClick={() => handleTestConnection('test_connection')} disabled={isTestingConnection || !isFirebaseConfigured} variant="outline">
                                 {isTestingConnection ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-2 h-4 w-4" />}
                                 {isTestingConnection ? "Testing..." : "Test Firestore Connection"}
+                            </Button>
+                            <Button onClick={() => handleTestConnection('test_connection_uscentral1', 'us-central1')} disabled={isTestingCentralConnection || !isFirebaseConfigured} variant="outline">
+                                {isTestingCentralConnection ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-2 h-4 w-4" />}
+                                {isTestingCentralConnection ? "Testing..." : "Test us-central1 Connection"}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -295,3 +304,4 @@ export default function FirebaseConfigPage() {
         </div>
     );
 }
+
