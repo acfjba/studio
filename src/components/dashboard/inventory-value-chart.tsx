@@ -2,8 +2,17 @@
 'use client';
 
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recharts';
-import { inventoryChartData } from '@/lib/data';
 import { useTheme } from 'next-themes';
+
+const inventoryChartData = [
+  { "name": "Laptops", "value": 40000 },
+  { "name": "Projectors", "value": 5250 },
+  { "name": "Textbooks", "value": 11250 },
+  { "name": "Markers", "value": 200 },
+  { "name": "Lab Coats", "value": 1000 },
+  { "name": "Microscopes", "value": 9600 },
+  { "name": "Soccer Balls", "value": 600 }
+];
 
 const RADIAN = Math.PI / 180;
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }: any) => {

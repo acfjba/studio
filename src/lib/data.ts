@@ -11,8 +11,6 @@ import libraryBooksData from '@/data/library-books.json';
 import disciplinaryRecordsData from '@/data/disciplinary-records.json';
 import counsellingRecordsData from '@/data/counselling-records.json';
 import ohsRecordsData from '@/data/ohs-records.json';
-import overviewChartData from '@/data/overview-chart.json';
-import inventoryChartData from '@/data/inventory-chart.json';
 
 // Re-exporting all the data so it can be imported from a single, reliable source.
 export {
@@ -25,6 +23,4 @@ export {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData,
-  overviewChartData,
-  inventoryChartData
 };

@@ -1,0 +1,10 @@
+
+[
+  { "id": "INV-001", "item": "Laptops", "quantity": 50, "unitCost": 800, "usageRate": 5, "reorderPoint": 10, "status": "In Stock" },
+  { "id": "INV-002", "item": "Projectors", "quantity": 15, "unitCost": 350, "usageRate": 2, "reorderPoint": 5, "status": "In Stock" },
+  { "id": "INV-003", "item": "Textbooks - Grade 10 Math", "quantity": 150, "unitCost": 75, "usageRate": 20, "reorderPoint": 30, "status": "In Stock" },
+  { "id": "INV-004", "item": "Whiteboard Markers", "quantity": 200, "unitCost": 1, "usageRate": 50, "reorderPoint": 100, "status": "Low Stock" },
+  { "id": "INV-005", "item": "Lab Coats", "quantity": 40, "unitCost": 25, "usageRate": 10, "reorderPoint": 20, "status": "In Stock" },
+  { "id": "INV-006", "item": "Microscopes", "quantity": 8, "unitCost": 1200, "usageRate": 1, "reorderPoint": 2, "status": "Out of Stock" },
+  { "id": "INV-007", "item": "Soccer Balls", "quantity": 30, "unitCost": 20, "usageRate": 5, "reorderPoint": 10, "status": "In Stock" }
+]
