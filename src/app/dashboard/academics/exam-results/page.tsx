@@ -13,7 +13,7 @@ import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ExamResultFormInputSchema, examTypes, type ExamResult, type ExamResultFormData } from "@/lib/schemas/exam-results";
 import { useToast } from "@/hooks/use-toast";
-import { PlusCircle, Search, Edit3, Trash2, ClipboardCheck, AlertCircle, Printer, Download } from "lucide-react";
+import { PlusCircle, Search, Edit3, Trash2, ClipboardCheck, AlertCircle, Printer, Download, AlertTriangle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -24,32 +24,51 @@ import {
   DialogClose,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import { sampleExamResultsData } from '@/lib/data';
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 
-// This function would ideally fetch data from your Firestore 'examResults' collection
+
+// --- Firestore Actions ---
 async function fetchExamResultsFromBackend(schoolId?: string): Promise<ExamResult[]> {
-  console.log("Simulating fetch exam results from backend...", { schoolId });
-  await new Promise(resolve => setTimeout(resolve, 800)); // Simulate network delay
+  if (!db) throw new Error("Firestore is not configured.");
+  const recordsCollectionRef = collection(db, 'examResults');
   
-  // In a real app, you would filter by schoolId on the backend.
-  // For this demo, we'll filter the mock data on the client side if a schoolId is present.
+  let q = query(recordsCollectionRef);
   if (schoolId) {
-    return sampleExamResultsData.filter(r => r.schoolId === schoolId);
+      q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
   }
-  return sampleExamResultsData; // Return all for sysadmin without a schoolId context
+  
+  const snapshot = await getDocs(q);
+  return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+          ...data,
+          id: doc.id,
+          createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+          updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+      } as ExamResult;
+  });
 }
 
-// Simulated backend actions
-async function saveExamResultToBackend(data: ExamResult): Promise<ExamResult> {
-  console.log("Simulating save exam result to backend:", data);
-  await new Promise(resolve => setTimeout(resolve, 500));
-  return { ...data, id: data.id || `sim-${Date.now()}`, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+async function saveExamResultToBackend(data: Omit<ExamResult, 'id' | 'createdAt' | 'updatedAt'>, id?: string): Promise<ExamResult> {
+  if (!db) throw new Error("Firestore is not configured.");
+  if (id) {
+      const docRef = doc(db, 'examResults', id);
+      const dataToUpdate = { ...data, updatedAt: serverTimestamp() };
+      await updateDoc(docRef, dataToUpdate);
+      return { ...data, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  } else {
+      const collectionRef = collection(db, 'examResults');
+      const dataToAdd = { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+      const docRef = await addDoc(collectionRef, dataToAdd);
+      return { ...data, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  }
 }
 
 async function deleteExamResultFromBackend(id: string): Promise<{ success: boolean }> {
-  console.log("Simulating delete exam result from backend, ID:", id);
-  await new Promise(resolve => setTimeout(resolve, 500));
+  if (!db) throw new Error("Firestore is not configured.");
+  await deleteDoc(doc(db, 'examResults', id));
   return { success: true };
 }
 
@@ -116,22 +135,27 @@ export default function ExamResultsManagementPage() {
 
   const watchedExamType = watch("examType");
 
-  useEffect(() => {
-    const loadResults = async () => {
-      if (userRole === null) return;
-      setIsLoading(true);
-      setFetchError(null);
-      try {
-        const fetchedResults = await fetchExamResultsFromBackend(schoolId || undefined);
+  const loadResults = useCallback(async () => {
+    if (userRole === null) return;
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+        if (!isFirebaseConfigured) {
+          throw new Error("Firebase is not configured. Cannot load data.");
+        }
+        const schoolIdToFetch = userRole === 'system-admin' ? undefined : schoolId;
+        const fetchedResults = await fetchExamResultsFromBackend(schoolIdToFetch || undefined);
         setResults(fetchedResults);
-      } catch (err) {
-        setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    loadResults();
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
   }, [schoolId, userRole]);
+
+  useEffect(() => {
+    loadResults();
+  }, [loadResults]);
 
 
   useEffect(() => {
@@ -158,9 +182,14 @@ export default function ExamResultsManagementPage() {
 
 
   const handleFormSubmitHandler: SubmitHandler<ExamResultFormData> = async (data) => {
+    if (!isFirebaseConfigured) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save because Firebase is not configured."});
+        return;
+    }
+
     const currentUserId = "currentUserPlaceholderId"; 
     
-    const resultToSave: Omit<ExamResult, 'id' | 'createdAt' | 'updatedAt'> & { id?: string } = {
+    const resultToSave: Omit<ExamResult, 'id' | 'createdAt' | 'updatedAt'> = {
         ...data,
         recordedByUserId: currentUserId,
         ...(schoolId && { schoolId: schoolId }), 
@@ -168,19 +197,15 @@ export default function ExamResultsManagementPage() {
 
     try {
       if (editingResultId) {
-        const updatedResult = await saveExamResultToBackend({
+        await saveExamResultToBackend({
             ...resultToSave,
-            id: editingResultId,
-            createdAt: results.find(r => r.id === editingResultId)?.createdAt || new Date().toISOString(), 
-            updatedAt: new Date().toISOString(),
-        } as ExamResult);
-        setResults(prevResults => prevResults.map(r => r.id === editingResultId ? updatedResult : r));
+        }, editingResultId);
         toast({ title: "Exam Result Updated", description: `Result for ${data.studentName} updated.` });
       } else {
-        const savedResult = await saveExamResultToBackend(resultToSave as ExamResult);
-        setResults(prevResults => [savedResult, ...prevResults]);
+        await saveExamResultToBackend(resultToSave);
         toast({ title: "Exam Result Recorded", description: `New result for ${data.studentName} added.` });
       }
+      await loadResults();
       setIsFormModalOpen(false);
       setEditingResultId(null);
       reset();
@@ -194,9 +219,13 @@ export default function ExamResultsManagementPage() {
   
   const handleDeleteResult = async (resultId: string) => {
     if (!window.confirm("Are you sure you want to delete this exam result?")) return;
+    if (!isFirebaseConfigured) {
+      toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete because Firebase is not configured."});
+      return;
+    }
     try {
       await deleteExamResultFromBackend(resultId);
-      setResults(prevResults => prevResults.filter(r => r.id !== resultId));
+      await loadResults();
       toast({ title: "Result Deleted", description: "Exam result has been deleted." });
     } catch (error) {
       toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete exam result." });
@@ -270,6 +299,21 @@ export default function ExamResultsManagementPage() {
         )}
       </PageHeader>
       
+      {!isFirebaseConfigured && (
+          <Card className="bg-amber-50 border-amber-300">
+              <CardHeader>
+                  <CardTitle className="font-headline text-amber-800 flex items-center">
+                      <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-amber-700">
+                      The connection to the live Firebase database is not configured. This page is currently displaying local sample data.
+                  </p>
+              </CardContent>
+          </Card>
+      )}
+
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 mb-6 print:hidden">
