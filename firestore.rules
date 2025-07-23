@@ -1,24 +1,58 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    /* Collections you allow for authenticated users */
-    match /schools/{schoolId}         { allow read, write: if request.auth != null; }
-    match /staff/{staffId}            { allow read, write: if request.auth != null; }
-    match /books/{bookId}             { allow read, write: if request.auth != null; }
-    match /examResults/{resultId}     { allow read, write: if request.auth != null; }
-    match /transactions/{transactionId} { allow read, write: if request.auth != null; }
-    match /counselling/{recordId}     { allow read, write: if request.auth != null; }
-    match /disciplinary/{recordId}    { allow read, write: if request.auth != null; }
-    match /ohs/{recordId}             { allow read, write: if request.auth != null; }
-    match /users/{userId}             { allow read, write: if request.auth != null; }
-
-
-    /* ------------------------------------------------------------------
-       Catch‑all deny rule **last**: applies only if no block above matched
-       ------------------------------------------------------------------ */
+    // By default, deny all reads and writes
     match /{document=**} {
       allow read, write: if false;
+    }
+
+    // Allow authenticated users to write to the test collection for connectivity checks.
+    match /test_connection/{testId} {
+      allow create: if request.auth != null;
+    }
+    
+    // School-specific collections
+    // These rules allow a user to read/write if their auth token's schoolId
+    // matches the schoolId in the document.
+    
+    function isUserFromSchool(schoolId) {
+      return request.auth.token.schoolId == schoolId;
+    }
+    
+    function isSystemAdmin() {
+      return request.auth.token.role == 'system-admin';
+    }
+
+    match /counselling/{recordId} {
+      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    }
+
+    match /disciplinary/{recordId} {
+      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    }
+    
+    match /ohs/{recordId} {
+      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    }
+
+    match /books/{bookId} {
+      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    }
+    
+    match /transactions/{transactionId} {
+      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    }
+
+    match /staff/{staffId} {
+      allow read, write: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    }
+    
+    // User documents can only be read by system admins or the user themselves
+    match /users/{userId} {
+      allow read: if isSystemAdmin() || request.auth.uid == userId;
+      allow write: if isSystemAdmin();
     }
   }
 }
