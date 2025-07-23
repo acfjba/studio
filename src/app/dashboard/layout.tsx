@@ -1,13 +1,8 @@
 
 'use client';
 
-import type { Metadata } from "next";
 import { Header } from "@/components/layout/header";
 
-// export const metadata: Metadata = { // Metadata needs to be static or generated in a generateMetadata function
-//   title: "School Data Insights Dashboard",
-//   description: "Your central hub for school data management.",
-// };
 
 export default function DashboardLayout({
   children,

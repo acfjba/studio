@@ -49,12 +49,12 @@ import { cn } from '@/lib/utils';
 
 const managementLinks = [
   { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.', roles: ['head-teacher', 'system-admin', 'assistant-head-teacher', 'primary-admin'] },
-  { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage the entire school platform.', roles: ['primary-admin', 'system-admin'] },
+  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire school platform.', roles: ['primary-admin', 'system-admin'] },
   { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
 ];
 const academicLinks = [
   { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-  { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
+  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'AI Workbook Plan', description: 'Generate lesson plans with AI.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/lesson-planner', icon: BookOpen, label: 'Lesson Planner', description: 'Manually create detailed lesson plans.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
