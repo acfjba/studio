@@ -1,8 +1,9 @@
+
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions to make rules more readable.
+    // Helper functions
     function isUserFromSchool(schoolId) {
       return request.auth.token.schoolId == schoolId;
     }
@@ -10,60 +11,76 @@ service cloud.firestore {
       return request.auth.token.role == 'system-admin';
     }
 
-    // Allow any authenticated user to create a document in test collections.
-    // This is safe for temporary collections used only for connection tests.
-    match /test_connection/{docId} {
-        allow create: if request.auth != null;
+    // 1) Test‑connection: allow any signed‑in user to create a doc
+    match /test_connection/{testId} {
+      allow create: if request.auth != null;
+      // (optionally allow read/delete so you can inspect it)
+      allow read, delete: if request.auth != null;
     }
-    match /test_connection_uscentral1/{docId} {
+    match /test_connection_uscentral1/{testId} {
         allow create: if request.auth != null;
+        allow read, delete: if request.auth != null;
     }
 
-    // School-scoped collections: Access is granted if the user is a system admin
-    // OR if their auth token's schoolId matches the document's schoolId.
+    // 2) School‑scoped collections
     match /counselling/{recordId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
     match /disciplinary/{recordId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
     match /ohs/{recordId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
     match /books/{bookId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
     match /transactions/{transactionId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
     match /staff/{staffId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
-     match /examResults/{resultId} {
-      allow create: if isSystemAdmin() || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin() || isUserFromSchool(resource.data.schoolId);
+    match /examResults/{resultId} {
+      allow create: if isSystemAdmin()
+                    || isUserFromSchool(request.resource.data.schoolId);
+      allow read, update, delete: if isSystemAdmin()
+                                  || isUserFromSchool(resource.data.schoolId);
     }
-    
 
-    // Global collections with specific rules
+    // 3) Users: only system‑admins can write, but users can read their own doc
     match /users/{userId} {
-      // Allow users to read their own document, and admins to read any.
       allow read: if isSystemAdmin() || request.auth.uid == userId;
-      // Only system admins can create, update, or delete user records.
       allow create, update, delete: if isSystemAdmin();
     }
     
+    // 4) Schools collection: allow read for authenticated users, write for admins
     match /schools/{schoolId} {
-        // Allow any authenticated user to read school information.
-        allow read: if request.auth != null;
-        // Only system admins can write to the schools collection.
-        allow write: if isSystemAdmin();
+      allow read: if request.auth != null;
+      allow write: if isSystemAdmin();
+    }
+
+    // Deny any other access
+    match /{path=**} {
+      allow read, write: if false;
     }
   }
 }
