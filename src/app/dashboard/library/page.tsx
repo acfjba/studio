@@ -87,16 +87,16 @@ async function issueBookTransaction(data: LibraryTransactionFormData, bookTitle:
         
         transaction.update(bookRef, { availableCopies: bookDoc.data().availableCopies - 1 });
 
-        const newTransaction: Omit<LibraryTransaction, 'id'> = {
+        const newTransactionData = {
             ...data,
             bookTitle,
             schoolId: schoolId || 'default-school',
             issuedBy: "librarian_placeholder",
             issuedAt: new Date().toISOString(),
-            createdAt: new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
         };
-        transaction.set(transactionRef, newTransaction);
+        transaction.set(transactionRef, newTransactionData);
     });
 
     return { ...data, id: transactionRef.id, bookTitle, issuedBy: "librarian_placeholder", issuedAt: new Date().toISOString(), createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
@@ -141,6 +141,17 @@ export default function LibraryServicePage() {
   }, []);
 
   const loadData = useCallback(async () => {
+    if (!schoolId && typeof window !== 'undefined' && localStorage.getItem('schoolId') === null) {
+      setIsLoading(false);
+      if (isFirebaseConfigured) {
+          setFetchError("School ID not found. Cannot load library data.");
+      } else {
+          setFetchError("Firebase not configured and no School ID found.");
+          setBooks(sampleLibraryBooksData);
+      }
+      return;
+    }
+    
     setIsLoading(true);
     setFetchError(null);
     try {

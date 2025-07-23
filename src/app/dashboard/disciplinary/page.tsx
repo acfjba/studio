@@ -51,17 +51,18 @@ async function fetchDisciplinaryRecordsFromFirestore(schoolId?: string): Promise
     });
 }
 
-async function saveDisciplinaryRecordToFirestore(record: Omit<DisciplinaryRecord, 'id' | 'createdAt' | 'updatedAt'>, id?: string): Promise<DisciplinaryRecord> {
+async function saveDisciplinaryRecordToFirestore(record: Omit<DisciplinaryRecord, 'id' | 'createdAt' | 'updatedAt' | 'userId'>, id?: string): Promise<DisciplinaryRecord> {
     if (!db) throw new Error("Firestore is not configured.");
+    const recordWithUser = { ...record, userId: "adminUserPlaceholder" };
     if (id) {
         const docRef = doc(db, 'disciplinary', id);
-        const dataToUpdate = { ...record, updatedAt: serverTimestamp() };
+        const dataToUpdate = { ...recordWithUser, updatedAt: serverTimestamp() };
         await updateDoc(docRef, dataToUpdate);
-        return { ...record, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        return { ...recordWithUser, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     } else {
-        const dataToAdd = { ...record, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const dataToAdd = { ...recordWithUser, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
         const docRef = await addDoc(collection(db, 'disciplinary'), dataToAdd);
-        return { ...record, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        return { ...recordWithUser, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     }
 }
 
@@ -172,8 +173,6 @@ export default function DisciplinaryPage() {
 
 
   const handleFormSubmitHandler: SubmitHandler<DisciplinaryRecordFormData> = async (data) => {
-    const currentUserId = "adminUserPlaceholder";
-
     if (!isFirebaseConfigured) {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save because Firebase is not configured." });
         return;
@@ -181,7 +180,6 @@ export default function DisciplinaryPage() {
 
     const recordToSaveBase = {
         ...data,
-        userId: currentUserId,
         ...(schoolId && { schoolId: schoolId }),
     };
 

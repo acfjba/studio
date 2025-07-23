@@ -160,6 +160,24 @@ export default function StaffRecordsPage() {
       }
   };
 
+  const handleAddSubmit: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>> = async (data) => {
+    if (!isFirebaseConfigured) {
+      toast({ variant: "destructive", title: "Action Disabled", description: "Cannot add staff because Firebase is not configured." });
+      return;
+    }
+    try {
+      await addStaffToFirestore(data, schoolId ?? undefined);
+      await fetchStaffList(schoolId);
+      toast({ title: "Staff Added", description: `${data.name} has been added.` });
+      setIsAddModalOpen(false);
+      addForm.reset();
+    } catch (error) {
+      console.error("Error adding staff to Firestore:", error);
+      toast({ variant: "destructive", title: "Error Adding Staff", description: "An error occurred while adding the staff member." });
+    }
+  };
+
+
   const handleDeleteStaff = async (staffIdToDelete: string, staffName?: string) => {
     if (window.confirm(`Are you sure you want to delete ${staffName || 'this staff member'}?`)) {
         if (!isFirebaseConfigured) {
@@ -181,48 +199,74 @@ export default function StaffRecordsPage() {
   return (
       <div className="flex flex-col gap-8">
         <PageHeader title="Staff Records" description={`Manage staff information for your school. ${!isFirebaseConfigured ? "(Simulated Data)" : ""}`} >
-            <Dialog>
-                <DialogTrigger asChild>
-                    <Button><Mail className="mr-2 h-4 w-4" /> Invite New Staff</Button>
-                </DialogTrigger>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>Invite New Staff Member</DialogTitle>
-                        <DialogDescription>
-                            An invitation link will be sent to the email address you provide.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <form id="invite-form" onSubmit={inviteForm.handleSubmit(handleInviteSubmit)} className="space-y-4">
-                        <div>
-                            <Label htmlFor="email-invite">Email Address</Label>
-                            <Input id="email-invite" type="email" {...inviteForm.register('email')} />
-                            {inviteForm.formState.errors.email && <p className="text-destructive text-sm mt-1">{inviteForm.formState.errors.email.message}</p>}
-                        </div>
-                        <div>
-                            <Label htmlFor="role-invite">Role</Label>
-                             <Controller
-                                name="role"
-                                control={inviteForm.control}
-                                render={({ field }) => (
-                                    <Select onValueChange={field.onChange} defaultValue={field.value}>
-                                        <SelectTrigger id="role-invite"><SelectValue placeholder="Select a role" /></SelectTrigger>
-                                        <SelectContent>
-                                            {userRoles.filter(r => r !== 'system-admin').map(role => <SelectItem key={role} value={role}>{role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</SelectItem>)}
-                                        </SelectContent>
-                                    </Select>
-                                )}
-                            />
-                            {inviteForm.formState.errors.role && <p className="text-destructive text-sm mt-1">{inviteForm.formState.errors.role.message}</p>}
-                        </div>
-                    </form>
-                     <DialogFooter>
-                        <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
-                        <Button type="submit" form="invite-form" disabled={inviteForm.formState.isSubmitting}>
-                           {inviteForm.formState.isSubmitting ? 'Sending...' : 'Send Invite'}
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
+            <div className="flex gap-2">
+                <Dialog>
+                    <DialogTrigger asChild>
+                        <Button><Mail className="mr-2 h-4 w-4" /> Invite New Staff</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Invite New Staff Member</DialogTitle>
+                            <DialogDescription>
+                                An invitation link will be sent to the email address you provide.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <form id="invite-form" onSubmit={inviteForm.handleSubmit(handleInviteSubmit)} className="space-y-4">
+                            <div>
+                                <Label htmlFor="email-invite">Email Address</Label>
+                                <Input id="email-invite" type="email" {...inviteForm.register('email')} />
+                                {inviteForm.formState.errors.email && <p className="text-destructive text-sm mt-1">{inviteForm.formState.errors.email.message}</p>}
+                            </div>
+                            <div>
+                                <Label htmlFor="role-invite">Role</Label>
+                                <Controller
+                                    name="role"
+                                    control={inviteForm.control}
+                                    render={({ field }) => (
+                                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <SelectTrigger id="role-invite"><SelectValue placeholder="Select a role" /></SelectTrigger>
+                                            <SelectContent>
+                                                {userRoles.filter(r => r !== 'system-admin').map(role => <SelectItem key={role} value={role}>{role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</SelectItem>)}
+                                            </SelectContent>
+                                        </Select>
+                                    )}
+                                />
+                                {inviteForm.formState.errors.role && <p className="text-destructive text-sm mt-1">{inviteForm.formState.errors.role.message}</p>}
+                            </div>
+                        </form>
+                        <DialogFooter>
+                            <DialogClose asChild><Button type="button" variant="outline">Cancel</Button></DialogClose>
+                            <Button type="submit" form="invite-form" disabled={inviteForm.formState.isSubmitting}>
+                            {inviteForm.formState.isSubmitting ? 'Sending...' : 'Send Invite'}
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+                <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
+                    <DialogTrigger asChild>
+                         <Button variant="outline"><PlusCircle className="mr-2 h-4 w-4" /> Add Manually</Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                         <DialogHeader>
+                            <DialogTitle>Add New Staff Manually</DialogTitle>
+                         </DialogHeader>
+                         <form id="add-staff-form" onSubmit={addForm.handleSubmit(handleAddSubmit)} className="space-y-3">
+                            {/* Form fields here, similar to other forms */}
+                             <div><Label htmlFor="staffId">Staff ID</Label><Input id="staffId" {...addForm.register('staffId')} />{addForm.formState.errors.staffId && <p className="text-red-500 text-xs">{addForm.formState.errors.staffId.message}</p>}</div>
+                             <div><Label htmlFor="name">Name</Label><Input id="name" {...addForm.register('name')} />{addForm.formState.errors.name && <p className="text-red-500 text-xs">{addForm.formState.errors.name.message}</p>}</div>
+                             <div><Label htmlFor="role">Role</Label><Input id="role" {...addForm.register('role')} />{addForm.formState.errors.role && <p className="text-red-500 text-xs">{addForm.formState.errors.role.message}</p>}</div>
+                             <div><Label htmlFor="position">Position</Label><Input id="position" {...addForm.register('position')} />{addForm.formState.errors.position && <p className="text-red-500 text-xs">{addForm.formState.errors.position.message}</p>}</div>
+                             <div><Label htmlFor="status">Status</Label><Input id="status" {...addForm.register('status')} />{addForm.formState.errors.status && <p className="text-red-500 text-xs">{addForm.formState.errors.status.message}</p>}</div>
+                             <div><Label htmlFor="email">Email</Label><Input id="email" type="email" {...addForm.register('email')} />{addForm.formState.errors.email && <p className="text-red-500 text-xs">{addForm.formState.errors.email.message}</p>}</div>
+                             <div><Label htmlFor="phone">Phone</Label><Input id="phone" {...addForm.register('phone')} /></div>
+                         </form>
+                         <DialogFooter>
+                            <DialogClose asChild><Button variant="outline">Cancel</Button></DialogClose>
+                            <Button type="submit" form="add-staff-form" disabled={addForm.formState.isSubmitting}>Add Staff</Button>
+                         </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
         </PageHeader>
 
         {!isFirebaseConfigured && (

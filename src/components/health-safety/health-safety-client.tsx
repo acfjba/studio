@@ -50,10 +50,10 @@ async function fetchOhsRecordsFromFirestore(schoolId?: string): Promise<OhsRecor
     });
 }
 
-async function saveOhsRecordToFirestore(record: Omit<OhsRecord, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId?: string): Promise<OhsRecord> {
+async function saveOhsRecordToFirestore(record: Omit<OhsRecord, 'id' | 'createdAt' | 'updatedAt'>): Promise<OhsRecord> {
     if (!db) throw new Error("Firestore is not configured.");
     const collectionRef = collection(db, 'ohs');
-    const dataToAdd = { ...record, schoolId, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+    const dataToAdd = { ...record, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
     const docRef = await addDoc(collectionRef, dataToAdd);
     return { ...record, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
 }
@@ -136,9 +136,10 @@ export function HealthInspectionClient() {
     const newRecord = {
       incidentDate, reportedBy, compiledBy, notifiedTo,
       ambulanceCalled, headReport, actionTaken, parentsNotified,
+      ...(schoolId && { schoolId: schoolId }),
     };
     try {
-        await saveOhsRecordToFirestore(newRecord, schoolId || undefined);
+        await saveOhsRecordToFirestore(newRecord);
         toast({ title: "Record Saved", description: "OHS incident record has been saved to Firestore." });
         resetForm();
         await loadAllRecords(); // Refresh the list

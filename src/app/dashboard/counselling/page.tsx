@@ -53,19 +53,21 @@ async function fetchCounsellingRecordsFromFirestore(schoolId?: string): Promise<
     });
 }
 
-async function saveCounsellingRecordToFirestore(record: Omit<CounsellingRecord, 'id' | 'createdAt' | 'updatedAt'>, id?: string): Promise<CounsellingRecord> {
+async function saveCounsellingRecordToFirestore(record: Omit<CounsellingRecord, 'id' | 'createdAt' | 'updatedAt' | 'userId'>, id?: string): Promise<CounsellingRecord> {
     if (!db) throw new Error("Firestore is not configured.");
     
+    const recordWithUser = { ...record, userId: "currentUserPlaceholderId" };
+
     if (id) {
         const docRef = doc(db, 'counselling', id);
-        const dataToUpdate = { ...record, updatedAt: serverTimestamp() };
+        const dataToUpdate = { ...recordWithUser, updatedAt: serverTimestamp() };
         await updateDoc(docRef, dataToUpdate);
-        return { ...record, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        return { ...recordWithUser, id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     } else {
         const collectionRef = collection(db, 'counselling');
-        const dataToAdd = { ...record, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+        const dataToAdd = { ...recordWithUser, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
         const docRef = await addDoc(collectionRef, dataToAdd);
-        return { ...record, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+        return { ...recordWithUser, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     }
 }
 
@@ -200,8 +202,6 @@ export default function CounsellingPage() {
 
 
   const handleFormSubmitHandler: SubmitHandler<CounsellingRecordFormData> = async (data) => {
-    const currentUserId = "currentUserPlaceholder"; // Replace with actual logged-in user ID
-    
     if (!isFirebaseConfigured) {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save record because Firebase is not configured." });
         return;
@@ -209,7 +209,6 @@ export default function CounsellingPage() {
 
     const recordToSaveBase = {
         ...data,
-        userId: currentUserId,
         ...(schoolId && { schoolId: schoolId }),
     };
 
