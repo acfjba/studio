@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -31,13 +32,13 @@ export function StaffClient() {
   const [departmentFilter, setDepartmentFilter] = useState<string[]>([]);
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
 
-  const departments = [...new Set(initialStaffData.map((s) => s.department))];
+  const departments = [...new Set(initialStaffData.map((s) => s.position))];
   const statuses = [...new Set(initialStaffData.map((s) => s.status))];
 
   const filteredData = staffData.filter(
     (staff) =>
       staff.name.toLowerCase().includes(search.toLowerCase()) &&
-      (departmentFilter.length === 0 || departmentFilter.includes(staff.department)) &&
+      (departmentFilter.length === 0 || departmentFilter.includes(staff.position)) &&
       (statusFilter.length === 0 || statusFilter.includes(staff.status))
   );
   
@@ -128,7 +129,7 @@ export function StaffClient() {
                 <TableRow key={staff.id}>
                   <TableCell className="font-medium">{staff.name}</TableCell>
                   <TableCell>{staff.role}</TableCell>
-                  <TableCell>{staff.department}</TableCell>
+                  <TableCell>{staff.position}</TableCell>
                   <TableCell>
                     <Badge variant={statusVariants[staff.status] || 'outline'}>{staff.status}</Badge>
                   </TableCell>

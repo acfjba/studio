@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import Image from "next/image";
@@ -11,7 +11,7 @@ import { Star, Send, AlertCircle, UserSquare2 } from "lucide-react";
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { staffData as sampleStaffSeedData } from '@/lib/data';
+import { usersSeedData } from '@/lib/data';
 import { PageHeader } from '@/components/layout/page-header';
 
 interface TeacherDetails {
@@ -24,21 +24,19 @@ interface TeacherDetails {
   email?: string;
 }
 
-const simulatedStaffDataStoreForRatingPage = sampleStaffSeedData;
-
 async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<TeacherDetails | null> {
   console.log(`RateTeacherPage: Simulating fetch teacher details for ID: ${teacherId}`);
   await new Promise(resolve => setTimeout(resolve, 500));
 
-  const staffMember = simulatedStaffDataStoreForRatingPage.find(staff => staff.id === teacherId);
+  const staffMember = usersSeedData.find(staff => staff.id === teacherId);
 
   if (staffMember) {
     const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
     if (rateableRoles.includes((staffMember.role || "").toLowerCase())) {
       return {
         id: staffMember.id,
-        name: staffMember.name,
-        position: staffMember.position,
+        name: staffMember.displayName,
+        position: staffMember.role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
         avatar: `https://placehold.co/120x120.png`,
         dataAiHint: "teacher portrait",
         schoolId: staffMember.schoolId,
@@ -219,7 +217,7 @@ export default function RateTeacherPage() {
             <CardHeader>
               <CardTitle className="font-headline text-destructive flex items-center justify-center">
                 <AlertCircle className="mr-2 h-6 w-6" /> Error
-              </Title>
+              </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="font-body text-destructive mb-6">{fetchError}</p>

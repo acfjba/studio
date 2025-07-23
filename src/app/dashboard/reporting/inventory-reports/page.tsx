@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Printer, Download, Filter, AlertCircle, Warehouse } from "lucide-react";
-import sampleInventoryData from '@/data/inventory.json';
+import { inventoryData } from '@/lib/data';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
@@ -27,7 +27,7 @@ interface InventoryItemReport {
 // Simulate fetching data for the report
 async function fetchInventoryReportData(): Promise<any[]> {
     await new Promise(resolve => setTimeout(resolve, 800));
-    return sampleInventoryData;
+    return inventoryData;
 }
 
 

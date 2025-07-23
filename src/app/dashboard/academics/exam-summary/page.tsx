@@ -5,7 +5,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { BarChart, Bar, LineChart as RechartsLineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 import { TrendingUp, BookCopy, FileCheck2, BarChartBig, ListOrdered, AlertCircle } from "lucide-react";
-import sampleExamResultsData from '@/data/exam-results.json';
+import { sampleExamResultsData } from '@/lib/data';
 import type { ExamResult } from '@/lib/schemas/exam-results';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

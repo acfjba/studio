@@ -36,7 +36,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { forecastInventoryNeeds, type ForecastInventoryNeedsOutput } from '@/ai/flows/forecast-inventory-needs';
-import initialInventoryData from '@/data/inventory.json';
+import { inventoryData } from '@/lib/data';
 
 const forecastSchema = z.object({
   forecastMonths: z.coerce.number().min(1).max(24),
@@ -44,7 +44,7 @@ const forecastSchema = z.object({
 });
 
 export function InventoryClient() {
-  const [inventoryData, setInventoryData] = useState(initialInventoryData);
+  const [currentInventoryData, setCurrentInventoryData] = useState(inventoryData);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [forecastResult, setForecastResult] = useState<ForecastInventoryNeedsOutput | null>(null);
@@ -56,7 +56,7 @@ export function InventoryClient() {
     defaultValues: { forecastMonths: 6, desiredConfidenceLevel: 0.85 },
   });
 
-  const filteredData = inventoryData.filter(
+  const filteredData = currentInventoryData.filter(
     (item) =>
       item.item.toLowerCase().includes(search.toLowerCase()) &&
       (statusFilter.length === 0 || statusFilter.includes(item.status))
@@ -68,7 +68,7 @@ export function InventoryClient() {
     try {
       const result = await forecastInventoryNeeds({
         ...values,
-        inventoryData: inventoryData.map(({id, status, ...rest}) => rest),
+        inventoryData: currentInventoryData.map(({id, status, ...rest}) => rest),
       });
       setForecastResult(result);
     } catch (error) {

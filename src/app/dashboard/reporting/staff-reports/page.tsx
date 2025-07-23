@@ -10,8 +10,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Printer, Download, Users, AlertCircle, Filter } from "lucide-react";
-import sampleStaffData from '@/data/staff.json';
-import { schoolData } from '@/data/schools.json';
+import { staffData, schoolData } from '@/lib/data';
 import type { StaffMember } from '@/lib/schemas/staff';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
@@ -21,7 +20,7 @@ import { cn } from '@/lib/utils';
 // Simulate fetching data for the report
 async function fetchStaffReportData(): Promise<StaffMember[]> {
     await new Promise(resolve => setTimeout(resolve, 800));
-    return sampleStaffData as StaffMember[];
+    return staffData as StaffMember[];
 }
 
 

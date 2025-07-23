@@ -24,15 +24,15 @@ import {
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { MoreHorizontal, Filter } from 'lucide-react';
-import initialBookData from '@/data/library-books.json';
+import { libraryBooksData } from '@/lib/data';
 
 export function LibraryClient() {
-  const [bookData, setBookData] = useState(initialBookData);
+  const [bookData, setBookData] = useState(libraryBooksData);
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [genreFilter, setGenreFilter] = useState<string[]>([]);
 
-  const genres = [...new Set(initialBookData.map((b) => b.category))];
+  const genres = [...new Set(libraryBooksData.map((b) => b.category))];
   const statuses = ['Available', 'Checked Out', 'Overdue']; // Assuming these are the possible statuses
 
   const filteredData = bookData.filter(

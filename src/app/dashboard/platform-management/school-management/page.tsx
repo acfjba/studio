@@ -44,7 +44,7 @@ async function fetchSchoolsWithUsers(): Promise<School[]> {
       .map(u => ({ name: u.name, email: u.email, role: u.role }));
     return {
       ...school,
-      contactEmail: users.find(u => u.role.toLowerCase() === 'principal')?.email || `contact@${school.id}.edu`,
+      contactEmail: users.find(u => u.role.toLowerCase() === 'head-teacher')?.email || `contact@${school.id}.edu`,
       users,
     };
   });
