@@ -44,15 +44,16 @@ export default function UploadDataPage() {
 
   const handleDownloadSample = () => {
     const sampleContent = "This is a placeholder file for a ZIP archive sample. In a real application, this would be a downloadable ZIP file containing template spreadsheets (e.g., students.csv, staff.csv).";
-    const blob = new Blob([sampleContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
+    
+    // Use a data URI to make the download more reliable in sandboxed environments.
+    const encodedUri = encodeURI(`data:text/plain;charset=utf-8,${sampleContent}`);
     const link = document.createElement('a');
-    link.href = url;
-    link.download = 'sample-template.zip'; // Simulate a zip download
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "sample-template.zip");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-    URL.revokeObjectURL(url);
+    
     toast({
       title: "Sample Downloaded",
       description: "A placeholder sample file has been downloaded.",
@@ -92,17 +93,17 @@ export default function UploadDataPage() {
     <div className="flex flex-col gap-8">
         <PageHeader 
             title="Bulk Data Management"
-            description="Upload ZIP archives or Excel files for bulk data processing."
+            description="Upload ZIP archives for bulk data processing."
         />
 
         <Card className="shadow-xl rounded-lg max-w-2xl mx-auto">
           <CardHeader>
             <CardTitle className="font-headline text-xl text-primary flex items-center">
               <FileArchive className="mr-2 h-6 w-6" />
-              Data Upload Form
+              ZIP Archive Upload
             </CardTitle>
             <CardDescription className="font-body text-muted-foreground">
-              Upload a ZIP archive containing your data files, or a single Excel sheet.
+              Upload a ZIP archive containing your data files.
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -110,12 +111,12 @@ export default function UploadDataPage() {
               <div className="space-y-2">
                 <Label htmlFor="fileUploadInput" className="font-body font-semibold text-foreground flex items-center">
                   <UploadCloud className="mr-2 h-5 w-5" />
-                  ZIP or Excel File
+                  ZIP Archive
                 </Label>
                 <Input
                   id="fileUploadInput"
                   type="file"
-                  accept=".zip,.xlsx,.xls"
+                  accept=".zip"
                   onChange={handleFileChange}
                   required
                   className="font-body file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-accent/20 file:text-accent-foreground hover:file:bg-accent/30"
@@ -153,7 +154,7 @@ export default function UploadDataPage() {
           </CardContent>
           <CardFooter>
             <Button onClick={handleDownloadSample} variant="outline" className="w-full">
-                <Download className="mr-2 h-4 w-4" /> Download Sample ZIP (Placeholder)
+                <Download className="mr-2 h-4 w-4" /> Download Sample ZIP
             </Button>
           </CardFooter>
         </Card>
