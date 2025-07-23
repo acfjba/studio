@@ -2,43 +2,31 @@
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
-import fs from 'fs';
-import path from 'path';
-
-// Helper function to read a JSON file from the data folder
-function readSeedData<T>(filename: string): T[] {
-  const filePath = path.join(process.cwd(), 'src', 'data', filename);
-  try {
-    const fileContents = fs.readFileSync(filePath, 'utf8');
-    return JSON.parse(fileContents) as T[];
-  } catch (error) {
-    console.error(`Error reading or parsing ${filename}:`, error);
-    throw new Error(`Could not load data from ${filename}.`);
-  }
-}
+import { 
+    schoolData, 
+    staffData, 
+    usersSeedData,
+    libraryBooksData,
+    examResultsData,
+    disciplinaryRecordsData,
+    counsellingRecordsData,
+    ohsRecordsData
+} from '@/lib/data';
 
 export async function seedDatabase() {
-  // --- Read data from local JSON files ---
-  const schoolsSeedData = readSeedData<{ id: string; name: string; address: string }>('schools.json');
-  const staffSeedData = readSeedData<any>('staff.json');
-  const usersSeedData = readSeedData<any>('users.json');
-  const libraryBooksSeedData = readSeedData<any>('library-books.json');
-  const examResultsSeedData = readSeedData<any>('exam-results.json');
-  const disciplinaryRecordsSeedData = readSeedData<any>('disciplinary-records.json');
-  const counsellingRecordsSeedData = readSeedData<any>('counselling-records.json');
-  const ohsRecordsSeedData = readSeedData<any>('ohs-records.json');
+  console.log("Seeding database with data from @/lib/data.ts");
 
   const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
   console.log("Seeding schools...");
-  schoolsSeedData.forEach((sch) => {
+  schoolData.forEach((sch) => {
     batch.set(doc(adminDb, 'schools', sch.id), sch);
   });
 
   // ---------- Staff ----------
   console.log("Seeding staff...");
-  staffSeedData.forEach((st) => {
+  staffData.forEach((st) => {
     const { id, ...rest } = st;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'staff', id), data);
@@ -46,7 +34,7 @@ export async function seedDatabase() {
   
   // ---------- Library Books ----------
   console.log("Seeding library books...");
-  libraryBooksSeedData.forEach((bk) => {
+  libraryBooksData.forEach((bk) => {
     const { id, ...rest } = bk;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'books', id), data);
@@ -54,7 +42,7 @@ export async function seedDatabase() {
 
   // ---------- Exam Results ----------
   console.log("Seeding exam results...");
-  examResultsSeedData.forEach((ex) => {
+  examResultsData.forEach((ex) => {
     const { id, ...rest } = ex;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'examResults', id), data);
@@ -62,7 +50,7 @@ export async function seedDatabase() {
 
   // ---------- Disciplinary Records ----------
   console.log("Seeding disciplinary records...");
-  disciplinaryRecordsSeedData.forEach((dr) => {
+  disciplinaryRecordsData.forEach((dr) => {
     const { id, ...rest } = dr;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'disciplinary', id), data);
@@ -70,7 +58,7 @@ export async function seedDatabase() {
 
   // ---------- Counselling Records ----------
   console.log("Seeding counselling records...");
-  counsellingRecordsSeedData.forEach((cr) => {
+  counsellingRecordsData.forEach((cr) => {
     const { id, ...rest } = cr;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'counselling', cr.id), data);
@@ -78,7 +66,7 @@ export async function seedDatabase() {
 
   // ---------- OHS Records ----------
   console.log("Seeding OHS records...");
-  ohsRecordsSeedData.forEach((or) => {
+  ohsRecordsData.forEach((or) => {
     const { id, ...rest } = or;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'ohs', id), data);
