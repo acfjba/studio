@@ -1,34 +1,32 @@
 
 // src/lib/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
+import { adminDb, adminAuth } from './admin';
 import { 
-    staffSeedData, 
-    schoolsSeedData, 
+    schoolData, 
+    staffData, 
     usersSeedData,
-    libraryBooksSeedData,
-    examResultsSeedData,
-    disciplinaryRecordsSeedData,
-    counsellingRecordsSeedData,
-    ohsRecordsSeedData
-} from '@/lib/seed-data';
+    libraryBooksData,
+    sampleExamResultsData,
+    disciplinaryRecordsData,
+    counsellingRecordsData,
+    ohsRecordsData
+} from '@/lib/data';
 
 export async function seedDatabase() {
-  // Dynamically import the admin SDK *inside* the function.
-  // This is a robust pattern for serverless environments to ensure server-only
-  // code is not bundled with client-side modules.
-  const { adminDb, adminAuth } = await import('./admin');
+  console.log("Seeding database with data from @/lib/data.ts");
 
   const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
   console.log("Seeding schools...");
-  schoolsSeedData.forEach((sch) => {
+  schoolData.forEach((sch) => {
     batch.set(doc(adminDb, 'schools', sch.id), sch);
   });
 
   // ---------- Staff ----------
   console.log("Seeding staff...");
-  staffSeedData.forEach((st) => {
+  staffData.forEach((st) => {
     const { id, ...rest } = st;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'staff', id), data);
@@ -36,7 +34,7 @@ export async function seedDatabase() {
   
   // ---------- Library Books ----------
   console.log("Seeding library books...");
-  libraryBooksSeedData.forEach((bk) => {
+  libraryBooksData.forEach((bk) => {
     const { id, ...rest } = bk;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'books', id), data);
@@ -44,7 +42,7 @@ export async function seedDatabase() {
 
   // ---------- Exam Results ----------
   console.log("Seeding exam results...");
-  examResultsSeedData.forEach((ex) => {
+  sampleExamResultsData.forEach((ex) => {
     const { id, ...rest } = ex;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'examResults', id), data);
@@ -52,7 +50,7 @@ export async function seedDatabase() {
 
   // ---------- Disciplinary Records ----------
   console.log("Seeding disciplinary records...");
-  disciplinaryRecordsSeedData.forEach((dr) => {
+  disciplinaryRecordsData.forEach((dr) => {
     const { id, ...rest } = dr;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'disciplinary', id), data);
@@ -60,7 +58,7 @@ export async function seedDatabase() {
 
   // ---------- Counselling Records ----------
   console.log("Seeding counselling records...");
-  counsellingRecordsSeedData.forEach((cr) => {
+  counsellingRecordsData.forEach((cr) => {
     const { id, ...rest } = cr;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'counselling', cr.id), data);
@@ -68,7 +66,7 @@ export async function seedDatabase() {
 
   // ---------- OHS Records ----------
   console.log("Seeding OHS records...");
-  ohsRecordsSeedData.forEach((or) => {
+  ohsRecordsData.forEach((or) => {
     const { id, ...rest } = or;
     const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
     batch.set(doc(adminDb, 'ohs', id), data);
@@ -105,3 +103,4 @@ export async function seedDatabase() {
   await batch.commit();
   console.log('Firestore data seeding complete!');
 }
+
