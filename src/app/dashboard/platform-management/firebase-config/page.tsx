@@ -19,7 +19,6 @@ import { Label } from "@/components/ui/label";
 import { collection, doc, setDoc } from 'firebase/firestore';
 
 export default function FirebaseConfigPage() {
-    const [projectId, setProjectId] = useState<string | null>(null);
     const [isSeeding, setIsSeeding] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
     const [isTestingConnection, setIsTestingConnection] = useState(false);
@@ -37,13 +36,10 @@ export default function FirebaseConfigPage() {
     });
 
     useEffect(() => {
-        const publicProjectId = process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || null;
-        setProjectId(publicProjectId);
-
         setConnectionKeys({
             apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'Not Set',
             authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'Not Set',
-            projectId: publicProjectId || 'Not Set',
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'Not Set',
             storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'Not Set',
             messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'Not Set',
             appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'Not Set',
@@ -141,10 +137,10 @@ export default function FirebaseConfigPage() {
         toast({ title: "Copied to clipboard!" });
     };
     
-    const firestoreUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/databases` : '#';
-    const authUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/authentication/users` : '#';
-    const functionsUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/functions` : '#';
-    const rulesUrl = projectId ? `https://console.firebase.google.com/project/${projectId}/firestore/rules` : '#';
+    const firestoreUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/firestore/databases` : '#';
+    const authUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/authentication/users` : '#';
+    const functionsUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/functions` : '#';
+    const rulesUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/firestore/rules` : '#';
 
     return (
         <div className="flex flex-col gap-8">
@@ -170,7 +166,7 @@ export default function FirebaseConfigPage() {
                                     <CheckCircle className="h-4 w-4 text-green-600" />
                                     <AlertTitle className="text-green-800 font-bold">Successfully Connected to Firebase</AlertTitle>
                                     <AlertDescription className="text-green-700">
-                                        This web application is configured to connect to your Firebase project: <strong className="font-mono">{projectId || "Loading..."}</strong>.
+                                        This web application is configured to connect to your Firebase project: <strong className="font-mono">{connectionKeys.projectId || "Loading..."}</strong>.
                                     </AlertDescription>
                                 </Alert>
                             ) : (
@@ -178,7 +174,7 @@ export default function FirebaseConfigPage() {
                                     <AlertTriangle className="h-4 w-4" />
                                     <AlertTitle>Firebase Not Configured</AlertTitle>
                                     <AlertDescription>
-                                        The application cannot connect to Firebase. Please ensure your project credentials are correctly set in the <code className="font-mono">next.config.ts</code> file and that the .env file is present.
+                                        The application cannot connect to Firebase. Please ensure your project credentials are correctly set in the <code className="font-mono">.env</code> file.
                                     </AlertDescription>
                                 </Alert>
                             )}
@@ -221,12 +217,12 @@ export default function FirebaseConfigPage() {
                             </CardHeader>
                             <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <a href={authUrl} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full" disabled={!projectId} variant="outline">
+                                    <Button className="w-full" disabled={!connectionKeys.projectId} variant="outline">
                                         <KeyRound className="mr-2 h-4 w-4" /> Manage Users
                                     </Button>
                                 </a>
                                 <a href={rulesUrl} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full" disabled={!projectId} variant="outline">
+                                    <Button className="w-full" disabled={!connectionKeys.projectId} variant="outline">
                                         <Database className="mr-2 h-4 w-4" /> Manage Security Rules
                                     </Button>
                                 </a>
@@ -243,7 +239,7 @@ export default function FirebaseConfigPage() {
                             </CardHeader>
                             <CardContent>
                                 <a href={functionsUrl} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full" disabled={!projectId}>
+                                    <Button className="w-full" disabled={!connectionKeys.projectId}>
                                         Manage Cloud Functions <ExternalLink className="ml-2 h-4 w-4" />
                                     </Button>
                                 </a>
