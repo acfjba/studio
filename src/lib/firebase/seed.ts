@@ -18,8 +18,6 @@ function readSeedData<T>(filename: string): T[] {
 }
 
 export async function seedDatabase() {
-  const batch = writeBatch(adminDb);
-
   // --- Read data from local JSON files ---
   const schoolsSeedData = readSeedData<{ id: string; name: string; address: string }>('schools.json');
   const staffSeedData = readSeedData<any>('staff.json');
@@ -30,6 +28,7 @@ export async function seedDatabase() {
   const counsellingRecordsSeedData = readSeedData<any>('counselling-records.json');
   const ohsRecordsSeedData = readSeedData<any>('ohs-records.json');
 
+  const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
   console.log("Seeding schools...");
