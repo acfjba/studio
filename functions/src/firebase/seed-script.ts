@@ -7,9 +7,10 @@
  */
 import { config } from 'dotenv';
 import { seedDatabase } from './seed';
+import path from 'path';
 
 // Load environment variables from .env file at the project root
-config({ path: '../../.env' });
+config({ path: path.resolve(__dirname, '../../../.env') });
 
 async function runSeed() {
   console.log('--- Starting Database Seed via Command Line ---');

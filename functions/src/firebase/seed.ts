@@ -9,6 +9,7 @@
 
 import { getFirestore, type Firestore, type DocumentData } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
+import { adminDb, adminAuth } from './admin';
 
 // --- Configuration ---
 const SCHOOL_ID_MAIN = "3046"; // Primary school ID for the provided user list
@@ -199,8 +200,6 @@ async function setCustomUserClaimsForUsers(auth: Auth, users: typeof usersData):
 export async function seedDatabase() {
     console.log("Starting Firestore data seeding process...");
     
-    const { adminDb, adminAuth } = await import('./admin');
-
     await setCustomUserClaimsForUsers(adminAuth, usersData);
     
     const firestoreUsersData = usersData.map(u => ({
