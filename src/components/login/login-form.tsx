@@ -2,15 +2,13 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { HelpCircle, ImageIcon } from 'lucide-react';
-import Image from 'next/image';
+import { HelpCircle, Key, School as SchoolIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
@@ -22,14 +20,9 @@ export function LoginForm() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [schoolId, setSchoolId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -55,12 +48,6 @@ export function LoginForm() {
         }
 
         const userData = userDocSnap.data();
-        if(userData.schoolId !== schoolId) {
-            toast({ variant: "destructive", title: "Login Failed", description: "The provided School ID does not match this user's record." });
-            auth.signOut();
-            setIsLoggingIn(false);
-            return;
-        }
 
         localStorage.setItem('userRole', userData.role);
         localStorage.setItem('schoolId', userData.schoolId || '');
@@ -85,50 +72,6 @@ export function LoginForm() {
     }
   };
 
-  const handleAdminLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoggingIn(true);
-
-    if (!isFirebaseConfigured || !db) {
-        toast({ variant: "destructive", title: "Login Failed", description: "Firebase is not configured. Please contact support." });
-        setIsLoggingIn(false);
-        return;
-    }
-
-    try {
-        const auth = getAuth();
-        await setPersistence(auth, browserLocalPersistence);
-        const userCredential = await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-        const user = userCredential.user;
-
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-        
-        if (!userDocSnap.exists()) {
-            throw new Error("User data not found in Firestore.");
-        }
-
-        const userData = userDocSnap.data();
-        const isAdminRole = userData.role === 'system-admin';
-
-        if (!isAdminRole) {
-            toast({ variant: "destructive", title: "Login Failed", description: "This account does not have admin privileges." });
-            auth.signOut();
-            setIsLoggingIn(false);
-            return;
-        }
-
-        localStorage.setItem('userRole', userData.role);
-        localStorage.setItem('schoolId', ''); // System admins don't have a school ID
-        toast({ title: "Admin Login Successful", description: `Welcome, ${userData.displayName}!` });
-        router.push('/dashboard/platform-management');
-    } catch (error) {
-       console.error("Firebase admin sign-in error:", error);
-       toast({ variant: "destructive", title: "Login Failed", description: "Invalid admin email or password." });
-       setIsLoggingIn(false);
-    }
-  };
-
 
   const InfoTooltip = ({ text }: { text: string }) => (
     <TooltipProvider>
@@ -147,31 +90,18 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-md mx-auto border-2 border-primary/20 shadow-2xl">
-      <CardContent className="p-6 sm:p-8">
-        <div className="flex flex-col items-center text-center mb-6">
-            <div className="mb-4 h-16 w-16 flex items-center justify-center rounded-full bg-gray-200">
-                 <ImageIcon className="h-8 w-8 text-gray-400" />
-            </div>
-          <h1 className="text-2xl font-bold text-primary">TRA Platform Login</h1>
-          <p className="text-muted-foreground">Choose your login type and sign in with your details.</p>
+      <CardHeader className="items-center text-center">
+        <div className="mb-4 h-16 w-16 flex items-center justify-center rounded-full bg-primary/10">
+            <SchoolIcon className="h-8 w-8 text-primary" />
         </div>
-
-        <Tabs defaultValue="school" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 bg-muted p-1 mb-6">
-            <TabsTrigger value="school">School Login</TabsTrigger>
-            <TabsTrigger value="admin">System Admin</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="school">
+        <CardTitle className="text-2xl font-bold text-primary">Platform Login</CardTitle>
+        <CardDescription>Enter your official credentials to access the dashboard.</CardDescription>
+      </CardHeader>
+      <CardContent className="p-6 sm:p-8">
             <form onSubmit={handleLogin} className="grid gap-4">
               <div className="grid gap-2">
-                <Label htmlFor="school-id" className="flex items-center gap-2">School ID <InfoTooltip text="Enter the official ID provided to your school." /></Label>
-                <Input id="school-id" placeholder="e.g. 3046" required value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
-              </div>
-
-              <div className="grid gap-2">
                 <Label htmlFor="school-email" className="flex items-center gap-2">Email Address <InfoTooltip text="Use your official school-provided email address." /></Label>
-                <Input id="school-email" type="email" placeholder="you@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
+                <Input id="school-email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
               <div className="grid gap-2">
@@ -183,26 +113,10 @@ export function LoginForm() {
                 {isLoggingIn ? 'Logging in...' : 'Login'}
               </Button>
             </form>
-          </TabsContent>
-
-          <TabsContent value="admin">
-            <form onSubmit={handleAdminLogin} className="grid gap-4">
-              <div className="grid gap-2">
-                <Label htmlFor="admin-email" className="flex items-center gap-2">Email Address <InfoTooltip text="System administrator email address." /></Label>
-                <Input id="admin-email" type="email" placeholder="admin@system.com" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
-              </div>
-
-              <div className="grid gap-2">
-                <Label htmlFor="admin-password" className="flex items-center gap-2">Password <InfoTooltip text="System administrator password." /></Label>
-                <Input id="admin-password" type="password" required placeholder="******" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
-              </div>
-
-              <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
-                {isLoggingIn ? 'Logging in...' : 'Login'}
-              </Button>
-            </form>
-          </TabsContent>
-        </Tabs>
+            <div className="mt-4 text-center text-xs text-muted-foreground">
+                <p>System Admins should use their assigned global credentials.</p>
+                <p>All other users should use their school-specific credentials.</p>
+            </div>
       </CardContent>
     </Card>
   );
