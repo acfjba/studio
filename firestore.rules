@@ -1,85 +1,68 @@
-
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Helper functions
-    function isUserFromSchool(schoolId) {
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function hasRole(role) {
+      return request.auth.token.role == role;
+    }
+
+    function isSchoolMember(schoolId) {
       return request.auth.token.schoolId == schoolId;
     }
-    function isSystemAdmin() {
-      return request.auth.token.role == 'system-admin';
-    }
 
-    // 1) Test‑connection: allow any signed‑in user to create a doc
-    match /test_connection/{testId} {
-      allow create: if request.auth != null;
-      // (optionally allow read/delete so you can inspect it)
-      allow read, delete: if request.auth != null;
-    }
-    match /test_connection_uscentral1/{testId} {
-        allow create: if request.auth != null;
-        allow read, delete: if request.auth != null;
-    }
-
-    // 2) School‑scoped collections
-    match /counselling/{recordId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-    match /disciplinary/{recordId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-    match /ohs/{recordId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-    match /books/{bookId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-    match /transactions/{transactionId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-    match /staff/{staffId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-    match /examResults/{resultId} {
-      allow create: if isSystemAdmin()
-                    || isUserFromSchool(request.resource.data.schoolId);
-      allow read, update, delete: if isSystemAdmin()
-                                  || isUserFromSchool(resource.data.schoolId);
-    }
-
-    // 3) Users: only system‑admins can write, but users can read their own doc
-    match /users/{userId} {
-      allow read: if isSystemAdmin() || request.auth.uid == userId;
-      allow create, update, delete: if isSystemAdmin();
+    match /test_connection/{docId} {
+      allow write: if isAuthenticated();
     }
     
-    // 4) Schools collection: allow read for authenticated users, write for admins
-    match /schools/{schoolId} {
-      allow read: if request.auth != null;
-      allow write: if isSystemAdmin();
+    match /test_connection_uscentral1/{docId} {
+      allow write: if isAuthenticated();
     }
 
-    // Deny any other access
-    match /{path=**} {
+    match /schools/{schoolId} {
+      allow read: if isAuthenticated();
+      allow write: if hasRole('system-admin');
+    }
+
+    match /users/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if request.auth.uid == userId || hasRole('system-admin');
+    }
+
+    match /staff/{staffId} {
+      allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+    
+    match /books/{bookId} {
+        allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+
+    match /examResults/{resultId} {
+        allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+
+    match /disciplinary/{recordId} {
+      allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+
+    match /counselling/{recordId} {
+      allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+    
+    match /ohs/{recordId} {
+      allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+    
+    match /transactions/{transactionId} {
+      allow read, write: if isSchoolMember(resource.data.schoolId);
+    }
+
+    // Default deny all
+    match /{document=**} {
       allow read, write: if false;
     }
   }

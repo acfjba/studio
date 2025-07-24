@@ -24,7 +24,7 @@ import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod';
 import { StaffMemberSchema, type StaffMember, StaffMemberFormDataSchema } from "@/lib/schemas/staff";
-import { staffData as sampleStaffSeedData } from '@/lib/data';
+import { sampleStaffSeedData } from '@/lib/data';
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
