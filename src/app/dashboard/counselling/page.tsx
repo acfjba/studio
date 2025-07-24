@@ -30,14 +30,11 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp
 
 
 // --- Firestore Actions ---
-async function fetchCounsellingRecordsFromFirestore(schoolId?: string): Promise<CounsellingRecord[]> {
+async function fetchCounsellingRecordsFromFirestore(schoolId: string): Promise<CounsellingRecord[]> {
     if (!db) throw new Error("Firestore is not configured.");
     const recordsCollectionRef = collection(db, 'counselling');
     
-    let q = query(recordsCollectionRef);
-    if (schoolId) {
-        q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
-    }
+    const q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
     
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
@@ -161,7 +158,11 @@ export default function CounsellingPage() {
   }, [searchName, searchDob, records, toast]);
 
   const loadRecords = useCallback(async () => {
-    if (schoolId === null && typeof window !== 'undefined') return; // Wait for schoolId
+    if (!schoolId) {
+        // Don't fetch if schoolId isn't loaded yet, unless not configured at all.
+        if (isFirebaseConfigured) return;
+    }
+    
     setIsLoading(true);
     setFetchError(null);
     try {
@@ -170,7 +171,8 @@ export default function CounsellingPage() {
         setRecords([]);
         return;
       }
-      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId || undefined);
+      // schoolId is guaranteed to be a string here if firebase is configured
+      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId!);
       setRecords(fetchedRecords);
       if (hasSearched) {
           handleSearchRecords(undefined, fetchedRecords);
@@ -206,10 +208,15 @@ export default function CounsellingPage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save record because Firebase is not configured." });
         return;
     }
+    
+    if (!schoolId) {
+        toast({ variant: "destructive", title: "Save Failed", description: "School ID not found. Cannot save record." });
+        return;
+    }
 
     const recordToSaveBase = {
         ...data,
-        ...(schoolId && { schoolId: schoolId }),
+        schoolId: schoolId,
     };
 
     try {

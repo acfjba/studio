@@ -33,12 +33,9 @@ import { userRoles } from '@/lib/schemas/user';
 
 // --- Firestore Actions ---
 
-async function getStaffListFromFirestore(schoolId?: string): Promise<StaffMember[]> {
+async function getStaffListFromFirestore(schoolId: string): Promise<StaffMember[]> {
     if (!db) throw new Error("Firestore is not configured.");
-    let staffCollectionRef = query(collection(db, 'staff'));
-    if (schoolId) {
-        staffCollectionRef = query(collection(db, 'staff'), where("schoolId", "==", schoolId));
-    }
+    let staffCollectionRef = query(collection(db, 'staff'), where("schoolId", "==", schoolId));
     const staffSnapshot = await getDocs(staffCollectionRef);
     return staffSnapshot.docs.map(doc => {
         const data = doc.data();
@@ -51,12 +48,12 @@ async function getStaffListFromFirestore(schoolId?: string): Promise<StaffMember
     });
 }
 
-async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId?: string): Promise<StaffMember> {
+async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId: string): Promise<StaffMember> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollectionRef = collection(db, 'staff');
     const fullStaffData = {
         ...staffData,
-        schoolId: schoolId || 'default-school',
+        schoolId: schoolId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     };
@@ -109,19 +106,19 @@ export default function StaffRecordsPage() {
   const editForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({ resolver: zodResolver(StaffMemberFormDataSchema) });
   const inviteForm = useForm<InviteFormData>({ resolver: zodResolver(InviteFormSchema) });
 
-  const fetchStaffList = useCallback(async (currentSchoolId: string | null) => {
+  const fetchStaffList = useCallback(async (currentSchoolId: string) => {
     setIsLoading(true);
     try {
         if (isFirebaseConfigured) {
-            const result = await getStaffListFromFirestore(currentSchoolId ?? undefined);
+            const result = await getStaffListFromFirestore(currentSchoolId);
             setStaffList(result);
         } else {
-            setStaffList(sampleStaffSeedData.filter(s => !currentSchoolId || s.schoolId === currentSchoolId));
+            setStaffList(sampleStaffSeedData.filter(s => s.schoolId === currentSchoolId));
         }
     } catch (error) {
         console.error("Error fetching staff:", error);
         toast({ variant: "destructive", title: "Error Fetching Staff", description: "Could not load live data. Using local mock data as a fallback." });
-        setStaffList(sampleStaffSeedData.filter(s => !currentSchoolId || s.schoolId === currentSchoolId));
+        setStaffList(sampleStaffSeedData.filter(s => s.schoolId === currentSchoolId));
     }
     setIsLoading(false);
   }, [toast]);
@@ -129,7 +126,14 @@ export default function StaffRecordsPage() {
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
     setSchoolId(id);
-    fetchStaffList(id);
+    if (id) {
+        fetchStaffList(id);
+    } else {
+        if (!isFirebaseConfigured) {
+             setStaffList(sampleStaffSeedData);
+        }
+        setIsLoading(false);
+    }
   }, [fetchStaffList]);
 
   useEffect(() => {
@@ -165,8 +169,12 @@ export default function StaffRecordsPage() {
       toast({ variant: "destructive", title: "Action Disabled", description: "Cannot add staff because Firebase is not configured." });
       return;
     }
+    if (!schoolId) {
+       toast({ variant: "destructive", title: "Error Adding Staff", description: "School ID not found." });
+       return;
+    }
     try {
-      await addStaffToFirestore(data, schoolId ?? undefined);
+      await addStaffToFirestore(data, schoolId);
       await fetchStaffList(schoolId);
       toast({ title: "Staff Added", description: `${data.name} has been added.` });
       setIsAddModalOpen(false);
@@ -185,6 +193,7 @@ export default function StaffRecordsPage() {
             toast({ title: "Staff Deleted (Simulated)", description: `${staffName || 'Staff member'}'s record has been removed.`, variant: "default" });
             return;
         }
+        if (!schoolId) return;
         try {
             await deleteStaffFromFirestore(staffIdToDelete);
             await fetchStaffList(schoolId);

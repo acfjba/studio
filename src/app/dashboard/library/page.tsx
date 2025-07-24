@@ -23,10 +23,10 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp
 
 // --- Firestore Actions ---
 
-async function fetchBooksFromFirestore(schoolId?: string): Promise<Book[]> {
+async function fetchBooksFromFirestore(schoolId: string): Promise<Book[]> {
     if (!db) throw new Error("Firestore is not configured.");
     const booksCollection = collection(db, 'books');
-    const q = schoolId ? query(booksCollection, where("schoolId", "==", schoolId)) : booksCollection;
+    const q = query(booksCollection, where("schoolId", "==", schoolId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
         const data = doc.data();
@@ -39,10 +39,10 @@ async function fetchBooksFromFirestore(schoolId?: string): Promise<Book[]> {
     });
 }
 
-async function fetchTransactionsFromFirestore(schoolId?: string): Promise<LibraryTransaction[]> {
+async function fetchTransactionsFromFirestore(schoolId: string): Promise<LibraryTransaction[]> {
     if (!db) throw new Error("Firestore is not configured.");
     const txCollection = collection(db, 'transactions');
-    const q = schoolId ? query(txCollection, where("schoolId", "==", schoolId)) : txCollection;
+    const q = query(txCollection, where("schoolId", "==", schoolId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
         const data = doc.data();
@@ -56,12 +56,12 @@ async function fetchTransactionsFromFirestore(schoolId?: string): Promise<Librar
     });
 }
 
-async function addBookToFirestore(data: BookFormData, schoolId?: string): Promise<Book> {
+async function addBookToFirestore(data: BookFormData, schoolId: string): Promise<Book> {
     if (!db) throw new Error("Firestore is not configured.");
     const newBookData = {
         ...data,
         availableCopies: data.totalCopies,
-        schoolId: schoolId || 'default-school',
+        schoolId: schoolId,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
     };
@@ -74,7 +74,7 @@ async function deleteBookFromFirestore(bookId: string): Promise<void> {
     await deleteDoc(doc(db, 'books', bookId));
 }
 
-async function issueBookTransaction(data: LibraryTransactionFormData, bookTitle: string, schoolId?: string): Promise<LibraryTransaction> {
+async function issueBookTransaction(data: LibraryTransactionFormData, bookTitle: string, schoolId: string): Promise<LibraryTransaction> {
     if (!db) throw new Error("Firestore is not configured.");
     const bookRef = doc(db, 'books', data.bookId);
     const transactionRef = doc(collection(db, 'transactions'));
@@ -90,7 +90,7 @@ async function issueBookTransaction(data: LibraryTransactionFormData, bookTitle:
         const newTransactionData = {
             ...data,
             bookTitle,
-            schoolId: schoolId || 'default-school',
+            schoolId: schoolId,
             issuedBy: "librarian_placeholder",
             issuedAt: new Date().toISOString(),
             createdAt: serverTimestamp(),
@@ -141,13 +141,14 @@ export default function LibraryServicePage() {
   }, []);
 
   const loadData = useCallback(async () => {
-    if (!schoolId && typeof window !== 'undefined' && localStorage.getItem('schoolId') === null) {
-      setIsLoading(false);
+    if (!schoolId) {
       if (isFirebaseConfigured) {
-          setFetchError("School ID not found. Cannot load library data.");
+        setIsLoading(false);
+        setFetchError("School ID not found. Cannot load library data.");
       } else {
-          setFetchError("Firebase not configured and no School ID found.");
-          setBooks(sampleLibraryBooksData);
+        setIsLoading(false);
+        setFetchError("Firebase not configured and no School ID found.");
+        setBooks(sampleLibraryBooksData);
       }
       return;
     }
@@ -159,8 +160,8 @@ export default function LibraryServicePage() {
             throw new Error("Firebase is not configured. Displaying mock data.");
         }
         const [fetchedBooks, fetchedTransactions] = await Promise.all([
-            fetchBooksFromFirestore(schoolId || undefined),
-            fetchTransactionsFromFirestore(schoolId || undefined),
+            fetchBooksFromFirestore(schoolId),
+            fetchTransactionsFromFirestore(schoolId),
         ]);
         setBooks(fetchedBooks);
         setTransactions(fetchedTransactions);
@@ -169,7 +170,7 @@ export default function LibraryServicePage() {
         setFetchError(errorMsg);
         toast({ variant: "destructive", title: "Error", description: errorMsg });
         if (errorMsg.includes("Firebase is not configured")) {
-            setBooks(sampleLibraryBooksData);
+            setBooks(sampleLibraryBooksData.filter(b => b.schoolId === schoolId));
         }
     } finally {
         setIsLoading(false);
@@ -185,8 +186,12 @@ export default function LibraryServicePage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot add book because Firebase is not configured." });
         return;
     }
+    if (!schoolId) {
+        toast({ variant: "destructive", title: "Error", description: "School ID not found. Cannot add book." });
+        return;
+    }
     try {
-        await addBookToFirestore(data, schoolId || undefined);
+        await addBookToFirestore(data, schoolId);
         await loadData();
         toast({ title: "Book Added", description: `"${data.title}" has been added to the catalogue.`});
         setIsAddBookModalOpen(false);
@@ -197,20 +202,22 @@ export default function LibraryServicePage() {
   };
   
   const handleTransactionSubmit: SubmitHandler<LibraryTransactionFormData> = async (data) => {
-    const bookToLoan = books.find(b => b.id === data.bookId);
-
     if (!isFirebaseConfigured) {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot issue book because Firebase is not configured." });
         return;
     }
-    
+    if (!schoolId) {
+        toast({ variant: "destructive", title: "Transaction Failed", description: "School ID not found." });
+        return;
+    }
+    const bookToLoan = books.find(b => b.id === data.bookId);
     if (!bookToLoan) {
         toast({ variant: "destructive", title: "Error", description: "Selected book not found." });
         return;
     }
 
     try {
-        await issueBookTransaction(data, bookToLoan.title, schoolId || undefined);
+        await issueBookTransaction(data, bookToLoan.title, schoolId);
         await loadData();
         toast({ title: "Transaction Successful", description: `"${bookToLoan.title}" issued to ${data.memberName}.` });
         setIsTransactionModalOpen(false);

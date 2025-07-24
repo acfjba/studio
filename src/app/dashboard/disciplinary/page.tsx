@@ -31,12 +31,9 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp
 
 
 // --- Firestore Actions ---
-async function fetchDisciplinaryRecordsFromFirestore(schoolId?: string): Promise<DisciplinaryRecord[]> {
+async function fetchDisciplinaryRecordsFromFirestore(schoolId: string): Promise<DisciplinaryRecord[]> {
     if (!db) throw new Error("Firestore is not configured.");
-    let q = query(collection(db, 'disciplinary'));
-    if (schoolId) {
-        q = query(collection(db, 'disciplinary'), where("schoolId", "==", schoolId));
-    }
+    let q = query(collection(db, 'disciplinary'), where("schoolId", "==", schoolId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
         const data = doc.data();
@@ -133,14 +130,16 @@ export default function DisciplinaryPage() {
   const showOtherIssue = watchedIssues.includes('Other');
 
   const loadRecords = useCallback(async () => {
-    if (schoolId === null && typeof window !== 'undefined') return;
+    if (!schoolId) {
+        if (isFirebaseConfigured) return; 
+    }
     setIsLoading(true);
     setFetchError(null);
     try {
         if (!isFirebaseConfigured) {
             throw new Error("Firebase is not configured. Displaying no data.");
         }
-      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId || undefined);
+      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId!);
       setRecords(fetchedRecords);
        if (hasSearched) {
           const results = fetchedRecords.filter(record =>

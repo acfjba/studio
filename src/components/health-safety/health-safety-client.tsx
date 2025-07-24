@@ -32,12 +32,9 @@ interface OhsRecord {
 }
 
 // --- Firestore Actions ---
-async function fetchOhsRecordsFromFirestore(schoolId?: string): Promise<OhsRecord[]> {
+async function fetchOhsRecordsFromFirestore(schoolId: string): Promise<OhsRecord[]> {
     if (!db) throw new Error("Firestore is not configured.");
-    let q = query(collection(db, 'ohs'));
-    if (schoolId) {
-        q = query(collection(db, 'ohs'), where("schoolId", "==", schoolId));
-    }
+    let q = query(collection(db, 'ohs'), where("schoolId", "==", schoolId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
         const data = doc.data();
@@ -88,6 +85,9 @@ export function HealthInspectionClient() {
   }, []);
 
   const loadAllRecords = useCallback(async () => {
+    if (!schoolId) {
+        if(isFirebaseConfigured) return;
+    }
     setIsLoading(true);
     setHasSearched(false);
     try {
@@ -95,7 +95,7 @@ export function HealthInspectionClient() {
             setSearchResults([]);
             return;
         }
-        const records = await fetchOhsRecordsFromFirestore(schoolId || undefined);
+        const records = await fetchOhsRecordsFromFirestore(schoolId!);
         setSearchResults(records);
     } catch (e) {
         console.error(e);
@@ -132,11 +132,15 @@ export function HealthInspectionClient() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save record because Firebase is not configured." });
         return;
     }
+     if (!schoolId) {
+        toast({ variant: "destructive", title: "Action Disabled", description: "School ID not found. Cannot save record." });
+        return;
+    }
     setIsSubmitting(true);
     const newRecord = {
       incidentDate, reportedBy, compiledBy, notifiedTo,
       ambulanceCalled, headReport, actionTaken, parentsNotified,
-      ...(schoolId && { schoolId: schoolId }),
+      schoolId: schoolId,
     };
     try {
         await saveOhsRecordToFirestore(newRecord);
@@ -153,12 +157,13 @@ export function HealthInspectionClient() {
 
   const handleSearchRecords = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    if (!schoolId) return;
     setHasSearched(true);
     setIsLoading(true);
     
     try {
         if (!isFirebaseConfigured) throw new Error("Firebase not configured");
-        const allRecords = await fetchOhsRecordsFromFirestore(schoolId || undefined);
+        const allRecords = await fetchOhsRecordsFromFirestore(schoolId);
         const filtered = allRecords.filter(record => 
             (!searchDate || record.incidentDate === searchDate) &&
             (!searchReportedBy || record.reportedBy.toLowerCase().includes(searchReportedBy.toLowerCase())) &&

@@ -30,14 +30,13 @@ import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp
 
 
 // --- Firestore Actions ---
-async function fetchExamResultsFromBackend(schoolId?: string): Promise<ExamResult[]> {
+async function fetchExamResultsFromBackend(schoolId: string): Promise<ExamResult[]> {
   if (!db) throw new Error("Firestore is not configured.");
+  
   const recordsCollectionRef = collection(db, 'examResults');
   
-  let q = query(recordsCollectionRef);
-  if (schoolId) {
-      q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
-  }
+  // This query is now always filtered by schoolId
+  const q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
   
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
@@ -50,6 +49,22 @@ async function fetchExamResultsFromBackend(schoolId?: string): Promise<ExamResul
       } as ExamResult;
   });
 }
+
+async function fetchAllExamResultsForSystemAdmin(): Promise<ExamResult[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const recordsCollectionRef = collection(db, 'examResults');
+    const snapshot = await getDocs(recordsCollectionRef);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+          ...data,
+          id: doc.id,
+          createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+          updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+      } as ExamResult;
+    });
+}
+
 
 async function saveExamResultToBackend(data: Omit<ExamResult, 'id' | 'createdAt' | 'updatedAt'>, id?: string): Promise<ExamResult> {
   if (!db) throw new Error("Firestore is not configured.");
@@ -136,15 +151,26 @@ export default function ExamResultsManagementPage() {
   const watchedExamType = watch("examType");
 
   const loadResults = useCallback(async () => {
+    // Prevent fetching if role is not determined yet
     if (userRole === null) return;
+    
     setIsLoading(true);
     setFetchError(null);
     try {
         if (!isFirebaseConfigured) {
           throw new Error("Firebase is not configured. Cannot load data.");
         }
-        const schoolIdToFetch = userRole === 'system-admin' ? undefined : schoolId;
-        const fetchedResults = await fetchExamResultsFromBackend(schoolIdToFetch || undefined);
+        
+        let fetchedResults;
+        if (userRole === 'system-admin') {
+            fetchedResults = await fetchAllExamResultsForSystemAdmin();
+        } else {
+            // For non-admins, schoolId is required
+            if (!schoolId) {
+                throw new Error("School ID not found for this user.");
+            }
+            fetchedResults = await fetchExamResultsFromBackend(schoolId);
+        }
         setResults(fetchedResults);
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -152,8 +178,10 @@ export default function ExamResultsManagementPage() {
       setIsLoading(false);
     }
   }, [schoolId, userRole]);
-
+  
   useEffect(() => {
+    // This effect runs when userRole or schoolId changes.
+    // It correctly waits for userRole to be set before calling loadResults.
     loadResults();
   }, [loadResults]);
 
