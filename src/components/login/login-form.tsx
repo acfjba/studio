@@ -59,7 +59,15 @@ export function LoginForm() {
         localStorage.setItem('schoolId', userData.schoolId || '');
         toast({ title: "Login Successful", description: `Welcome, ${userData.displayName}!` });
         
-        router.push('/dashboard');
+        // Redirect based on role
+        if (userData.role === 'systemAdmin') {
+            router.push('/dashboard/platform-management');
+        } else if (userData.role === 'headteacher') {
+            router.push('/dashboard/head-teacher');
+        }
+        else {
+            router.push('/dashboard');
+        }
         
     } catch (error: any) {
         console.error("Firebase sign-in error:", error);
@@ -94,7 +102,7 @@ export function LoginForm() {
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
 
-        if (!userDocSnap.exists() || userDocSnap.data().role !== 'system-admin') {
+        if (!userDocSnap.exists() || (userDocSnap.data().role !== 'system-admin' && userDocSnap.data().role !== 'systemAdmin')) {
              throw new Error("User is not a system administrator.");
         }
         const userData = userDocSnap.data();
