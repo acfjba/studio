@@ -108,14 +108,47 @@ export default function ExamResultsManagementPage() {
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
 
+  const loadResults = useCallback(async (role: string, school: string | null) => {
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+        if (!isFirebaseConfigured) {
+          throw new Error("Firebase is not configured. Cannot load data.");
+        }
+        
+        let fetchedResults;
+        if (role === 'system-admin') {
+            fetchedResults = await fetchAllExamResultsForSystemAdmin();
+        } else {
+            if (!school) {
+                setFetchError("Your school ID is not set. Cannot load data.");
+                return;
+            }
+            fetchedResults = await fetchExamResultsFromBackend(school);
+        }
+        setResults(fetchedResults);
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
+    } finally {
+      setIsLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const storedSchoolId = localStorage.getItem('schoolId');
-      const storedUserRole = localStorage.getItem('userRole') || 'teacher';
+      const storedUserRole = localStorage.getItem('userRole');
       setSchoolId(storedSchoolId);
       setUserRole(storedUserRole);
+      
+      if (storedUserRole) {
+          loadResults(storedUserRole, storedSchoolId);
+      } else {
+          setIsLoading(false);
+          setFetchError("User role not found. Cannot load data.");
+      }
     }
-  }, []);
+  }, [loadResults]);
 
   const canManage = useMemo(() => {
       if (!userRole) return false;
@@ -149,50 +182,6 @@ export default function ExamResultsManagementPage() {
   });
 
   const watchedExamType = watch("examType");
-
-  const loadResults = useCallback(async () => {
-    // Prevent fetching if role/schoolId is not determined yet
-    if (userRole === null || (userRole !== 'system-admin' && schoolId === null)) {
-        // If Firebase is not configured, we can stop loading and show the message.
-        if (!isFirebaseConfigured) {
-            setIsLoading(false);
-        }
-        return;
-    }
-    
-    setIsLoading(true);
-    setFetchError(null);
-    try {
-        if (!isFirebaseConfigured) {
-          throw new Error("Firebase is not configured. Cannot load data.");
-        }
-        
-        let fetchedResults;
-        if (userRole === 'system-admin') {
-            fetchedResults = await fetchAllExamResultsForSystemAdmin();
-        } else {
-            // For non-admins, schoolId is required
-            if (!schoolId) {
-                // This case should be prevented by the guard at the start, but as a safeguard:
-                setIsLoading(false);
-                setFetchError("Your school ID is not set. Cannot load data.");
-                return;
-            }
-            fetchedResults = await fetchExamResultsFromBackend(schoolId);
-        }
-        setResults(fetchedResults);
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
-    } finally {
-      setIsLoading(false);
-    }
-  }, [schoolId, userRole]);
-  
-  useEffect(() => {
-    // This effect runs when userRole or schoolId changes.
-    // It correctly waits for userRole to be set before calling loadResults.
-    loadResults();
-  }, [loadResults]);
 
 
   useEffect(() => {
@@ -242,7 +231,11 @@ export default function ExamResultsManagementPage() {
         await saveExamResultToBackend(resultToSave);
         toast({ title: "Exam Result Recorded", description: `New result for ${data.studentName} added.` });
       }
-      await loadResults();
+      
+      if (userRole) {
+        await loadResults(userRole, schoolId);
+      }
+      
       setIsFormModalOpen(false);
       setEditingResultId(null);
       reset();
@@ -262,7 +255,9 @@ export default function ExamResultsManagementPage() {
     }
     try {
       await deleteExamResultFromBackend(resultId);
-      await loadResults();
+      if (userRole) {
+        await loadResults(userRole, schoolId);
+      }
       toast({ title: "Result Deleted", description: "Exam result has been deleted." });
     } catch (error) {
       toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete exam result." });

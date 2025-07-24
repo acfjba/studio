@@ -125,17 +125,13 @@ export default function StaffRecordsPage() {
 
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
-    setSchoolId(id);
-  }, []);
-
-  useEffect(() => {
-    if (schoolId) {
-      fetchStaffList(schoolId);
-    } else if (schoolId === null) {
-      // This means we've checked localStorage and it's not there.
-      setIsLoading(false);
+    if (id) {
+        setSchoolId(id);
+        fetchStaffList(id);
+    } else {
+        setIsLoading(false);
     }
-  }, [schoolId, fetchStaffList]);
+  }, [fetchStaffList]);
 
 
   useEffect(() => {
