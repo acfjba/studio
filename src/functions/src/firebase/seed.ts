@@ -82,7 +82,8 @@ export async function seedUsersFromCsv(csvPath: string): Promise<void> {
         }
       }
 
-      // 2. Set Custom Claims for Firebase Rules
+      // 2. Set Custom Claims for Firebase Rules (CRITICAL STEP)
+      // This must run every time to ensure claims are consistent with the CSV.
       await adminAuth.setCustomUserClaims(user.uid, { role: r.role, schoolId: r.schoolId });
       
       // 3. Slim top-level profile (optional but handy for rule checks)
