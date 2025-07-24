@@ -15,6 +15,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { usersSeedData } from '@/lib/data';
+import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
+import { isFirebaseConfigured } from '@/lib/firebase/config';
+
 
 export function LoginForm() {
   const router = useRouter();
@@ -23,22 +26,34 @@ export function LoginForm() {
   const [schoolId, setSchoolId] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [isLoggingIn, setIsLoggingIn] = useState(false);
 
   const [adminEmail, setAdminEmail] = useState('');
   const [adminPassword, setAdminPassword] = useState('');
 
 
-  const handleLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoggingIn(true);
     
     const user = usersSeedData.find(
       u => u.email.toLowerCase() === email.toLowerCase() && u.schoolId === schoolId
     );
 
-    // Note: Plain text password check is for demo purposes ONLY.
-    // In a real application, you would send the password to a backend
-    // to be compared against a securely hashed version.
     if (user && user.password === password) {
+      if (isFirebaseConfigured) {
+        try {
+          const auth = getAuth();
+          await setPersistence(auth, browserLocalPersistence); // Persist auth state
+          await signInWithEmailAndPassword(auth, email, password);
+        } catch (error) {
+           console.error("Firebase sign-in error:", error);
+           toast({ variant: "destructive", title: "Authentication Failed", description: "Could not sign in with Firebase. Check console for details." });
+           setIsLoggingIn(false);
+           return;
+        }
+      }
+
       localStorage.setItem('userRole', user.role);
       localStorage.setItem('schoolId', user.schoolId || '');
       toast({ title: "Login Successful", description: `Welcome, ${user.displayName}!` });
@@ -46,16 +61,31 @@ export function LoginForm() {
     } else {
       toast({ variant: "destructive", title: "Login Failed", description: "Invalid school ID, email, or password." });
     }
+    setIsLoggingIn(false);
   };
 
-  const handleAdminLogin = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleAdminLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoggingIn(true);
 
     const adminUser = usersSeedData.find(
       u => u.email.toLowerCase() === adminEmail.toLowerCase() && (u.role === 'system-admin' || u.role === 'superadmin')
     );
     
     if (adminUser && adminUser.password === adminPassword) {
+      if(isFirebaseConfigured) {
+        try {
+            const auth = getAuth();
+            await setPersistence(auth, browserLocalPersistence);
+            await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+        } catch (error) {
+             console.error("Firebase admin sign-in error:", error);
+             toast({ variant: "destructive", title: "Authentication Failed", description: "Could not sign in with Firebase. Check console for details." });
+             setIsLoggingIn(false);
+             return;
+        }
+      }
+
       localStorage.setItem('userRole', adminUser.role);
       localStorage.setItem('schoolId', ''); // System admins don't have a school ID
       toast({ title: "Admin Login Successful", description: `Welcome, ${adminUser.displayName}!` });
@@ -63,6 +93,7 @@ export function LoginForm() {
     } else {
        toast({ variant: "destructive", title: "Login Failed", description: "Invalid admin email or password." });
     }
+    setIsLoggingIn(false);
   };
 
 
@@ -102,12 +133,12 @@ export function LoginForm() {
             <form onSubmit={handleLogin} className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="school-id" className="flex items-center gap-2">School ID <InfoTooltip text="Enter the official ID provided to your school." /></Label>
-                <Input id="school-id" placeholder="e.g. SCH-001" required value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="border-primary/50 focus-visible:ring-primary" />
+                <Input id="school-id" placeholder="e.g. SCH-001" required value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="school-email" className="flex items-center gap-2">Email Address <InfoTooltip text="Use your official school-provided email address." /></Label>
-                <Input id="school-email" type="email" placeholder="you@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary"/>
+                <Input id="school-email" type="email" placeholder="you@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
               <Alert variant="destructive" className="border-l-4 border-destructive bg-destructive/10 text-destructive-foreground">
@@ -118,11 +149,11 @@ export function LoginForm() {
 
               <div className="grid gap-2">
                  <Label htmlFor="school-password" className="flex items-center gap-2">Password <InfoTooltip text="Enter your password." /></Label>
-                <Input id="school-password" type="password" required placeholder="******" value={password} onChange={(e) => setPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary"/>
+                <Input id="school-password" type="password" required placeholder="******" value={password} onChange={(e) => setPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
-              <Button type="submit" className="w-full mt-4">
-                Login
+              <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
+                {isLoggingIn ? 'Logging in...' : 'Login'}
               </Button>
             </form>
           </TabsContent>
@@ -131,16 +162,16 @@ export function LoginForm() {
             <form onSubmit={handleAdminLogin} className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="admin-email" className="flex items-center gap-2">Email Address <InfoTooltip text="System administrator email address." /></Label>
-                <Input id="admin-email" type="email" placeholder="admin@system.com" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary"/>
+                <Input id="admin-email" type="email" placeholder="admin@system.com" required value={adminEmail} onChange={e => setAdminEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="admin-password" className="flex items-center gap-2">Password <InfoTooltip text="System administrator password." /></Label>
-                <Input id="admin-password" type="password" required placeholder="******" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary"/>
+                <Input id="admin-password" type="password" required placeholder="******" value={adminPassword} onChange={e => setAdminPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
-              <Button type="submit" className="w-full mt-4">
-                Login
+              <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
+                {isLoggingIn ? 'Logging in...' : 'Login'}
               </Button>
             </form>
           </TabsContent>

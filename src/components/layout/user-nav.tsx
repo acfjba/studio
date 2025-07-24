@@ -11,15 +11,19 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { getAuth, signOut } from 'firebase/auth';
+import { isFirebaseConfigured } from '@/lib/firebase/config';
 
 export function UserNav() {
   const router = useRouter();
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('schoolId');
+    if (isFirebaseConfigured) {
+        const auth = getAuth();
+        signOut(auth);
     }
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('schoolId');
     router.push('/');
   };
 

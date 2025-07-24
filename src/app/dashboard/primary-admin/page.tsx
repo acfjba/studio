@@ -14,6 +14,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
+import { getAuth, signOut } from 'firebase/auth';
+import { isFirebaseConfigured } from '@/lib/firebase/config';
 
 type AdminSection = 'overview' | 'userManagement' | 'academicRecords' | 'schoolOperations' | 'dataReports';
 
@@ -81,10 +83,12 @@ export default function PrimaryAdminPage() {
 
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('schoolId');
+    if (isFirebaseConfigured) {
+        const auth = getAuth();
+        signOut(auth);
     }
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('schoolId');
     router.push('/');
   };
 

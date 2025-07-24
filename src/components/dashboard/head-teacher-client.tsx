@@ -21,7 +21,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
+import { getAuth, signOut } from 'firebase/auth';
+import { isFirebaseConfigured } from '@/lib/firebase/config';
 
 type TabName = 'overview' | 'pending' | 'reports' | 'assessment';
 type TaskStatus = 'Submitted' | 'Accepted' | 'Review' | 'Rejected' | 'Draft';
@@ -328,10 +329,12 @@ export function HeadTeacherClient() {
 
 
   const handleLogout = () => {
-    if (typeof window !== 'undefined') {
-        localStorage.removeItem('userRole');
-        localStorage.removeItem('schoolId');
+    if(isFirebaseConfigured) {
+        const auth = getAuth();
+        signOut(auth);
     }
+    localStorage.removeItem('userRole');
+    localStorage.removeItem('schoolId');
     router.push('/');
   };
 
