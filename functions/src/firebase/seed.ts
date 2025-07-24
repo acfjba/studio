@@ -7,7 +7,6 @@
  *
  */
 
-import { initializeApp } from 'firebase-admin/app';
 import { getFirestore, type Firestore, type DocumentData } from 'firebase-admin/firestore';
 import { getAuth, type Auth } from 'firebase-admin/auth';
 
@@ -200,10 +199,9 @@ async function setCustomUserClaimsForUsers(auth: Auth, users: typeof usersData):
 export async function seedDatabase() {
     console.log("Starting Firestore data seeding process...");
     
-    const db = getFirestore();
-    const auth = getAuth();
+    const { adminDb, adminAuth } = await import('./admin');
 
-    await setCustomUserClaimsForUsers(auth, usersData);
+    await setCustomUserClaimsForUsers(adminAuth, usersData);
     
     const firestoreUsersData = usersData.map(u => ({
       id: u.uid,
@@ -212,12 +210,12 @@ export async function seedDatabase() {
       role: u.role,
       schoolId: u.schoolId === undefined ? null : u.schoolId,
     }));
-    await seedCollection(db, 'users', firestoreUsersData);
-    await seedCollection(db, 'schools', schoolsData);
-    await seedCollection(db, 'staff', staffData);
-    await seedCollection(db, 'examResults', examResultsData);
-    await seedCollection(db, 'disciplinary', disciplinaryRecordsData);
-    await seedCollection(db, 'books', libraryBooksData);
+    await seedCollection(adminDb, 'users', firestoreUsersData);
+    await seedCollection(adminDb, 'schools', schoolsData);
+    await seedCollection(adminDb, 'staff', staffData);
+    await seedCollection(adminDb, 'examResults', examResultsData);
+    await seedCollection(adminDb, 'disciplinary', disciplinaryRecordsData);
+    await seedCollection(adminDb, 'books', libraryBooksData);
 
     console.log("Firestore data seeding completed successfully!");
 }

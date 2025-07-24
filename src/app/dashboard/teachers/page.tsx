@@ -51,16 +51,16 @@ export default function TeachersListPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [schoolIdFilter, setSchoolIdFilter] = useState('');
+  const [schoolId, setSchoolId] = useState<string | null>(null);
   const { toast } = useToast();
-  const [loggedInSchoolId, setLoggedInSchoolId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   
-  const loadInitialData = useCallback(async (id) => {
+  const loadInitialData = useCallback(async (id: string | null) => {
     setIsLoading(true);
     setFetchError(null);
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !id) {
         setIsLoading(false);
+        setFetchError("Cannot load teacher data. School ID is not available or Firebase is not configured.");
         return;
     }
     try {
@@ -78,27 +78,19 @@ export default function TeachersListPage() {
     if (typeof window !== 'undefined') {
         const storedSchoolId = localStorage.getItem('schoolId');
         const storedUserRole = localStorage.getItem('userRole');
-        setLoggedInSchoolId(storedSchoolId);
+        setSchoolId(storedSchoolId);
         setUserRole(storedUserRole);
         
-        const idToLoad = storedUserRole === 'system-admin' ? '3046' : storedSchoolId;
-
-        if (idToLoad) {
-            setSchoolIdFilter(idToLoad);
-            loadInitialData(idToLoad);
-        } else {
-            setIsLoading(false);
-        }
+        loadInitialData(storedSchoolId);
     }
   }, [loadInitialData]);
 
   const filteredTeachers = useMemo(() => {
     return teachers.filter(teacher =>
       (teacher.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       teacher.position.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (!schoolIdFilter || teacher.schoolId === schoolIdFilter)
+       teacher.position.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [teachers, searchTerm, schoolIdFilter]);
+  }, [teachers, searchTerm]);
   
   const isSystemAdmin = userRole === 'system-admin';
 
@@ -119,15 +111,6 @@ export default function TeachersListPage() {
                     onChange={(e) => setSearchTerm(e.target.value)}
                     className="max-w-xs"
                 />
-                 {isSystemAdmin && (
-                    <Input
-                        id="search-school"
-                        placeholder="Filter by School ID..."
-                        value={schoolIdFilter}
-                        onChange={(e) => setSchoolIdFilter(e.target.value)}
-                        className="max-w-xs"
-                    />
-                )}
             </div>
           </CardHeader>
           <CardContent>
@@ -179,7 +162,7 @@ export default function TeachersListPage() {
                     <CardContent className="p-6 text-center">
                         <AlertCircle className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
                         <p className="text-lg text-foreground">No Teachers Found</p>
-                        <p className="text-muted-foreground">No rateable teachers match your current search and filter criteria.</p>
+                        <p className="text-muted-foreground">No rateable teachers match your current search criteria.</p>
                     </CardContent>
                   </Card>
                 )}
@@ -191,3 +174,4 @@ export default function TeachersListPage() {
     </TooltipProvider>
   );
 }
+
