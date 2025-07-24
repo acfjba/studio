@@ -20,10 +20,10 @@ const schoolsData = [
 ];
 
 const usersData = [
-    { uid: "sys01",     email: "acjfk@hotmail.com",        name: "System Administrator", role: "system-admin" },
-    { uid: "prim01",    email: "gandhi.bhawan@yahoo.com",  name: "Primary Admin",        role: "primary-admin", schoolId: SCHOOL_ID_MAIN },
-    { uid: "head01",    email: "headteachergb@gmail.com",  name: "Head Teacher",         role: "head-teacher", schoolId: SCHOOL_ID_MAIN },
-    { uid: "teacher01", email: "schoolteachergb@gmail.com",name: "School Teacher",       role: "teacher", schoolId: SCHOOL_ID_MAIN },
+    { uid: "user_sysadmin_global", email: "systemadmin@example.com", name: "System Administrator", role: "system-admin", password: "adminpassword" },
+    { uid: "user_primaryadmin_3046", email: "gandhi.bhawan@yahoo.com",  name: "Primary Admin", role: "primary-admin", schoolId: SCHOOL_ID_MAIN, password: "Lastword123#" },
+    { uid: "user_headteacher_3046", email: "headteachergb@gmail.com",  name: "Head Teacher", role: "head-teacher", schoolId: SCHOOL_ID_MAIN, password: "password123" },
+    { uid: "user_teacher_3046_1", email: "schoolteachergb@gmail.com",name: "School Teacher", role: "teacher", schoolId: SCHOOL_ID_MAIN, password: "password123" },
 ];
 
 
@@ -86,7 +86,7 @@ export async function seedDatabase() {
         await adminAuth.createUser({
           uid: u.uid,
           email: u.email,
-          password: "La@123tka",
+          password: u.password,
           displayName: u.name,
         });
         console.log(`Auth user created: ${u.uid}`);
@@ -135,16 +135,16 @@ export async function seedDatabase() {
         frequency: "weekly",
         startDate: Timestamp.fromDate(new Date("2025-01-01")),
         endDate: Timestamp.fromDate(new Date("2025-12-31")),
-        assignedTo: ["teacher01"],
+        assignedTo: ["user_teacher_3046_1"],
         createdAt: Timestamp.now(),
-        createdBy: "prim01",
+        createdBy: "user_primaryadmin_3046",
       });
 
     // 4) Seed Sample Entries
     const entries = [
-      { entryId: "ENT1", teacherId: "teacher01", status: "submitted", rating: null, comments: "", offsetDays: 0 },
-      { entryId: "ENT2", teacherId: "teacher01", status: "approved",  rating: 8,   comments: "Good work.",    offsetDays: -10 },
-      { entryId: "ENT3", teacherId: "teacher01", status: "rejected",  rating: null, comments: "Please revise.",offsetDays: -20 },
+      { entryId: "ENT1", teacherId: "user_teacher_3046_1", status: "submitted", rating: null, comments: "", offsetDays: 0 },
+      { entryId: "ENT2", teacherId: "user_teacher_3046_1", status: "approved",  rating: 8,   comments: "Good work.",    offsetDays: -10 },
+      { entryId: "ENT3", teacherId: "user_teacher_3046_1", status: "rejected",  rating: null, comments: "Please revise.",offsetDays: -20 },
     ];
     for (const e of entries) {
       const when = new Date();

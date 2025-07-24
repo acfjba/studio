@@ -37,7 +37,7 @@ async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<Teache
         if (rateableRoles.includes(userData.role?.toLowerCase())) {
             return {
                 id: userDocSnap.id,
-                name: userData.displayName,
+                name: userData.name,
                 position: userData.role.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
                 avatar: `https://placehold.co/120x120.png`,
                 dataAiHint: "teacher portrait",

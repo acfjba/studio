@@ -15,7 +15,6 @@ import { useToast } from '@/hooks/use-toast';
 import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
 import { doc, getDoc } from 'firebase/firestore';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 
 
 export function LoginForm() {
@@ -25,11 +24,6 @@ export function LoginForm() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [isLoggingIn, setIsLoggingIn] = useState(false);
-
-  const [adminEmail, setAdminEmail] = useState('');
-  const [adminPassword, setAdminPassword] = useState('');
-  const [isLoggingInAdmin, setIsLoggingInAdmin] = useState(false);
-
 
   const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -84,45 +78,6 @@ export function LoginForm() {
     }
   };
 
-  const handleAdminLogin = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setIsLoggingInAdmin(true);
-
-    if (!isFirebaseConfigured || !db) {
-        toast({ variant: "destructive", title: "Login Failed", description: "Firebase is not configured." });
-        setIsLoggingInAdmin(false);
-        return;
-    }
-
-    try {
-        const auth = getAuth();
-        await setPersistence(auth, browserLocalPersistence);
-        const userCredential = await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-        const user = userCredential.user;
-
-        const userDocRef = doc(db, 'users', user.uid);
-        const userDocSnap = await getDoc(userDocRef);
-
-        if (!userDocSnap.exists() || (userDocSnap.data().role !== 'system-admin')) {
-             throw new Error("User is not a system administrator.");
-        }
-        const userData = userDocSnap.data();
-        localStorage.setItem('userRole', userData.role);
-        localStorage.setItem('schoolId', ''); // System admins don't have a schoolId
-        toast({ title: "Admin Login Successful", description: `Welcome, ${userData.name}!` });
-        
-        router.push('/dashboard/platform-management');
-
-    } catch (error: any) {
-        console.error("Admin sign-in error:", error);
-        let errorMessage = "Invalid admin credentials or you are not a system administrator.";
-        toast({ variant: "destructive", title: "Admin Login Failed", description: errorMessage });
-    } finally {
-        setIsLoggingInAdmin(false);
-    }
-  };
-
-
   const InfoTooltip = ({ text }: { text: string }) => (
     <TooltipProvider>
       <Tooltip>
@@ -148,46 +103,21 @@ export function LoginForm() {
         <CardDescription>Enter your credentials to access the dashboard.</CardDescription>
       </CardHeader>
       <CardContent className="p-6 sm:p-8">
-        <Tabs defaultValue="user">
-            <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="user">User Login</TabsTrigger>
-                <TabsTrigger value="admin">System Admin</TabsTrigger>
-            </TabsList>
-            <TabsContent value="user" className="mt-4">
-                 <form onSubmit={handleLogin} className="grid gap-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="school-email" className="flex items-center gap-2">Email Address <InfoTooltip text="Use your official school-provided email address." /></Label>
-                        <Input id="school-email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
-                    </div>
+         <form onSubmit={handleLogin} className="grid gap-4">
+            <div className="grid gap-2">
+                <Label htmlFor="school-email" className="flex items-center gap-2">Email Address <InfoTooltip text="Use your official school-provided email address." /></Label>
+                <Input id="school-email" type="email" placeholder="you@example.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
+            </div>
 
-                    <div className="grid gap-2">
-                        <Label htmlFor="school-password" className="flex items-center gap-2">Password <InfoTooltip text="Enter your password." /></Label>
-                        <Input id="school-password" type="password" required placeholder="******" value={password} onChange={(e) => setPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
-                    </div>
+            <div className="grid gap-2">
+                <Label htmlFor="school-password" className="flex items-center gap-2">Password <InfoTooltip text="Enter your password." /></Label>
+                <Input id="school-password" type="password" required placeholder="******" value={password} onChange={(e) => setPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
+            </div>
 
-                    <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
-                        {isLoggingIn ? 'Logging in...' : 'Login'}
-                    </Button>
-                </form>
-            </TabsContent>
-            <TabsContent value="admin" className="mt-4">
-                <form onSubmit={handleAdminLogin} className="grid gap-4">
-                    <div className="grid gap-2">
-                        <Label htmlFor="admin-email" className="flex items-center gap-2">Admin Email</Label>
-                        <Input id="admin-email" type="email" placeholder="admin@example.com" required value={adminEmail} onChange={(e) => setAdminEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingInAdmin} />
-                    </div>
-
-                    <div className="grid gap-2">
-                        <Label htmlFor="admin-password" className="flex items-center gap-2">Admin Password</Label>
-                        <Input id="admin-password" type="password" required placeholder="******" value={adminPassword} onChange={(e) => setAdminPassword(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingInAdmin} />
-                    </div>
-
-                    <Button type="submit" className="w-full mt-4" disabled={isLoggingInAdmin}>
-                        {isLoggingInAdmin ? 'Logging in...' : 'Admin Login'}
-                    </Button>
-                </form>
-            </TabsContent>
-        </Tabs>
+            <Button type="submit" className="w-full mt-4" disabled={isLoggingIn}>
+                {isLoggingIn ? 'Logging in...' : 'Login'}
+            </Button>
+        </form>
       </CardContent>
     </Card>
   );
