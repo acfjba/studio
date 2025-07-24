@@ -2,7 +2,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import { HelpCircle, Image as ImageIcon } from 'lucide-react';
+import { HelpCircle, ImageIcon } from 'lucide-react';
 import Image from 'next/image';
 import React, { useState } from 'react';
 
@@ -12,7 +12,6 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
 import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
@@ -66,19 +65,24 @@ export function LoginForm() {
         localStorage.setItem('userRole', userData.role);
         localStorage.setItem('schoolId', userData.schoolId || '');
         toast({ title: "Login Successful", description: `Welcome, ${userData.displayName}!` });
-        router.push('/dashboard');
+        
+        if (userData.role === 'system-admin') {
+            router.push('/dashboard/platform-management');
+        } else {
+            router.push('/dashboard');
+        }
         
     } catch (error: any) {
         console.error("Firebase sign-in error:", error);
         let errorMessage = "Invalid email or password.";
-        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
             errorMessage = "Invalid email or password. Please check your credentials.";
         } else if (error.message === "User data not found in Firestore.") {
             errorMessage = "Authentication succeeded, but user role could not be verified. Please contact an admin.";
         }
         toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
+        setIsLoggingIn(false);
     }
-    setIsLoggingIn(false);
   };
 
   const handleAdminLogin = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -105,7 +109,7 @@ export function LoginForm() {
         }
 
         const userData = userDocSnap.data();
-        const isAdminRole = userData.role === 'system-admin' || userData.role === 'superadmin';
+        const isAdminRole = userData.role === 'system-admin';
 
         if (!isAdminRole) {
             toast({ variant: "destructive", title: "Login Failed", description: "This account does not have admin privileges." });
@@ -121,8 +125,8 @@ export function LoginForm() {
     } catch (error) {
        console.error("Firebase admin sign-in error:", error);
        toast({ variant: "destructive", title: "Login Failed", description: "Invalid admin email or password." });
+       setIsLoggingIn(false);
     }
-    setIsLoggingIn(false);
   };
 
 
