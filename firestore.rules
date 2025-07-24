@@ -1,13 +1,13 @@
+// firestore.rules  – TEMP ONLY
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // WARNING: This rule is completely open and allows anyone, even unauthenticated
-    // users, to read, write, and delete any data in your database.
-    // This is useful for initial development and debugging but MUST be replaced
-    // with secure rules before deploying to production.
+    match /users/{uid} {
+      allow read:  if request.auth != null;
+      allow write: if false;
+    }
     match /{document=**} {
-      allow read, write: if true;
+      allow read, write: if false;
     }
   }
 }
