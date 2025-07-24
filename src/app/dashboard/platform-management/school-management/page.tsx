@@ -9,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Building, AlertCircle, Eye, Edit, Trash2, MoreHorizontal, Users } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from "@/hooks/use-toast";
-import { staffData, schoolData } from '@/lib/data';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +18,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
 interface SchoolUser {
   name: string;
@@ -29,23 +30,39 @@ interface SchoolUser {
 interface School {
   id: string;
   name:string;
-  contactEmail: string;
-  users: SchoolUser[];
+  address: string;
+  type: string;
+  userCount: number;
 }
 
 // SIMULATED BACKEND FETCH
 async function fetchSchoolsWithUsers(): Promise<School[]> {
-  console.log("Simulating fetch of all schools with user data...");
-  await new Promise(resolve => setTimeout(resolve, 1200));
+  if (!db || !isFirebaseConfigured) {
+    throw new Error("Firebase is not configured.");
+  }
+  console.log("Fetching all schools with user data...");
+  const schoolsSnapshot = await getDocs(collection(db, "schools"));
+  const staffSnapshot = await getDocs(collection(db, "staff"));
+  
+  const staffBySchool = staffSnapshot.docs.reduce((acc, doc) => {
+    const staff = doc.data();
+    if (staff.schoolId) {
+      if (!acc[staff.schoolId]) {
+        acc[staff.schoolId] = 0;
+      }
+      acc[staff.schoolId]++;
+    }
+    return acc;
+  }, {} as Record<string, number>);
 
-  return schoolData.map(school => {
-    const users = staffData
-      .filter(u => u.schoolId === school.id)
-      .map(u => ({ name: u.name, email: u.email, role: u.role }));
+  return schoolsSnapshot.docs.map(doc => {
+    const school = doc.data();
     return {
-      ...school,
-      contactEmail: users.find(u => u.role.toLowerCase() === 'head-teacher')?.email || `contact@${school.id}.edu`,
-      users,
+      id: doc.id,
+      name: school.name,
+      address: school.address,
+      type: school.type,
+      userCount: staffBySchool[doc.id] || 0
     };
   });
 }
@@ -118,7 +135,7 @@ export default function SchoolManagementPage() {
     <div className="flex flex-col gap-8">
         <PageHeader 
             title="School Management"
-            description="View, manage, and edit schools on the platform. (Data is simulated)"
+            description="View, manage, and edit schools on the platform."
         />
         <Card className="shadow-xl rounded-lg">
           <CardContent className="pt-6">
@@ -146,9 +163,8 @@ export default function SchoolManagementPage() {
                     <TableRow className="bg-muted/50">
                       <TableHead>School ID</TableHead>
                       <TableHead>School Name</TableHead>
-                      <TableHead>Contact Email</TableHead>
+                      <TableHead>Address</TableHead>
                       <TableHead className="text-center">User Count</TableHead>
-                      <TableHead>Users Preview</TableHead>
                       <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -157,13 +173,9 @@ export default function SchoolManagementPage() {
                       <TableRow key={school.id} className="font-body">
                         <TableCell className="font-mono">{school.id}</TableCell>
                         <TableCell className="font-medium">{school.name}</TableCell>
-                        <TableCell>{school.contactEmail}</TableCell>
+                        <TableCell>{school.address}</TableCell>
                         <TableCell className="text-center">
-                          <Badge variant="secondary">{school.users.length}</Badge>
-                        </TableCell>
-                        <TableCell className="max-w-xs truncate" title={school.users.map(u => `${u.name} (${u.role})`).join(', ')}>
-                          {school.users.slice(0, 3).map(u => u.name).join(', ')}
-                          {school.users.length > 3 && ` + ${school.users.length - 3} more`}
+                          <Badge variant="secondary">{school.userCount}</Badge>
                         </TableCell>
                         <TableCell className="text-center">
                           <DropdownMenu>

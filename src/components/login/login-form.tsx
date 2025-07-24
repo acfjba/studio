@@ -14,9 +14,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useToast } from '@/hooks/use-toast';
-import { usersSeedData } from '@/lib/data';
 import { getAuth, signInWithEmailAndPassword, setPersistence, browserLocalPersistence } from 'firebase/auth';
-import { isFirebaseConfigured } from '@/lib/firebase/config';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { doc, getDoc } from 'firebase/firestore';
 
 
 export function LoginForm() {
@@ -36,30 +36,47 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoggingIn(true);
     
-    const user = usersSeedData.find(
-      u => u.email.toLowerCase() === email.toLowerCase() && u.schoolId === schoolId
-    );
+    if (!isFirebaseConfigured || !db) {
+        toast({ variant: "destructive", title: "Login Failed", description: "Firebase is not configured. Please contact support." });
+        setIsLoggingIn(false);
+        return;
+    }
+    
+    try {
+        const auth = getAuth();
+        await setPersistence(auth, browserLocalPersistence);
+        const userCredential = await signInWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
 
-    if (user && user.password === password) {
-      if (isFirebaseConfigured) {
-        try {
-          const auth = getAuth();
-          await setPersistence(auth, browserLocalPersistence); // Persist auth state
-          await signInWithEmailAndPassword(auth, email, password);
-        } catch (error) {
-           console.error("Firebase sign-in error:", error);
-           toast({ variant: "destructive", title: "Authentication Failed", description: "Could not sign in with Firebase. Check console for details." });
-           setIsLoggingIn(false);
-           return;
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+
+        if (!userDocSnap.exists()) {
+            throw new Error("User data not found in Firestore.");
         }
-      }
 
-      localStorage.setItem('userRole', user.role);
-      localStorage.setItem('schoolId', user.schoolId || '');
-      toast({ title: "Login Successful", description: `Welcome, ${user.displayName}!` });
-      router.push('/dashboard');
-    } else {
-      toast({ variant: "destructive", title: "Login Failed", description: "Invalid school ID, email, or password." });
+        const userData = userDocSnap.data();
+        if(userData.schoolId !== schoolId) {
+            toast({ variant: "destructive", title: "Login Failed", description: "The provided School ID does not match this user's record." });
+            auth.signOut();
+            setIsLoggingIn(false);
+            return;
+        }
+
+        localStorage.setItem('userRole', userData.role);
+        localStorage.setItem('schoolId', userData.schoolId || '');
+        toast({ title: "Login Successful", description: `Welcome, ${userData.displayName}!` });
+        router.push('/dashboard');
+        
+    } catch (error: any) {
+        console.error("Firebase sign-in error:", error);
+        let errorMessage = "Invalid email or password.";
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
+            errorMessage = "Invalid email or password. Please check your credentials.";
+        } else if (error.message === "User data not found in Firestore.") {
+            errorMessage = "Authentication succeeded, but user role could not be verified. Please contact an admin.";
+        }
+        toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
     }
     setIsLoggingIn(false);
   };
@@ -68,29 +85,41 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoggingIn(true);
 
-    const adminUser = usersSeedData.find(
-      u => u.email.toLowerCase() === adminEmail.toLowerCase() && (u.role === 'system-admin' || u.role === 'superadmin')
-    );
-    
-    if (adminUser && adminUser.password === adminPassword) {
-      if(isFirebaseConfigured) {
-        try {
-            const auth = getAuth();
-            await setPersistence(auth, browserLocalPersistence);
-            await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
-        } catch (error) {
-             console.error("Firebase admin sign-in error:", error);
-             toast({ variant: "destructive", title: "Authentication Failed", description: "Could not sign in with Firebase. Check console for details." });
-             setIsLoggingIn(false);
-             return;
-        }
-      }
+    if (!isFirebaseConfigured || !db) {
+        toast({ variant: "destructive", title: "Login Failed", description: "Firebase is not configured. Please contact support." });
+        setIsLoggingIn(false);
+        return;
+    }
 
-      localStorage.setItem('userRole', adminUser.role);
-      localStorage.setItem('schoolId', ''); // System admins don't have a school ID
-      toast({ title: "Admin Login Successful", description: `Welcome, ${adminUser.displayName}!` });
-      router.push('/dashboard/platform-management');
-    } else {
+    try {
+        const auth = getAuth();
+        await setPersistence(auth, browserLocalPersistence);
+        const userCredential = await signInWithEmailAndPassword(auth, adminEmail, adminPassword);
+        const user = userCredential.user;
+
+        const userDocRef = doc(db, 'users', user.uid);
+        const userDocSnap = await getDoc(userDocRef);
+        
+        if (!userDocSnap.exists()) {
+            throw new Error("User data not found in Firestore.");
+        }
+
+        const userData = userDocSnap.data();
+        const isAdminRole = userData.role === 'system-admin' || userData.role === 'superadmin';
+
+        if (!isAdminRole) {
+            toast({ variant: "destructive", title: "Login Failed", description: "This account does not have admin privileges." });
+            auth.signOut();
+            setIsLoggingIn(false);
+            return;
+        }
+
+        localStorage.setItem('userRole', userData.role);
+        localStorage.setItem('schoolId', ''); // System admins don't have a school ID
+        toast({ title: "Admin Login Successful", description: `Welcome, ${userData.displayName}!` });
+        router.push('/dashboard/platform-management');
+    } catch (error) {
+       console.error("Firebase admin sign-in error:", error);
        toast({ variant: "destructive", title: "Login Failed", description: "Invalid admin email or password." });
     }
     setIsLoggingIn(false);
@@ -133,19 +162,13 @@ export function LoginForm() {
             <form onSubmit={handleLogin} className="grid gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="school-id" className="flex items-center gap-2">School ID <InfoTooltip text="Enter the official ID provided to your school." /></Label>
-                <Input id="school-id" placeholder="e.g. SCH-001" required value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
+                <Input id="school-id" placeholder="e.g. 3046" required value={schoolId} onChange={(e) => setSchoolId(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
 
               <div className="grid gap-2">
                 <Label htmlFor="school-email" className="flex items-center gap-2">Email Address <InfoTooltip text="Use your official school-provided email address." /></Label>
                 <Input id="school-email" type="email" placeholder="you@email.com" required value={email} onChange={(e) => setEmail(e.target.value)} className="border-primary/50 focus-visible:ring-primary" disabled={isLoggingIn} />
               </div>
-
-              <Alert variant="destructive" className="border-l-4 border-destructive bg-destructive/10 text-destructive-foreground">
-                <AlertDescription>
-                    <strong>Note:</strong> Use your personal email (not generic school) as registered. Contact your school admin if you cannot log in.
-                </AlertDescription>
-              </Alert>
 
               <div className="grid gap-2">
                  <Label htmlFor="school-password" className="flex items-center gap-2">Password <InfoTooltip text="Enter your password." /></Label>

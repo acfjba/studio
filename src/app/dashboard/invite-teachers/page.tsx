@@ -14,9 +14,8 @@ import { UserPlus, Users, AlertTriangle, Loader2, FileUp } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { userRoles, SingleUserFormSchema, type UserFormData, type UserWithPassword } from "@/lib/schemas/user";
+import { userRoles, SingleUserFormSchema, type UserFormData } from "@/lib/schemas/user";
 import { Separator } from '@/components/ui/separator';
-import { usersSeedData } from '@/lib/data';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
@@ -46,7 +45,7 @@ export default function UserManagementPage() {
     const { toast } = useToast();
     const router = useRouter();
     const [file, setFile] = useState<File | null>(null);
-    const [users, setUsers] = useState<UserWithPassword[]>(usersSeedData);
+    const [users, setUsers] = useState<UserFormData[]>([]);
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
 
 
@@ -84,11 +83,7 @@ export default function UserManagementPage() {
         if (result.success) {
             toast({ title: "Success", description: result.message });
             
-            const newUser: UserWithPassword = {
-                ...data,
-                id: `new_user_${Date.now()}`,
-                displayName: data.name,
-            };
+            const newUser: UserFormData = { ...data };
             setUsers(prevUsers => [newUser, ...prevUsers]);
 
             singleUserForm.reset();
@@ -142,11 +137,7 @@ export default function UserManagementPage() {
         const result = await addMultipleUsersToBackend(usersToCreate);
 
         if (result.success) {
-            const addedUsers = result.report.success.map(u => ({
-                ...u,
-                id: `new_user_${Date.now()}_${Math.random()}`,
-                displayName: u.name,
-            }));
+            const addedUsers = result.report.success.map(u => ({ ...u }));
             setUsers(prevUsers => [...addedUsers, ...prevUsers]);
             toast({
                 title: "Batch Processed",
@@ -319,17 +310,10 @@ export default function UserManagementPage() {
 
                 <Card className="shadow-xl rounded-lg max-w-4xl mx-auto">
                     <CardHeader>
-                        <CardTitle className="font-headline text-xl text-primary">Registered Users Summary</CardTitle>
-                        <CardDescription>This table shows the sample users available for the login simulation.</CardDescription>
+                        <CardTitle className="font-headline text-xl text-primary">Recently Added Users</CardTitle>
+                        <CardDescription>This table shows users added during this session.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <Alert variant="destructive" className="mb-4">
-                            <AlertTriangle className="h-4 w-4" />
-                            <AlertTitle>Security Warning</AlertTitle>
-                            <AlertDescription>
-                                This table displays passwords for demonstration purposes only. NEVER store or display plain-text passwords in a real application. Use secure, one-way hashing for password storage.
-                            </AlertDescription>
-                        </Alert>
                         <div className="overflow-x-auto rounded-md border">
                             <Table>
                                 <TableHeader>
@@ -338,19 +322,21 @@ export default function UserManagementPage() {
                                         <TableHead>Email</TableHead>
                                         <TableHead>Role</TableHead>
                                         <TableHead>School ID</TableHead>
-                                        <TableHead>Password</TableHead>
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {users.map((user) => (
-                                        <TableRow key={user.id}>
-                                            <TableCell>{user.displayName}</TableCell>
+                                    {users.length > 0 ? users.map((user, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>{user.name}</TableCell>
                                             <TableCell>{user.email}</TableCell>
                                             <TableCell>{user.role}</TableCell>
                                             <TableCell>{user.schoolId || 'N/A'}</TableCell>
-                                            <TableCell className="font-mono">{user.password}</TableCell>
                                         </TableRow>
-                                    ))}
+                                    )) : (
+                                        <TableRow>
+                                            <TableCell colSpan={4} className="text-center text-muted-foreground">No users added yet.</TableCell>
+                                        </TableRow>
+                                    )}
                                 </TableBody>
                             </Table>
                         </div>
