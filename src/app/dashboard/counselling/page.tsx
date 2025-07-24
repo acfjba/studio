@@ -104,7 +104,12 @@ export default function CounsellingPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setSchoolId(localStorage.getItem('schoolId'));
+      const id = localStorage.getItem('schoolId');
+      if (id) {
+        setSchoolId(id);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -137,65 +142,72 @@ export default function CounsellingPage() {
   const watchedCounsellingType = watch("counsellingType");
   const showOtherCounsellingType = watchedCounsellingType === 'Other';
   
-  const handleSearchRecords = useCallback((event?: React.FormEvent<HTMLFormElement>, sourceData: CounsellingRecord[] = records) => {
+  const handleSearchRecords = useCallback(async (event?: React.FormEvent<HTMLFormElement>) => {
     event?.preventDefault();
+    if (!schoolId) {
+      toast({ title: "Cannot Search", description: "School ID not available." });
+      return;
+    }
     setIsSearching(true);
     setHasSearched(true);
     
-    setTimeout(() => {
+    try {
+        const sourceData = await fetchCounsellingRecordsFromFirestore(schoolId);
         const results = sourceData.filter(record =>
             (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
             (!searchDob || record.studentDob === searchDob)
         );
         setSearchResults(results);
+        setRecords(results);
         if (results.length === 0) {
-            toast({ title: "No Results", description: "No records matched your current search criteria from available data.", variant: "default" });
+            toast({ title: "No Results", description: "No records matched your current search criteria.", variant: "default" });
         } else {
-            toast({ title: "Search Applied", description: `Found ${results.length} record(s) in current data.` });
+            toast({ title: "Search Applied", description: `Found ${results.length} record(s).` });
         }
+    } catch (err) {
+        toast({ variant: 'destructive', title: "Search Error", description: "Failed to fetch and filter records." });
+    } finally {
         setIsSearching(false);
-    }, 300);
-  }, [searchName, searchDob, records, toast]);
+    }
+  }, [searchName, searchDob, schoolId, toast]);
 
   const loadRecords = useCallback(async () => {
     if (!schoolId) {
-        // Don't fetch if schoolId isn't loaded yet, unless not configured at all.
-        if (isFirebaseConfigured) return;
+        if (isFirebaseConfigured) return; 
+        else {
+            setIsLoading(false);
+            setFetchError("Firebase is not configured. Displaying mock data.");
+            setRecords([]);
+            return;
+        }
     }
     
     setIsLoading(true);
     setFetchError(null);
     try {
-      if (!isFirebaseConfigured) {
-        setFetchError("Firebase is not configured. Displaying mock data.");
-        setRecords([]);
-        return;
-      }
-      // schoolId is guaranteed to be a string here if firebase is configured
-      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId!);
+      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId);
       setRecords(fetchedRecords);
-      if (hasSearched) {
-          handleSearchRecords(undefined, fetchedRecords);
-      }
+      setSearchResults(fetchedRecords); // Initially show all
     } catch (err) {
       const msg = err instanceof Error ? err.message : "An unknown error occurred.";
       setFetchError(msg);
-      console.error("Error loading counselling records:", msg);
       setRecords([]);
     } finally {
       setIsLoading(false);
     }
-  }, [schoolId, hasSearched, handleSearchRecords]);
+  }, [schoolId]);
 
   useEffect(() => {
-    loadRecords();
-  }, [loadRecords]);
+    if (schoolId !== null) {
+      loadRecords();
+    }
+  }, [schoolId, loadRecords]);
   
   useEffect(() => {
     if (editingRecordId && isFormModalOpen) {
       const recordToEdit = records.find(r => r.id === editingRecordId);
       if (recordToEdit) {
-        const { id, userId, createdAt, updatedAt, ...formData } = recordToEdit;
+        const { id, userId, createdAt, updatedAt, schoolId, ...formData } = recordToEdit;
         reset(formData); 
         if (id) setDisplayRecordId(id);
       }
@@ -220,12 +232,7 @@ export default function CounsellingPage() {
     };
 
     try {
-        if (editingRecordId) {
-            await saveCounsellingRecordToFirestore(recordToSaveBase, editingRecordId);
-        } else {
-            await saveCounsellingRecordToFirestore(recordToSaveBase);
-        }
-        
+        await saveCounsellingRecordToFirestore(recordToSaveBase, editingRecordId ?? undefined);
         await loadRecords(); // Reload all records from Firestore
         
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Counselling record for ${data.studentName} has been processed.` });
@@ -273,7 +280,7 @@ export default function CounsellingPage() {
     setSearchName('');
     setSearchDob('');
     setHasSearched(false);
-    setSearchResults([]);
+    loadRecords();
     toast({ title: "Search Cleared", description: "Displaying all records." });
   };
   
@@ -325,7 +332,7 @@ export default function CounsellingPage() {
                 <CardContent>
                     <p className="text-amber-700">
                         The connection to the live Firebase database is not configured. This page is currently in read-only mode and displaying no data.
-                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
+                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">.env</code> file.
                     </p>
                 </CardContent>
             </Card>

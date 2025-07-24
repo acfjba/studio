@@ -24,7 +24,6 @@ import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod';
 import { StaffMemberSchema, type StaffMember, StaffMemberFormDataSchema } from "@/lib/schemas/staff";
-import { sampleStaffSeedData } from '@/lib/data';
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -113,25 +112,23 @@ export default function StaffRecordsPage() {
             const result = await getStaffListFromFirestore(currentSchoolId);
             setStaffList(result);
         } else {
-            setStaffList(sampleStaffSeedData.filter(s => s.schoolId === currentSchoolId));
+            toast({ variant: "destructive", title: "Offline Mode", description: "Firebase not configured. Displaying mock data." });
+            setStaffList([]);
         }
     } catch (error) {
         console.error("Error fetching staff:", error);
-        toast({ variant: "destructive", title: "Error Fetching Staff", description: "Could not load live data. Using local mock data as a fallback." });
-        setStaffList(sampleStaffSeedData.filter(s => s.schoolId === currentSchoolId));
+        toast({ variant: "destructive", title: "Error Fetching Staff", description: "Could not load live data." });
+        setStaffList([]);
     }
     setIsLoading(false);
   }, [toast]);
 
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
-    setSchoolId(id);
     if (id) {
+        setSchoolId(id);
         fetchStaffList(id);
     } else {
-        if (!isFirebaseConfigured) {
-             setStaffList(sampleStaffSeedData);
-        }
         setIsLoading(false);
     }
   }, [fetchStaffList]);
@@ -207,7 +204,7 @@ export default function StaffRecordsPage() {
 
   return (
       <div className="flex flex-col gap-8">
-        <PageHeader title="Staff Records" description={`Manage staff information for your school. ${!isFirebaseConfigured ? "(Simulated Data)" : ""}`} >
+        <PageHeader title="Staff Records" description={`Manage staff information for your school.`} >
             <div className="flex gap-2">
                 <Dialog>
                     <DialogTrigger asChild>
@@ -260,13 +257,12 @@ export default function StaffRecordsPage() {
                             <DialogTitle>Add New Staff Manually</DialogTitle>
                          </DialogHeader>
                          <form id="add-staff-form" onSubmit={addForm.handleSubmit(handleAddSubmit)} className="space-y-3">
-                            {/* Form fields here, similar to other forms */}
-                             <div><Label htmlFor="staffId">Staff ID</Label><Input id="staffId" {...addForm.register('staffId')} />{addForm.formState.errors.staffId && <p className="text-red-500 text-xs">{addForm.formState.errors.staffId.message}</p>}</div>
-                             <div><Label htmlFor="name">Name</Label><Input id="name" {...addForm.register('name')} />{addForm.formState.errors.name && <p className="text-red-500 text-xs">{addForm.formState.errors.name.message}</p>}</div>
-                             <div><Label htmlFor="role">Role</Label><Input id="role" {...addForm.register('role')} />{addForm.formState.errors.role && <p className="text-red-500 text-xs">{addForm.formState.errors.role.message}</p>}</div>
-                             <div><Label htmlFor="position">Position</Label><Input id="position" {...addForm.register('position')} />{addForm.formState.errors.position && <p className="text-red-500 text-xs">{addForm.formState.errors.position.message}</p>}</div>
-                             <div><Label htmlFor="status">Status</Label><Input id="status" {...addForm.register('status')} />{addForm.formState.errors.status && <p className="text-red-500 text-xs">{addForm.formState.errors.status.message}</p>}</div>
-                             <div><Label htmlFor="email">Email</Label><Input id="email" type="email" {...addForm.register('email')} />{addForm.formState.errors.email && <p className="text-red-500 text-xs">{addForm.formState.errors.email.message}</p>}</div>
+                             <div><Label htmlFor="staffId">Staff ID</Label><Input id="staffId" {...addForm.register('staffId')} />{addForm.formState.errors.staffId && <p className="text-destructive text-xs">{addForm.formState.errors.staffId.message}</p>}</div>
+                             <div><Label htmlFor="name">Name</Label><Input id="name" {...addForm.register('name')} />{addForm.formState.errors.name && <p className="text-destructive text-xs">{addForm.formState.errors.name.message}</p>}</div>
+                             <div><Label htmlFor="role">Role</Label><Input id="role" {...addForm.register('role')} />{addForm.formState.errors.role && <p className="text-destructive text-xs">{addForm.formState.errors.role.message}</p>}</div>
+                             <div><Label htmlFor="position">Position</Label><Input id="position" {...addForm.register('position')} />{addForm.formState.errors.position && <p className="text-destructive text-xs">{addForm.formState.errors.position.message}</p>}</div>
+                             <div><Label htmlFor="status">Status</Label><Input id="status" {...addForm.register('status')} />{addForm.formState.errors.status && <p className="text-destructive text-xs">{addForm.formState.errors.status.message}</p>}</div>
+                             <div><Label htmlFor="email">Email</Label><Input id="email" type="email" {...addForm.register('email')} />{addForm.formState.errors.email && <p className="text-destructive text-xs">{addForm.formState.errors.email.message}</p>}</div>
                              <div><Label htmlFor="phone">Phone</Label><Input id="phone" {...addForm.register('phone')} /></div>
                          </form>
                          <DialogFooter>

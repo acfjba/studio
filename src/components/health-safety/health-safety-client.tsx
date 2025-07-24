@@ -26,7 +26,7 @@ interface OhsRecord {
   headReport: string;
   actionTaken: string;
   parentsNotified: string;
-  schoolId?: string;
+  schoolId: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -80,22 +80,25 @@ export function HealthInspectionClient() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        setSchoolId(localStorage.getItem('schoolId'));
+      const id = localStorage.getItem('schoolId');
+      if (id) {
+        setSchoolId(id);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   const loadAllRecords = useCallback(async () => {
     if (!schoolId) {
         if(isFirebaseConfigured) return;
+        setIsLoading(false);
+        return;
     }
     setIsLoading(true);
     setHasSearched(false);
     try {
-        if (!isFirebaseConfigured) {
-            setSearchResults([]);
-            return;
-        }
-        const records = await fetchOhsRecordsFromFirestore(schoolId!);
+        const records = await fetchOhsRecordsFromFirestore(schoolId);
         setSearchResults(records);
     } catch (e) {
         console.error(e);
@@ -106,8 +109,10 @@ export function HealthInspectionClient() {
   }, [schoolId, toast]);
 
   useEffect(() => {
-      loadAllRecords();
-  }, [loadAllRecords]);
+      if (schoolId !== null) {
+        loadAllRecords();
+      }
+  }, [schoolId, loadAllRecords]);
 
   const handleNotifiedToChange = (value: string, checked: boolean) => {
     setNotifiedTo(prev =>
@@ -137,10 +142,10 @@ export function HealthInspectionClient() {
         return;
     }
     setIsSubmitting(true);
-    const newRecord = {
+    const newRecord: Omit<OhsRecord, 'id' | 'createdAt' | 'updatedAt'> = {
       incidentDate, reportedBy, compiledBy, notifiedTo,
       ambulanceCalled, headReport, actionTaken, parentsNotified,
-      schoolId: schoolId,
+      schoolId,
     };
     try {
         await saveOhsRecordToFirestore(newRecord);

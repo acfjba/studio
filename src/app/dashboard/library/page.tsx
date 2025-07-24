@@ -9,7 +9,6 @@ import { Library, PlusCircle, AlertCircle, Edit2, Trash2, MailWarning, ArrowRigh
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { BookFormSchema, LibraryTransactionFormSchema, type Book, type BookFormData, type LibraryTransaction, type LibraryTransactionFormData } from "@/lib/schemas/library";
-import { sampleLibraryBooksData } from '@/lib/data';
 import { useForm, type SubmitHandler, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter, DialogTrigger, DialogClose } from "@/components/ui/dialog";
@@ -90,7 +89,7 @@ async function issueBookTransaction(data: LibraryTransactionFormData, bookTitle:
         const newTransactionData = {
             ...data,
             bookTitle,
-            schoolId: schoolId,
+            schoolId,
             issuedBy: "librarian_placeholder",
             issuedAt: new Date().toISOString(),
             createdAt: serverTimestamp(),
@@ -136,29 +135,24 @@ export default function LibraryServicePage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-        setSchoolId(localStorage.getItem('schoolId'));
+      const id = localStorage.getItem('schoolId');
+      if (id) {
+        setSchoolId(id);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, []);
 
   const loadData = useCallback(async () => {
     if (!schoolId) {
-      if (isFirebaseConfigured) {
-        setIsLoading(false);
-        setFetchError("School ID not found. Cannot load library data.");
-      } else {
-        setIsLoading(false);
-        setFetchError("Firebase not configured and no School ID found.");
-        setBooks(sampleLibraryBooksData);
-      }
+      if (isFirebaseConfigured) setIsLoading(false);
       return;
     }
     
     setIsLoading(true);
     setFetchError(null);
     try {
-        if (!isFirebaseConfigured) {
-            throw new Error("Firebase is not configured. Displaying mock data.");
-        }
         const [fetchedBooks, fetchedTransactions] = await Promise.all([
             fetchBooksFromFirestore(schoolId),
             fetchTransactionsFromFirestore(schoolId),
@@ -169,17 +163,16 @@ export default function LibraryServicePage() {
         const errorMsg = err instanceof Error ? err.message : "An unknown error occurred.";
         setFetchError(errorMsg);
         toast({ variant: "destructive", title: "Error", description: errorMsg });
-        if (errorMsg.includes("Firebase is not configured")) {
-            setBooks(sampleLibraryBooksData.filter(b => b.schoolId === schoolId));
-        }
     } finally {
         setIsLoading(false);
     }
   }, [toast, schoolId]);
 
   useEffect(() => {
-    loadData();
-  }, [loadData]);
+    if (schoolId !== null) {
+        loadData();
+    }
+  }, [schoolId, loadData]);
 
   const handleAddBookSubmit: SubmitHandler<BookFormData> = async (data) => {
     if (!isFirebaseConfigured) {
@@ -281,7 +274,7 @@ export default function LibraryServicePage() {
                 <CardContent>
                     <p className="text-amber-700">
                         The connection to the live Firebase database is not configured. This page is currently displaying local sample data. Actions will be simulated.
-                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
+                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">.env</code> file.
                     </p>
                 </CardContent>
             </Card>

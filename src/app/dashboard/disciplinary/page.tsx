@@ -96,7 +96,12 @@ export default function DisciplinaryPage() {
 
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      setSchoolId(localStorage.getItem('schoolId'));
+      const id = localStorage.getItem('schoolId');
+      if (id) {
+        setSchoolId(id);
+      } else {
+        setIsLoading(false);
+      }
     }
   }, []);
 
@@ -132,14 +137,17 @@ export default function DisciplinaryPage() {
   const loadRecords = useCallback(async () => {
     if (!schoolId) {
         if (isFirebaseConfigured) return; 
+        else {
+            setIsLoading(false);
+            setFetchError("Firebase not configured.");
+            setRecords([]);
+            return;
+        }
     }
     setIsLoading(true);
     setFetchError(null);
     try {
-        if (!isFirebaseConfigured) {
-            throw new Error("Firebase is not configured. Displaying no data.");
-        }
-      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId!);
+      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId);
       setRecords(fetchedRecords);
        if (hasSearched) {
           const results = fetchedRecords.filter(record =>
@@ -147,6 +155,8 @@ export default function DisciplinaryPage() {
               (!searchDob || record.studentDob === searchDob)
           );
           setSearchResults(results);
+      } else {
+          setSearchResults(fetchedRecords);
       }
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -157,14 +167,16 @@ export default function DisciplinaryPage() {
   }, [schoolId, hasSearched, searchName, searchDob]);
 
   useEffect(() => {
-    loadRecords();
-  }, [loadRecords]);
+    if (schoolId !== null) {
+      loadRecords();
+    }
+  }, [schoolId, loadRecords]);
   
   useEffect(() => {
     if (editingRecordId && isFormModalOpen) {
       const recordToEdit = records.find(r => r.id === editingRecordId);
       if (recordToEdit) {
-        const { id, userId, createdAt, updatedAt, ...formData } = recordToEdit;
+        const { id, userId, createdAt, updatedAt, schoolId, ...formData } = recordToEdit;
         reset(formData); 
       }
     }
@@ -176,19 +188,17 @@ export default function DisciplinaryPage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save because Firebase is not configured." });
         return;
     }
-
+    if (!schoolId) {
+        toast({ variant: "destructive", title: "Save Failed", description: "School ID not found." });
+        return;
+    }
     const recordToSaveBase = {
         ...data,
-        ...(schoolId && { schoolId: schoolId }),
+        schoolId,
     };
 
     try {
-        if (editingRecordId) {
-            await saveDisciplinaryRecordToFirestore(recordToSaveBase, editingRecordId);
-        } else {
-            await saveDisciplinaryRecordToFirestore(recordToSaveBase);
-        }
-        
+        await saveDisciplinaryRecordToFirestore(recordToSaveBase, editingRecordId ?? undefined);
         await loadRecords(); // Reload from firestore
 
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Disciplinary record for ${data.studentName} has been processed.` });
@@ -291,7 +301,7 @@ export default function DisciplinaryPage() {
                 <CardContent>
                     <p className="text-amber-700">
                         The connection to the live Firebase database is not configured. This page is currently in read-only mode and displaying no data.
-                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">src/lib/firebase/config.ts</code> file.
+                        To connect to your database, please fill in your project credentials in the <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">.env</code> file.
                     </p>
                 </CardContent>
             </Card>
