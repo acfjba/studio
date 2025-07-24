@@ -1,6 +1,7 @@
 // src/app/api/seed/route.ts
 import { NextResponse } from 'next/server';
-import { seedDatabase } from '@/lib/firebase/seed';
+import { seedDatabase } from '../../../../functions/src/firebase/seed';
+
 
 // This function handles POST requests to /api/seed
 export async function POST() {
