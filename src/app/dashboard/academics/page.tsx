@@ -2,7 +2,7 @@
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { BookOpen, Boxes, FileText, ClipboardCheck, ArrowLeft } from "lucide-react";
+import { BookOpen, Boxes, FileText, ClipboardCheck, ArrowLeft, BarChart2 } from "lucide-react";
 import Link from "next/link";
 
 export default function AcademicsPage() {
@@ -22,12 +22,12 @@ export default function AcademicsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline"><BookOpen className="w-5 h-5 text-primary" /> Lesson Planning</CardTitle>
-            <CardDescription>Create, view, and manage lesson plans for your classes.</CardDescription>
+            <CardTitle className="flex items-center gap-2 font-headline"><BookOpen className="w-5 h-5 text-primary" /> AI Workbook Plan</CardTitle>
+            <CardDescription>Generate, view, and manage lesson plans for your classes using AI.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/lesson-planner">
-              <Button>Manage Lesson Plans</Button>
+            <Link href="/dashboard/workbook-plan">
+              <Button>Generate with AI</Button>
             </Link>
           </CardContent>
         </Card>
@@ -54,6 +54,17 @@ export default function AcademicsPage() {
           </CardContent>
         </Card>
         <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 font-headline"><BarChart2 className="w-5 h-5 text-primary" /> Exam Summary</CardTitle>
+            <CardDescription>View aggregated school-wide exam performance reports.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/academics/exam-summary">
+              <Button>View Summary</Button>
+            </Link>
+          </CardContent>
+        </Card>
+         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2 font-headline"><FileText className="w-5 h-5 text-primary" /> Student Records</CardTitle>
             <CardDescription>Access and update student performance and records.</CardDescription>

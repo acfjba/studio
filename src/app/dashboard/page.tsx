@@ -5,13 +5,14 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, CalendarClock, Building, HelpCircle, Briefcase, BookOpen } from "lucide-react";
+import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, HelpCircle, Building } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
 export default function DashboardPage() {
   const [currentDateTime, setCurrentDateTime] = useState<Date | null>(null);
   const [schoolId, setSchoolId] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     // Set the initial time on the client
@@ -23,12 +24,16 @@ export default function DashboardPage() {
     
     if (typeof window !== 'undefined') {
       const storedSchoolId = localStorage.getItem('schoolId');
-      setSchoolId(storedSchoolId || "N/A"); 
+      setSchoolId(storedSchoolId); 
+      const storedUserRole = localStorage.getItem('userRole');
+      setUserRole(storedUserRole);
     }
 
     // Cleanup the interval on component unmount
     return () => clearInterval(timer);
   }, []);
+
+  const isAdmin = userRole === 'head-teacher' || userRole === 'primary-admin' || userRole === 'system-admin';
 
   return (
     <TooltipProvider>
@@ -44,7 +49,7 @@ export default function DashboardPage() {
                     </Button>
                 </TooltipTrigger>
                 <TooltipContent>
-                    <p className="max-w-xs">This is your main dashboard. Use the cards below for quick access to rate teachers, manage your workbook, or view your history.</p>
+                    <p className="max-w-xs">This is your main dashboard. Use the cards below for quick access to key modules.</p>
                 </TooltipContent>
             </Tooltip>
         </PageHeader>
@@ -85,24 +90,25 @@ export default function DashboardPage() {
         <section aria-labelledby="quick-actions-heading">
           <h2 id="quick-actions-heading" className="sr-only">Quick Actions</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-             <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
-              <CardHeader>
-                <CardTitle className="font-headline text-xl text-primary flex items-center">
-                  <Briefcase className="mr-2 h-6 w-6" />
-                  Head Teacher View
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="font-body mb-4">
-                  Access the Head Teacher dashboard for administrative tasks.
-                </CardDescription>
-                <Link href="/dashboard/head-teacher" passHref>
-                  <Button className="w-full">
-                    Go to Head Teacher Dashboard
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+             {isAdmin && (
+                <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+                  <CardHeader>
+                    <CardTitle className="font-headline text-xl text-primary flex items-center">
+                      Admin Dashboard
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CardDescription className="font-body mb-4">
+                      Access your specific admin dashboard for management tasks.
+                    </CardDescription>
+                    <Link href={userRole === 'system-admin' ? '/dashboard/platform-management' : userRole === 'primary-admin' ? '/dashboard/primary-admin' : '/dashboard/head-teacher'} passHref>
+                      <Button className="w-full">
+                        Go to Admin Dashboard
+                      </Button>
+                    </Link>
+                  </CardContent>
+                </Card>
+             )}
 
             <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
               <CardHeader>
@@ -127,12 +133,12 @@ export default function DashboardPage() {
               <CardHeader>
                 <CardTitle className="font-headline text-xl text-primary flex items-center">
                   <ClipboardList className="mr-2 h-6 w-6" />
-                  Workbook Plan
+                  AI Workbook Plan
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <CardDescription className="font-body mb-4">
-                  Manage and submit your weekly workbook plans.
+                  Use AI to generate and submit your weekly workbook plans.
                 </CardDescription>
                 <Link href="/dashboard/workbook-plan" passHref>
                   <Button className="w-full">
@@ -161,24 +167,26 @@ export default function DashboardPage() {
               </CardContent>
             </Card>
             
-            <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
-              <CardHeader>
-                <CardTitle className="font-headline text-xl text-primary flex items-center">
-                  <UploadCloud className="mr-2 h-6 w-6" />
-                  Upload Data
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription className="font-body mb-4">
-                  Upload Excel sheets and provide additional details for processing.
-                </CardDescription>
-                <Link href="/dashboard/upload-data" passHref>
-                   <Button className="w-full">
-                    Go to Upload Page
-                  </Button>
-                </Link>
-              </CardContent>
-            </Card>
+            {isAdmin && (
+                <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
+                <CardHeader>
+                    <CardTitle className="font-headline text-xl text-primary flex items-center">
+                    <UploadCloud className="mr-2 h-6 w-6" />
+                    Upload Data
+                    </CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <CardDescription className="font-body mb-4">
+                    Upload Excel sheets and provide additional details for processing.
+                    </CardDescription>
+                    <Link href="/dashboard/upload-data" passHref>
+                    <Button className="w-full">
+                        Go to Upload Page
+                    </Button>
+                    </Link>
+                </CardContent>
+                </Card>
+            )}
 
              <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
               <CardHeader>

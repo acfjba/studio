@@ -1,26 +1,44 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer, Download, Users, AlertCircle, Filter } from "lucide-react";
-import { staffData, schoolData } from '@/lib/data';
+import { Printer, Download, AlertCircle, Filter, AlertTriangle } from "lucide-react";
 import type { StaffMember } from '@/lib/schemas/staff';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collection, getDocs, Timestamp } from 'firebase/firestore';
+
 
 // Simulate fetching data for the report
 async function fetchStaffReportData(): Promise<StaffMember[]> {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return staffData as StaffMember[];
+    if (!db) throw new Error("Firestore is not configured.");
+    const snapshot = await getDocs(collection(db, 'staff'));
+    return snapshot.docs.map(doc => {
+        const data = doc.data();
+        return {
+            id: doc.id,
+            staffId: data.staffId,
+            name: data.name,
+            role: data.role,
+            position: data.position,
+            department: data.department,
+            status: data.status || 'Active', // Default status
+            email: data.email,
+            phone: data.phone,
+            schoolId: data.schoolId,
+            createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+            updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+        }
+    });
 }
 
 
@@ -28,28 +46,35 @@ export default function StaffReportsPage() {
     const { toast } = useToast();
     const [staffList, setStaffList] = useState<StaffMember[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState<string|null>(null);
 
     // Filter states
     const [schoolFilter, setSchoolFilter] = useState<string>('all');
     const [roleFilter, setRoleFilter] = useState<string>('all');
     const [statusFilter, setStatusFilter] = useState<string>('all');
 
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        setFetchError(null);
+        if (!isFirebaseConfigured) {
+          setIsLoading(false);
+          return;
+        }
+        try {
+            const data = await fetchStaffReportData();
+            setStaffList(data);
+        } catch (error) {
+            setFetchError(error instanceof Error ? error.message : "Could not load staff data.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+
     useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const data = await fetchStaffReportData();
-                setStaffList(data);
-            } catch (error) {
-                toast({ variant: "destructive", title: "Error", description: "Could not load staff data." });
-            } finally {
-                setIsLoading(false);
-            }
-        };
         loadData();
-    }, [toast]);
+    }, [loadData]);
     
-    const uniqueSchools = useMemo(() => ([{id: 'all', name: 'All Schools'}, ...schoolData]), []);
+    const uniqueSchools = useMemo(() => ['all', ...Array.from(new Set(staffList.map(s => s.schoolId)))], [staffList]);
     const uniqueRoles = useMemo(() => ['all', ...Array.from(new Set(staffList.map(s => s.role)))], [staffList]);
     const uniqueStatuses = useMemo(() => ['all', ...Array.from(new Set(staffList.map(s => s.status)))], [staffList]);
 
@@ -106,6 +131,9 @@ export default function StaffReportsPage() {
         title="Staff Reports"
         description="Create reports on staff attendance, roles, and performance metrics."
       />
+       {!isFirebaseConfigured && (
+        <Card className="bg-amber-50 border-amber-300"><CardHeader><CardTitle className="font-headline text-amber-800 flex items-center"><AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active</CardTitle></CardHeader><CardContent><p className="text-amber-700">Firebase is not configured. This page is in read-only mode and cannot load live data.</p></CardContent></Card>
+      )}
       <Card className="shadow-lg rounded-lg">
         <CardHeader>
           <CardTitle className="font-headline">Staff Report Generator</CardTitle>
@@ -116,30 +144,24 @@ export default function StaffReportsPage() {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
                     <div className="font-semibold text-lg flex items-center col-span-full md:col-span-1"><Filter className="mr-2 h-5 w-5" /> Filters</div>
                     <div>
-                        <Label htmlFor="school-filter">School</Label>
+                        <Label htmlFor="school-filter">School ID</Label>
                         <Select value={schoolFilter} onValueChange={setSchoolFilter}>
                             <SelectTrigger id="school-filter"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {uniqueSchools.map(school => <SelectItem key={school.id} value={school.id}>{school.name}</SelectItem>)}
-                            </SelectContent>
+                            <SelectContent>{uniqueSchools.map(school => <SelectItem key={school} value={school}>{school === 'all' ? 'All Schools' : school}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                      <div>
                         <Label htmlFor="role-filter">Role</Label>
                         <Select value={roleFilter} onValueChange={setRoleFilter}>
                             <SelectTrigger id="role-filter"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {uniqueRoles.map(role => <SelectItem key={role} value={role}>{role === 'all' ? 'All Roles' : role}</SelectItem>)}
-                            </SelectContent>
+                            <SelectContent>{uniqueRoles.map(role => <SelectItem key={role} value={role}>{role === 'all' ? 'All Roles' : role}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                      <div>
                         <Label htmlFor="status-filter">Status</Label>
                         <Select value={statusFilter} onValueChange={setStatusFilter}>
                             <SelectTrigger id="status-filter"><SelectValue /></SelectTrigger>
-                            <SelectContent>
-                                {uniqueStatuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}
-                            </SelectContent>
+                            <SelectContent>{uniqueStatuses.map(status => <SelectItem key={status} value={status}>{status === 'all' ? 'All Statuses' : status}</SelectItem>)}</SelectContent>
                         </Select>
                     </div>
                 </div>
@@ -154,9 +176,9 @@ export default function StaffReportsPage() {
                     </div>
                 </div>
 
-                {isLoading ? (
-                    <Skeleton className="h-64 w-full" />
-                ) : filteredStaff.length === 0 ? (
+                {isLoading ? <Skeleton className="h-64 w-full" /> 
+                : fetchError ? <Card className="bg-destructive/10 border-destructive"><CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error</CardTitle></CardHeader><CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent></Card>
+                : filteredStaff.length === 0 ? (
                     <Card className="mt-6 bg-muted/30">
                       <CardHeader><CardTitle className="font-headline text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />No Staff Found</CardTitle></CardHeader>
                       <CardContent><p className="text-sm text-foreground">No staff members match your current filter criteria.</p></CardContent>
@@ -164,28 +186,10 @@ export default function StaffReportsPage() {
                 ) : (
                     <div className="overflow-x-auto rounded-md border">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Name</TableHead>
-                                    <TableHead>Role</TableHead>
-                                    <TableHead>School</TableHead>
-                                    <TableHead>Email</TableHead>
-                                    <TableHead>Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
+                            <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>Role</TableHead><TableHead>School ID</TableHead><TableHead>Email</TableHead><TableHead>Status</TableHead></TableRow></TableHeader>
                             <TableBody>
                                 {filteredStaff.map(staff => (
-                                    <TableRow key={staff.id}>
-                                        <TableCell className="font-medium">{staff.name}</TableCell>
-                                        <TableCell>{staff.role}</TableCell>
-                                        <TableCell>{schoolData.find(s => s.id === staff.schoolId)?.name || 'N/A'}</TableCell>
-                                        <TableCell>{staff.email}</TableCell>
-                                        <TableCell>
-                                            <Badge variant={statusVariants[staff.status]} className={cn(statusVariants[staff.status] === 'default' && 'bg-green-600')}>
-                                                {staff.status}
-                                            </Badge>
-                                        </TableCell>
-                                    </TableRow>
+                                    <TableRow key={staff.id}><TableCell className="font-medium">{staff.name}</TableCell><TableCell>{staff.role}</TableCell><TableCell>{staff.schoolId || 'N/A'}</TableCell><TableCell>{staff.email}</TableCell><TableCell><Badge variant={statusVariants[staff.status]} className={cn(statusVariants[staff.status] === 'default' && 'bg-green-600')}>{staff.status}</Badge></TableCell></TableRow>
                                 ))}
                             </TableBody>
                         </Table>

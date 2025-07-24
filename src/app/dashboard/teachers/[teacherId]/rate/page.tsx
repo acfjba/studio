@@ -11,8 +11,10 @@ import { Star, Send, AlertCircle, UserSquare2 } from "lucide-react";
 import { useParams, useRouter } from 'next/navigation';
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { usersSeedData } from '@/lib/data';
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { doc, getDoc } from 'firebase/firestore';
+
 
 interface TeacherDetails {
   id: string;
@@ -25,31 +27,28 @@ interface TeacherDetails {
 }
 
 async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<TeacherDetails | null> {
-  console.log(`RateTeacherPage: Simulating fetch teacher details for ID: ${teacherId}`);
-  await new Promise(resolve => setTimeout(resolve, 500));
+    if (!db) throw new Error("Firestore is not configured.");
+    const userDocRef = doc(db, 'users', teacherId);
+    const userDocSnap = await getDoc(userDocRef);
 
-  const staffMember = usersSeedData.find(staff => staff.id === teacherId);
-
-  if (staffMember) {
-    const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
-    if (rateableRoles.includes((staffMember.role || "").toLowerCase())) {
-      return {
-        id: staffMember.id,
-        name: staffMember.displayName,
-        position: staffMember.role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-        avatar: `https://placehold.co/120x120.png`,
-        dataAiHint: "teacher portrait",
-        schoolId: staffMember.schoolId,
-        email: staffMember.email,
-      };
-    } else {
-      console.warn(`RateTeacherPage: Staff member ${teacherId} found but is not a rateable role. Role: ${staffMember.role}`);
-      return null; 
+    if (userDocSnap.exists()) {
+        const userData = userDocSnap.data();
+        const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
+        if (rateableRoles.includes(userData.role?.toLowerCase())) {
+            return {
+                id: userDocSnap.id,
+                name: userData.displayName,
+                position: userData.role.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
+                avatar: `https://placehold.co/120x120.png`,
+                dataAiHint: "teacher portrait",
+                schoolId: userData.schoolId,
+                email: userData.email,
+            };
+        }
     }
-  }
-  console.warn(`RateTeacherPage: Teacher with ID ${teacherId} not found in simulated store.`);
-  return null;
+    return null;
 }
+
 
 const StarRatingInput = ({ rating, setRating }: { rating: number; setRating: (rating: number) => void }) => {
   const [hoverRating, setHoverRating] = useState(0);
@@ -119,6 +118,11 @@ export default function RateTeacherPage() {
     const loadTeacherDetails = async () => {
       setIsLoading(true);
       setFetchError(null);
+      if (!isFirebaseConfigured) {
+          setFetchError("Firebase is not configured. Cannot load teacher details.");
+          setIsLoading(false);
+          return;
+      }
       try {
         const fetchedTeacher = await fetchTeacherDetailsFromBackend(teacherId);
         if (fetchedTeacher) {

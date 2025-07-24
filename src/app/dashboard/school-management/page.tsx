@@ -1,7 +1,11 @@
+
+"use client";
+
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, BookOpen, BarChart2, ShieldCheck } from "lucide-react";
+import Link from 'next/link';
 
 export default function SchoolManagementPage() {
   return (
@@ -13,11 +17,13 @@ export default function SchoolManagementPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline"><Users className="w-5 h-5 text-primary" /> Teachers' Management</CardTitle>
+            <CardTitle className="flex items-center gap-2 font-headline"><Users className="w-5 h-5 text-primary" /> Staff Records</CardTitle>
             <CardDescription>Manage teacher roles, including Head and Assistant Head Teachers.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button>Manage Teachers</Button>
+            <Link href="/dashboard/staff">
+              <Button>Manage Staff</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>
@@ -26,7 +32,9 @@ export default function SchoolManagementPage() {
             <CardDescription>Review workbook plans and lesson submissions from teachers.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button>Review Submissions</Button>
+            <Link href="/dashboard/head-teacher">
+                <Button>Review Submissions</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>
@@ -35,7 +43,9 @@ export default function SchoolManagementPage() {
             <CardDescription>Access comprehensive reports on school performance.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button>View Reports</Button>
+            <Link href="/dashboard/reporting">
+                <Button>View Reports</Button>
+            </Link>
           </CardContent>
         </Card>
         <Card>
@@ -44,7 +54,9 @@ export default function SchoolManagementPage() {
             <CardDescription>Manage school safety protocols and incident reports.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button>Manage H&S</Button>
+             <Link href="/dashboard/health-safety">
+                <Button>Manage H&S</Button>
+             </Link>
           </CardContent>
         </Card>
       </div>

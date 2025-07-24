@@ -1,55 +1,30 @@
 
 "use client";
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from "@/hooks/use-toast";
-import { AlertCircle, PackageSearch } from "lucide-react";
+import { AlertCircle, PackageSearch, AlertTriangle } from "lucide-react";
 import type { ClassroomInventory } from '@/lib/schemas/classroom-inventory';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/layout/page-header';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collectionGroup, getDocs } from 'firebase/firestore';
 
-// --- SIMULATED BACKEND ---
 
-const allItemNames = [
-    "Textbooks", "Exercise Books", "Pens", "Pencils", "Rulers", "Erasers",
-    "Chalk / Markers", "Charts & Posters", "First Aid Kits", "Art Supplies (crayons, paper)",
-    "Sports Equipment (balls, cones)", "Science Kits", "Cleaning Supplies (wipes, sanitizer)",
-    "Staplers & Staples", "Paper Clips & Pins", "Globes & Maps", "Projectors & Screens", "Teacher's Guides",
-    "Other Supplies"
-];
-
-// This function simulates fetching inventory data for ALL year levels.
-async function fetchFullInventoryFromBackend(schoolId?: string): Promise<ClassroomInventory[]> {
-    console.log("Simulating fetch of FULL inventory from backend...", { schoolId });
-    await new Promise(resolve => setTimeout(resolve, 1200));
-
-    // Generate mock data for each year level
-    const fullInventory: ClassroomInventory[] = Array.from({ length: 8 }, (_, i) => {
-        const yearLevel = i + 1;
-        return {
-            yearLevel,
-            term: "2",
-            lastUpdatedBy: "system-sim",
-            updatedAt: new Date().toISOString(),
-            items: allItemNames.map(name => ({
-                id: `item-${yearLevel}-${name.replace(/\s+/g, '-')}`,
-                itemName: name,
-                quantityStart: Math.floor(Math.random() * 100) + 50,
-                quantityAdded: Math.floor(Math.random() * 20),
-                quantityLost: Math.floor(Math.random() * 10),
-                remarks: ""
-            }))
-        };
-    });
-    
-    return fullInventory;
+async function fetchFullInventoryFromBackend(schoolId: string): Promise<ClassroomInventory[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    // This is an advanced query that gets all documents from any subcollection named 'classroomInventory'
+    // It requires a composite index in Firestore to work across all schools for a system-admin.
+    // For a school admin, we'd add a where() clause.
+    const inventoryGroup = collectionGroup(db, 'classroomInventory');
+    const snapshot = await getDocs(inventoryGroup);
+    return snapshot.docs.map(doc => doc.data() as ClassroomInventory);
 }
 
-// --- AGGREGATION LOGIC ---
 
 interface AggregatedItem {
     name: string;
@@ -88,26 +63,35 @@ export default function InventorySummaryPage() {
     const [fetchError, setFetchError] = useState<string | null>(null);
     const [schoolId, setSchoolId] = useState<string | null>(null);
 
+    const loadData = useCallback(async () => {
+        if (!schoolId) {
+            if (isFirebaseConfigured) setFetchError("School ID not found.");
+            setIsLoading(false);
+            return;
+        }
+        setIsLoading(true);
+        setFetchError(null);
+        try {
+            const fullInventory = await fetchFullInventoryFromBackend(schoolId);
+            const summary = aggregateInventory(fullInventory);
+            setAggregatedData(summary);
+        } catch (err) {
+            const msg = err instanceof Error ? err.message : "Failed to load summary data.";
+            setFetchError(msg);
+            toast({ variant: "destructive", title: "Error Loading Data", description: msg });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [schoolId, toast]);
+
     useEffect(() => {
-        const school = localStorage.getItem('schoolId');
-        setSchoolId(school);
-        const loadData = async () => {
-            setIsLoading(true);
-            setFetchError(null);
-            try {
-                const fullInventory = await fetchFullInventoryFromBackend(school || undefined);
-                const summary = aggregateInventory(fullInventory);
-                setAggregatedData(summary);
-            } catch (err) {
-                const msg = err instanceof Error ? err.message : "Failed to load summary data.";
-                setFetchError(msg);
-                toast({ variant: "destructive", title: "Error Loading Data", description: msg });
-            } finally {
-                setIsLoading(false);
-            }
-        };
+        const id = localStorage.getItem('schoolId');
+        setSchoolId(id);
+    }, []);
+
+    useEffect(() => {
         loadData();
-    }, [toast]);
+    }, [loadData]);
 
     const chartData = useMemo(() => {
         return aggregatedData.map(item => ({
@@ -131,6 +115,20 @@ export default function InventorySummaryPage() {
                 title="Classroom Inventory Summary"
                 description={`An aggregated view of all classroom stock across all year levels. ${schoolId ? ` (School ID: ${schoolId})` : ''}`}
             />
+             {!isFirebaseConfigured && (
+                <Card className="bg-amber-50 border-amber-300">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-amber-800 flex items-center">
+                            <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-amber-700">
+                            Firebase is not configured. This page is in read-only mode and cannot save or load live data.
+                        </p>
+                    </CardContent>
+                </Card>
+            )}
             <div className="space-y-8">
                 {isLoading && (
                     <div className="space-y-4">
@@ -144,7 +142,16 @@ export default function InventorySummaryPage() {
                         <CardContent><p className="font-body text-destructive">{fetchError}</p></CardContent>
                     </Card>
                 )}
-                {!isLoading && !fetchError && (
+                {!isLoading && !fetchError && aggregatedData.length === 0 && (
+                    <Card className="flex items-center justify-center min-h-[400px]">
+                        <CardContent className="text-center">
+                            <PackageSearch className="mx-auto h-12 w-12 text-muted-foreground" />
+                            <h3 className="mt-4 text-lg font-medium">No Inventory Data</h3>
+                            <p className="mt-1 text-sm text-muted-foreground">No classroom inventory has been recorded for this school yet.</p>
+                        </CardContent>
+                    </Card>
+                )}
+                {!isLoading && !fetchError && aggregatedData.length > 0 && (
                     <>
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                             <Card>

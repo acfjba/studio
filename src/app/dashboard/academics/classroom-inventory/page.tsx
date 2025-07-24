@@ -8,7 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Boxes, Save, AlertCircle, Loader2, Printer, Download, BarChart3, PlusCircle, Trash2 } from "lucide-react";
+import { Boxes, Save, AlertCircle, Loader2, Printer, Download, BarChart3, PlusCircle, Trash2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import Link from 'next/link';
@@ -25,39 +25,40 @@ import {
 } from "@/components/ui/alert-dialog";
 import { PageHeader } from '@/components/layout/page-header';
 import type { ClassroomInventory, EditableInventoryItem } from '@/lib/schemas/classroom-inventory';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 
-const initialInventoryItems: EditableInventoryItem[] = [
-    { id: "item-1", itemName: "Textbooks", quantityStart: 120, quantityAdded: 10, quantityLost: 5, remarks: "English and Math" },
-    { id: "item-2", itemName: "Exercise Books", quantityStart: 200, quantityAdded: 50, quantityLost: 2, remarks: "" },
-    { id: "item-3", itemName: "Pens", quantityStart: 150, quantityAdded: 20, quantityLost: 15, remarks: "Blue ink" },
-    { id: "item-4", itemName: "Pencils", quantityStart: 180, quantityAdded: 30, quantityLost: 25, remarks: "HB" },
-    { id: "item-5", itemName: "Rulers", quantityStart: 50, quantityAdded: 5, quantityLost: 3, remarks: "" },
-    { id: "item-6", itemName: "Erasers", quantityStart: 75, quantityAdded: 10, quantityLost: 8, remarks: "" },
-    { id: "item-7", itemName: "Chalk / Markers", quantityStart: 30, quantityAdded: 10, quantityLost: 4, remarks: "Whiteboard markers low" },
-    { id: "item-8", itemName: "Charts & Posters", quantityStart: 25, quantityAdded: 2, quantityLost: 1, remarks: "" },
-    { id: "item-9", itemName: "First Aid Kits", quantityStart: 2, quantityAdded: 1, quantityLost: 0, remarks: "Checked monthly" },
-    { id: "item-10", itemName: "Art Supplies (crayons, paper)", quantityStart: 40, quantityAdded: 5, quantityLost: 2, remarks: "" },
-    { id: "item-11", itemName: "Sports Equipment (balls, cones)", quantityStart: 15, quantityAdded: 3, quantityLost: 1, remarks: "1 soccer ball punctured" },
-    { id: "item-12", itemName: "Science Kits", quantityStart: 5, quantityAdded: 0, quantityLost: 0, remarks: "" },
-    { id: "item-13", itemName: "Cleaning Supplies (wipes, sanitizer)", quantityStart: 20, quantityAdded: 5, quantityLost: 3, remarks: "" },
-    { id: "item-14", itemName: "Staplers & Staples", quantityStart: 10, quantityAdded: 2, quantityLost: 1, remarks: "" },
-    { id: "item-15", itemName: "Paper Clips & Pins", quantityStart: 100, quantityAdded: 0, quantityLost: 10, remarks: "" },
-    { id: "item-16", itemName: "Globes & Maps", quantityStart: 3, quantityAdded: 0, quantityLost: 0, remarks: "" },
-    { id: "item-17", itemName: "Projectors & Screens", quantityStart: 1, quantityAdded: 0, quantityLost: 0, remarks: "" },
-    { id: "item-18", itemName: "Teacher's Guides", quantityStart: 50, quantityAdded: 5, quantityLost: 1, remarks: "" },
-    { id: "item-19", itemName: "Other Supplies", quantityStart: 0, quantityAdded: 0, quantityLost: 0, remarks: "" },
-];
+async function fetchInventoryFromBackend(yearLevel: string, schoolId: string): Promise<EditableInventoryItem[]> {
+  if (!db) throw new Error("Firestore is not configured.");
+  const docRef = doc(db, `schools/${schoolId}/classroomInventory`, yearLevel);
+  const docSnap = await getDoc(docRef);
 
-async function fetchInventoryFromBackend(yearLevel: string, schoolId?: string): Promise<EditableInventoryItem[]> {
-  console.log("Simulating fetch inventory from backend...", { yearLevel, schoolId });
-  await new Promise(resolve => setTimeout(resolve, 800));
-  return JSON.parse(JSON.stringify(initialInventoryItems));
+  if (docSnap.exists()) {
+    const data = docSnap.data() as ClassroomInventory;
+    // Ensure quantities are strings for the editable form state
+    return data.items.map(item => ({
+      ...item,
+      quantityStart: String(item.quantityStart || ''),
+      quantityAdded: String(item.quantityAdded || ''),
+      quantityLost: String(item.quantityLost || ''),
+    }));
+  } else {
+    // Return a default set if no inventory exists for that year yet
+    return [
+        { id: "item-1", itemName: "Textbooks", quantityStart: '', quantityAdded: '', quantityLost: '', remarks: "" },
+        { id: "item-2", itemName: "Exercise Books", quantityStart: '', quantityAdded: '', quantityLost: '', remarks: "" },
+        { id: "item-3", itemName: "Pens", quantityStart: '', quantityAdded: '', quantityLost: '', remarks: "" },
+        { id: "item-4", itemName: "Pencils", quantityStart: '', quantityAdded: '', quantityLost: '', remarks: "" },
+        { id: "item-5", itemName: "Rulers", quantityStart: '', quantityAdded: '', quantityLost: '', remarks: "" },
+    ];
+  }
 }
 
-async function saveInventoryToBackend(inventory: ClassroomInventory): Promise<{ success: boolean }> {
-  console.log("Simulating save inventory to backend:", inventory);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+async function saveInventoryToBackend(inventory: ClassroomInventory, schoolId: string): Promise<{ success: boolean }> {
+  if (!db) throw new Error("Firestore is not configured.");
+  const docRef = doc(db, `schools/${schoolId}/classroomInventory`, String(inventory.yearLevel));
+  await setDoc(docRef, inventory);
   return { success: true };
 }
 
@@ -74,7 +75,8 @@ const generateYearOptions = () => {
 
 export default function ClassroomInventoryPage() {
   const { toast } = useToast();
-  const [userRole, setUserRole] = useState<string | null>('teacher');
+  const [userRole, setUserRole] = useState<string | null>(null);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
   const [selectedYear, setSelectedYear] = useState<string>("101");
   const [inventoryItems, setInventoryItems] = useState<EditableInventoryItem[]>([]);
   const [newItemName, setNewItemName] = useState('');
@@ -83,25 +85,30 @@ export default function ClassroomInventoryPage() {
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const canEdit = useMemo(() => {
+    if (!userRole) return false;
     const editableRoles = ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'];
-    return editableRoles.includes(userRole || '');
+    return editableRoles.includes(userRole);
   }, [userRole]);
 
-  // In a real app, user role would be fetched from an auth context
-  // For this demo, we'll just simulate it.
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const role = localStorage.getItem('userRole') || 'teacher';
-      setUserRole(role);
-      console.log("Classroom Inventory User Role:", role);
+    const role = localStorage.getItem('userRole');
+    const id = localStorage.getItem('schoolId');
+    setUserRole(role);
+    setSchoolId(id);
+    if (!id) {
+        setIsLoading(false);
     }
   }, []);
 
   const loadInventory = useCallback(async (year: string) => {
+    if (!schoolId) {
+        setFetchError("School ID not found. Cannot load inventory.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setFetchError(null);
     try {
-      const schoolId = localStorage.getItem('schoolId') || undefined;
       const data = await fetchInventoryFromBackend(year, schoolId);
       setInventoryItems(data);
     } catch (err) {
@@ -109,24 +116,25 @@ export default function ClassroomInventoryPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [schoolId]);
 
   useEffect(() => {
-    loadInventory(selectedYear);
-  }, [selectedYear, loadInventory]);
+    if (schoolId) {
+        loadInventory(selectedYear);
+    }
+  }, [selectedYear, loadInventory, schoolId]);
 
   const handleInputChange = (itemId: string, field: keyof EditableInventoryItem, value: string) => {
     setInventoryItems(prevItems =>
       prevItems.map(item => {
         if (item.id === itemId) {
           if (field === 'quantityStart' || field === 'quantityAdded' || field === 'quantityLost') {
-            // Allow empty string or numbers only
             if (value === '' || /^\d*$/.test(value)) {
               return { ...item, [field]: value };
             }
-            return item; // Do not update for invalid number input
+            return item;
           }
-          return { ...item, [field]: value }; // Update string fields
+          return { ...item, [field]: value };
         }
         return item;
       })
@@ -134,8 +142,8 @@ export default function ClassroomInventoryPage() {
   };
   
   const handleSaveInventory = async () => {
-    if (!inventoryItems) {
-        toast({ variant: "destructive", title: "No Data", description: "No inventory data to save."});
+    if (!inventoryItems || !schoolId) {
+        toast({ variant: "destructive", title: "Cannot Save", description: "No inventory data or school ID available."});
         return;
     }
     if (!canEdit) {
@@ -156,7 +164,7 @@ export default function ClassroomInventoryPage() {
             lastUpdatedBy: "currentUserPlaceholderId",
             updatedAt: new Date().toISOString(),
         };
-        await saveInventoryToBackend(payload);
+        await saveInventoryToBackend(payload, schoolId);
         toast({ title: "Inventory Saved", description: `Stock inventory for Year ${selectedYear} has been saved successfully.`});
     } catch (error) {
         toast({ variant: "destructive", title: "Save Failed", description: "Could not save inventory data."});
@@ -182,7 +190,6 @@ export default function ClassroomInventoryPage() {
       toast({ variant: "destructive", title: "No data", description: "No inventory data available to export." });
       return;
     }
-
     const headers = ["Item Name", "Start of Term", "Added", "Lost/Damaged", "Current Stock", "Remarks"];
     const rows = inventoryItems.map(item => [
       `"${(item.itemName || '').replace(/"/g, '""')}"`,
@@ -192,7 +199,6 @@ export default function ClassroomInventoryPage() {
       calculateCurrentStock(item),
       `"${(item.remarks || '').replace(/"/g, '""')}"`
     ]);
-
     const csvContent = "data:text/csv;charset=utf-8," 
       + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
     
@@ -203,7 +209,6 @@ export default function ClassroomInventoryPage() {
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
-
     toast({ title: "Exported to CSV", description: "The inventory data has been downloaded." });
   };
   
@@ -238,12 +243,28 @@ export default function ClassroomInventoryPage() {
             title="Classroom Stock Inventory"
             description="Manage classroom resources and supplies for each year level."
         />
+        
+        {!isFirebaseConfigured && (
+          <Card className="bg-amber-50 border-amber-300">
+              <CardHeader>
+                  <CardTitle className="font-headline text-amber-800 flex items-center">
+                      <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-amber-700">
+                      Firebase is not configured. This page is in read-only mode and cannot save or load live data.
+                  </p>
+              </CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-lg rounded-lg w-full">
           <CardContent className="pt-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 print:hidden">
               <div className="flex items-center gap-4">
                 <Label htmlFor="year-select" className="font-semibold">Select Year Level:</Label>
-                <Select value={selectedYear} onValueChange={setSelectedYear} disabled={isLoading}>
+                <Select value={selectedYear} onValueChange={setSelectedYear} disabled={isLoading || !schoolId}>
                     <SelectTrigger id="year-select" className="w-[240px]">
                         <SelectValue placeholder="Select Year" />
                     </SelectTrigger>
@@ -261,7 +282,7 @@ export default function ClassroomInventoryPage() {
                 </Button>
                 <AlertDialog>
                   <AlertDialogTrigger asChild>
-                    <Button disabled={isSaving || isLoading || !canEdit}>
+                    <Button disabled={isSaving || isLoading || !canEdit || !isFirebaseConfigured}>
                       {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-4 w-4" />}
                       {isSaving ? "Saving..." : "Save Inventory"}
                     </Button>
@@ -421,5 +442,3 @@ export default function ClassroomInventoryPage() {
       </div>
   );
 }
-
-    

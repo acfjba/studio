@@ -3,14 +3,15 @@
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { PageHeader } from "@/components/layout/page-header";
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Search, Building, AlertCircle } from "lucide-react";
+import { Search, Building, AlertCircle, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
-import { usersSeedData, schoolData } from '@/lib/data';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 interface StudentRecord {
   id: string;
@@ -21,30 +22,24 @@ interface StudentRecord {
 }
 
 // SIMULATED BACKEND FETCH
-async function fetchStudentRecordsFromBackend(): Promise<StudentRecord[]> {
-  console.log("Simulating fetch of student records...");
-  await new Promise(resolve => setTimeout(resolve, 800));
+async function fetchStudentRecordsFromBackend(schoolId: string): Promise<StudentRecord[]> {
+  if (!db) throw new Error("Firestore is not configured.");
+  const usersRef = collection(db, "users");
+  const q = query(usersRef, where("schoolId", "==", schoolId));
+  const snapshot = await getDocs(q);
   
-  // Filter users to only include those with the 'student' role (or similar)
-  // For this demo, we'll imagine some users are students. We can filter by email pattern.
-  const students = usersSeedData
-    .filter(user => user.role === 'teacher' || user.email.includes('student')) // Mocking some users as students
-    .map(user => {
-        const school = schoolData.find(s => s.id === user.schoolId);
-        return {
-            id: user.id,
-            name: user.displayName,
-            email: user.email,
-            schoolId: user.schoolId,
-            schoolName: school?.name || 'N/A'
-        };
-    });
-  
-  // Add some dedicated mock students for variety
-  students.push({ id: 'stu-001', name: 'Ratu Penaia', email: 'r.penaia@student.suvagrammar.ac.fj', schoolId: 'SCH-001', schoolName: 'Suva Grammar School' });
-  students.push({ id: 'stu-002', name: 'Adi Litia', email: 'a.litia@student.natabuahigh.ac.fj', schoolId: 'SCH-002', schoolName: 'Natabua High School' });
-
-  return students;
+  // This is a simplified version. In a real app, you might fetch school names separately
+  // or store them on the user document. For now, we'll just show the ID.
+  return snapshot.docs.map(doc => {
+      const user = doc.data();
+      return {
+          id: doc.id,
+          name: user.displayName,
+          email: user.email,
+          schoolId: user.schoolId,
+          schoolName: `School ${user.schoolId || 'N/A'}`
+      };
+  });
 }
 
 
@@ -53,15 +48,20 @@ export default function StudentRecordsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [schoolIdFilter, setSchoolIdFilter] = useState('');
+  const [schoolId, setSchoolId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   const { toast } = useToast();
 
   const loadStudentData = useCallback(async () => {
+    if (!schoolId) {
+      if (isFirebaseConfigured) setFetchError("School ID not found. Cannot load data.");
+      setIsLoading(false);
+      return;
+    }
     setIsLoading(true);
     setFetchError(null);
     try {
-        const fetchedStudents = await fetchStudentRecordsFromBackend();
+        const fetchedStudents = await fetchStudentRecordsFromBackend(schoolId);
         setStudents(fetchedStudents);
     } catch (err) {
         const msg = err instanceof Error ? err.message : "An unknown error occurred.";
@@ -70,35 +70,48 @@ export default function StudentRecordsPage() {
     } finally {
         setIsLoading(false);
     }
-  }, [toast]);
+  }, [schoolId, toast]);
 
   useEffect(() => {
     const role = localStorage.getItem('userRole');
-    const schoolId = localStorage.getItem('schoolId');
+    const id = localStorage.getItem('schoolId');
     setUserRole(role);
-    // Auto-filter by school for non-admins
-    if (role && role !== 'system-admin' && schoolId) {
-        setSchoolIdFilter(schoolId);
-    }
-    loadStudentData();
+    setSchoolId(id);
+  }, []);
+
+  useEffect(() => {
+      loadStudentData();
   }, [loadStudentData]);
 
   const filteredStudents = useMemo(() => {
     return students.filter(student =>
       (student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-       student.email.toLowerCase().includes(searchTerm.toLowerCase())) &&
-      (!schoolIdFilter || student.schoolId === schoolIdFilter)
+       student.email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
-  }, [students, searchTerm, schoolIdFilter]);
-
-  const isSystemAdmin = userRole === 'system-admin';
+  }, [students, searchTerm]);
 
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Student Records"
-        description="A comprehensive directory of all students across the schools."
+        description="A comprehensive directory of all students in your school."
       />
+
+       {!isFirebaseConfigured && (
+          <Card className="bg-amber-50 border-amber-300">
+              <CardHeader>
+                  <CardTitle className="font-headline text-amber-800 flex items-center">
+                      <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                  </CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <p className="text-amber-700">
+                      Firebase is not configured. This page is in read-only mode and cannot load live data.
+                  </p>
+              </CardContent>
+          </Card>
+      )}
+
       <Card className="shadow-lg rounded-lg">
           <CardHeader>
             <div className="flex flex-col sm:flex-row gap-4 justify-between">
@@ -112,15 +125,6 @@ export default function StudentRecordsPage() {
                         className="pl-10 w-full sm:w-80"
                     />
                 </div>
-                 {isSystemAdmin && (
-                    <Input
-                        id="search-school"
-                        placeholder="Filter by School ID..."
-                        value={schoolIdFilter}
-                        onChange={(e) => setSchoolIdFilter(e.target.value)}
-                        className="w-full sm:w-auto"
-                    />
-                )}
             </div>
           </CardHeader>
           <CardContent>
@@ -146,7 +150,7 @@ export default function StudentRecordsPage() {
                     <TableRow>
                       <TableHead>Student Name</TableHead>
                       <TableHead>Email</TableHead>
-                      <TableHead>School</TableHead>
+                      <TableHead>School ID</TableHead>
                       <TableHead className="text-center">Actions</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -159,7 +163,7 @@ export default function StudentRecordsPage() {
                           <TableCell>
                             <div className="flex items-center gap-2">
                                 <Building className="h-4 w-4 text-muted-foreground" />
-                                <span>{student.schoolName} ({student.schoolId})</span>
+                                <span>{student.schoolId}</span>
                             </div>
                           </TableCell>
                           <TableCell className="text-center">

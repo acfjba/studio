@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Building2, Save, AlertCircle, Loader2, Printer, Download, BarChart3, PlusCircle, Trash2 } from "lucide-react";
+import { Building2, Save, AlertCircle, Loader2, Printer, Download, BarChart3, PlusCircle, Trash2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import type { PrimaryInventory, EditablePrimaryInventoryItem } from '@/lib/schemas/primaryInventory';
@@ -15,35 +15,72 @@ import Link from 'next/link';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collection, getDocs, doc, setDoc, deleteDoc, addDoc, serverTimestamp } from 'firebase/firestore';
 
-const initialPrimaryInventoryItems: EditablePrimaryInventoryItem[] = [
-    { id: "item-1", itemName: "Student Desks", quantity: 150, value: 75.00, remarks: "Mixed condition" },
-    { id: "item-2", itemName: "Student Chairs", quantity: 160, value: 40.00, remarks: "5 need minor repairs" },
-    { id: "item-3", itemName: "Teacher Desks", quantity: 12, value: 150.00, remarks: "" },
-    { id: "item-4", itemName: "Teacher Chairs", quantity: 12, value: 80.00, remarks: "" },
-    { id: "item-5", itemName: "Whiteboards / Blackboards", quantity: 15, value: 200.00, remarks: "" },
-    { id: "item-6", itemName: "Office Filing Cabinets", quantity: 8, value: 250.00, remarks: "" },
-    { id: "item-7", itemName: "Computers (Lab/Office)", quantity: 25, value: 800.00, remarks: "Due for refresh in 2025" },
-    { id: "item-8", itemName: "Printers / Scanners", quantity: 5, value: 400.00, remarks: "" },
-    { id: "item-9", itemName: "Projectors", quantity: 4, value: 600.00, remarks: "" },
-    { id: "item-10", itemName: "Library Bookshelves", quantity: 20, value: 300.00, remarks: "" },
-];
 
-async function fetchPrimaryInventoryFromBackend(schoolId?: string): Promise<EditablePrimaryInventoryItem[]> {
-  console.log("Simulating fetch PRIMARY inventory from backend...", { schoolId });
-  await new Promise(resolve => setTimeout(resolve, 800));
-  return JSON.parse(JSON.stringify(initialPrimaryInventoryItems));
+async function fetchPrimaryInventoryFromBackend(schoolId: string): Promise<EditablePrimaryInventoryItem[]> {
+  if (!db) throw new Error("Firestore is not configured.");
+  const inventoryCollection = collection(db, 'schools', schoolId, 'primaryInventory');
+  const snapshot = await getDocs(inventoryCollection);
+  if (snapshot.empty) {
+    return [];
+  }
+  return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+          id: doc.id,
+          itemName: data.itemName,
+          quantity: String(data.quantity || ''),
+          value: String(data.value || ''),
+          remarks: data.remarks || '',
+      }
+  });
 }
 
-async function savePrimaryInventoryToBackend(inventory: PrimaryInventory): Promise<{ success: boolean }> {
-  console.log("Simulating save PRIMARY inventory to backend:", inventory);
-  await new Promise(resolve => setTimeout(resolve, 1000));
+async function savePrimaryInventoryToBackend(items: EditablePrimaryInventoryItem[], schoolId: string, userId: string): Promise<{ success: boolean }> {
+  if (!db) throw new Error("Firestore is not configured.");
+  
+  for (const item of items) {
+    const docRef = doc(db, 'schools', schoolId, 'primaryInventory', item.id);
+    const payload = {
+        itemName: item.itemName,
+        quantity: Number(item.quantity) || 0,
+        value: Number(item.value) || 0,
+        remarks: item.remarks,
+        lastUpdatedBy: userId,
+        updatedAt: serverTimestamp(),
+    };
+    await setDoc(docRef, payload, { merge: true });
+  }
   return { success: true };
 }
+
+async function addPrimaryInventoryItem(item: Omit<EditablePrimaryInventoryItem, 'id'>, schoolId: string, userId: string) {
+    if (!db) throw new Error("Firestore is not configured.");
+    const collectionRef = collection(db, 'schools', schoolId, 'primaryInventory');
+    const payload = {
+        itemName: item.itemName,
+        quantity: Number(item.quantity) || 0,
+        value: Number(item.value) || 0,
+        remarks: item.remarks,
+        lastUpdatedBy: userId,
+        updatedAt: serverTimestamp(),
+        createdAt: serverTimestamp(),
+    };
+    return await addDoc(collectionRef, payload);
+}
+
+async function deletePrimaryInventoryItem(itemId: string, schoolId: string) {
+    if (!db) throw new Error("Firestore is not configured.");
+    await deleteDoc(doc(db, 'schools', schoolId, 'primaryInventory', itemId));
+}
+
 
 export default function PrimarySchoolInventoryPage() {
   const { toast } = useToast();
   const [userRole, setUserRole] = useState<string | null>(null);
+  const [schoolId, setSchoolId] = useState<string | null>(null);
   const [inventoryItems, setInventoryItems] = useState<EditablePrimaryInventoryItem[]>([]);
   const [newItemName, setNewItemName] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -55,19 +92,24 @@ export default function PrimarySchoolInventoryPage() {
       const editableRoles = ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'];
       return editableRoles.includes(userRole);
   }, [userRole]);
-
+  
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const role = localStorage.getItem('userRole');
-      setUserRole(role);
-    }
+    const role = localStorage.getItem('userRole');
+    const id = localStorage.getItem('schoolId');
+    setUserRole(role);
+    setSchoolId(id);
+    if(!id) setIsLoading(false);
   }, []);
 
   const loadInventory = useCallback(async () => {
+    if (!schoolId) {
+        if(isFirebaseConfigured) setFetchError("School ID not found.");
+        setIsLoading(false);
+        return;
+    }
     setIsLoading(true);
     setFetchError(null);
     try {
-      const schoolId = localStorage.getItem('schoolId') || undefined;
       const data = await fetchPrimaryInventoryFromBackend(schoolId);
       setInventoryItems(data);
     } catch (err) {
@@ -75,7 +117,7 @@ export default function PrimarySchoolInventoryPage() {
     } finally {
       setIsLoading(false);
     }
-  }, []);
+  }, [schoolId]);
 
   useEffect(() => {
     loadInventory();
@@ -99,8 +141,8 @@ export default function PrimarySchoolInventoryPage() {
   };
   
   const handleSaveInventory = async () => {
-    if (!inventoryItems) {
-      toast({ variant: "destructive", title: "No Data", description: "No inventory data to save."});
+    if (!inventoryItems || !schoolId) {
+      toast({ variant: "destructive", title: "No Data", description: "No inventory data or school ID to save."});
       return;
     }
     if (!canEdit) {
@@ -109,17 +151,9 @@ export default function PrimarySchoolInventoryPage() {
     }
     setIsSaving(true);
     try {
-      const payload: PrimaryInventory = {
-        lastUpdatedBy: "currentUserPlaceholderId",
-        updatedAt: new Date().toISOString(),
-        items: inventoryItems.map(item => ({
-            ...item,
-            quantity: Number(item.quantity) || 0,
-            value: Number(item.value) || 0,
-        })),
-      };
-      await savePrimaryInventoryToBackend(payload);
+      await savePrimaryInventoryToBackend(inventoryItems, schoolId, "currentUserPlaceholderId");
       toast({ title: "Primary Inventory Saved", description: `Primary school inventory has been saved successfully.`});
+      await loadInventory();
     } catch (error) {
       toast({ variant: "destructive", title: "Save Failed", description: "Could not save inventory data."});
     } finally {
@@ -132,26 +166,36 @@ export default function PrimarySchoolInventoryPage() {
     window.print();
   };
   
-  const handleAddItem = () => {
-    if (!newItemName.trim()) {
-      toast({ variant: "destructive", title: "Item name cannot be empty." });
+  const handleAddItem = async () => {
+    if (!newItemName.trim() || !schoolId) {
+      toast({ variant: "destructive", title: "Cannot Add Item", description: "Item name and school ID are required." });
       return;
     }
-    const newItem: EditablePrimaryInventoryItem = {
-      id: `custom-${Date.now()}`,
+    const newItem: Omit<EditablePrimaryInventoryItem, 'id'> = {
       itemName: newItemName.trim(),
       quantity: '',
       value: '',
       remarks: '',
     };
-    setInventoryItems(prev => [...prev, newItem]);
-    setNewItemName('');
-    toast({ title: "Item Added", description: `"${newItem.itemName}" has been added to the list.`});
+    try {
+      await addPrimaryInventoryItem(newItem, schoolId, "currentUserPlaceholder");
+      setNewItemName('');
+      toast({ title: "Item Added", description: `"${newItem.itemName}" has been added to the list.`});
+      await loadInventory();
+    } catch(err) {
+      toast({ variant: 'destructive', title: "Error", description: "Could not add the item." });
+    }
   };
 
-  const handleRemoveItem = (itemIdToRemove: string) => {
-    setInventoryItems(prev => prev.filter(item => item.id !== itemIdToRemove));
-    toast({ title: "Item Removed", description: "The item has been removed from your inventory list." });
+  const handleRemoveItem = async (itemIdToRemove: string) => {
+    if (!schoolId) return;
+    try {
+      await deletePrimaryInventoryItem(itemIdToRemove, schoolId);
+      toast({ title: "Item Removed", description: "The item has been removed from your inventory list." });
+      await loadInventory();
+    } catch (err) {
+      toast({ variant: "destructive", title: "Error", description: "Could not remove the item." });
+    }
   };
   
   const calculateTotalValue = (item: EditablePrimaryInventoryItem) => {
@@ -164,6 +208,14 @@ export default function PrimarySchoolInventoryPage() {
             title="Primary School Inventory"
             description="Manage fixed assets and major supplies for the entire primary school."
         />
+        
+         {!isFirebaseConfigured && (
+          <Card className="bg-amber-50 border-amber-300">
+              <CardHeader><CardTitle className="font-headline text-amber-800 flex items-center"><AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active</CardTitle></CardHeader>
+              <CardContent><p className="text-amber-700">Firebase is not configured. This page is in read-only mode and cannot load or save data.</p></CardContent>
+          </Card>
+        )}
+
         <Card className="shadow-xl rounded-lg w-full">
           <CardContent className="pt-6">
             <div className="flex flex-wrap items-center justify-between gap-4 mb-6 print:hidden">
@@ -186,18 +238,8 @@ export default function PrimarySchoolInventoryPage() {
                     </Button>
                   </AlertDialogTrigger>
                   <AlertDialogContent>
-                    <AlertDialogHeader>
-                      <AlertDialogTitle>Confirm Inventory Update</AlertDialogTitle>
-                      <AlertDialogDescription>
-                        You are about to save changes to the primary school inventory. Please ensure all records are correct.
-                      </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                      <AlertDialogCancel>Cancel</AlertDialogCancel>
-                      <AlertDialogAction onClick={handleSaveInventory} disabled={isSaving}>
-                        {isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Continue & Save"}
-                      </AlertDialogAction>
-                    </AlertDialogFooter>
+                    <AlertDialogHeader><AlertDialogTitle>Confirm Inventory Update</AlertDialogTitle><AlertDialogDescription>You are about to save changes to the primary school inventory. Please ensure all records are correct.</AlertDialogDescription></AlertDialogHeader>
+                    <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={handleSaveInventory} disabled={isSaving}>{isSaving ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : "Continue & Save"}</AlertDialogAction></AlertDialogFooter>
                   </AlertDialogContent>
                 </AlertDialog>
               </div>
@@ -207,38 +249,18 @@ export default function PrimarySchoolInventoryPage() {
                 <Alert variant="destructive" className="mb-4">
                     <AlertCircle className="h-4 w-4" />
                     <AlertTitle>Read-Only Mode</AlertTitle>
-                    <AlertDescription>
-                        You do not have permission to edit this inventory. Changes cannot be saved.
-                    </AlertDescription>
+                    <AlertDescription>You do not have permission to edit this inventory. Changes cannot be saved.</AlertDescription>
                 </Alert>
             )}
 
-            {isLoading && (
-              <div className="space-y-2">
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-                  <Skeleton className="h-10 w-full" />
-              </div>
-            )}
-            {fetchError && (
-              <Card className="bg-destructive/10 border-destructive print:hidden">
-                  <CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error Loading Inventory</CardTitle></CardHeader>
-                  <CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent>
-              </Card>
-            )}
+            {isLoading && <div className="space-y-2"><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /><Skeleton className="h-10 w-full" /></div>}
+            {fetchError && <Card className="bg-destructive/10 border-destructive print:hidden"><CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error Loading Inventory</CardTitle></CardHeader><CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent></Card>}
 
             {!isLoading && !fetchError && (
               <div className="overflow-x-auto border rounded-lg">
                 <Table className="min-w-full">
                   <TableHeader>
-                    <TableRow>
-                      <TableHead className="font-bold w-[30%]">Item Name</TableHead>
-                      <TableHead className="font-bold text-center">Quantity</TableHead>
-                      <TableHead className="font-bold text-center">Value (per item)</TableHead>
-                      <TableHead className="font-bold text-center">Total Value</TableHead>
-                      <TableHead className="font-bold w-[25%]">Remarks</TableHead>
-                      <TableHead className="font-bold text-center print:hidden">Actions</TableHead>
-                    </TableRow>
+                    <TableRow><TableHead className="font-bold w-[30%]">Item Name</TableHead><TableHead className="font-bold text-center">Quantity</TableHead><TableHead className="font-bold text-center">Value (per item)</TableHead><TableHead className="font-bold text-center">Total Value</TableHead><TableHead className="font-bold w-[25%]">Remarks</TableHead><TableHead className="font-bold text-center print:hidden">Actions</TableHead></TableRow>
                   </TableHeader>
                   <TableBody>
                     {inventoryItems.map((item) => (
@@ -251,10 +273,7 @@ export default function PrimarySchoolInventoryPage() {
                         <TableCell className="text-center print:hidden">
                             <AlertDialog>
                               <AlertDialogTrigger asChild><Button variant="ghost" size="icon" disabled={!canEdit} title="Remove Item"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                              <AlertDialogContent>
-                                  <AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently remove the item "{item.itemName}" from the inventory list.</AlertDialogDescription></AlertDialogHeader>
-                                  <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveItem(item.id)} className="bg-destructive hover:bg-destructive/90">Yes, Remove Item</AlertDialogAction></AlertDialogFooter>
-                              </AlertDialogContent>
+                              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>Are you sure?</AlertDialogTitle><AlertDialogDescription>This will permanently remove the item "{item.itemName}" from the inventory list.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction onClick={() => handleRemoveItem(item.id)} className="bg-destructive hover:bg-destructive/90">Yes, Remove Item</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
                             </AlertDialog>
                         </TableCell>
                       </TableRow>
@@ -274,11 +293,8 @@ export default function PrimarySchoolInventoryPage() {
                     </CardContent>
                 </Card>
             )}
-
           </CardContent>
         </Card>
       </div>
   );
 }
-
-    

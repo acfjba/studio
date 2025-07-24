@@ -1,19 +1,20 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer, Download, Filter, AlertCircle, Warehouse } from "lucide-react";
-import { inventoryData } from '@/lib/data';
+import { Printer, Download, Filter, AlertCircle, Warehouse, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collectionGroup, getDocs } from 'firebase/firestore';
 
 interface InventoryItemReport {
     id: string;
@@ -21,13 +22,14 @@ interface InventoryItemReport {
     quantity: number;
     unitCost: number;
     totalValue: number;
-    status: string;
+    status: 'In Stock' | 'Low Stock' | 'Out of Stock';
 }
 
-// Simulate fetching data for the report
 async function fetchInventoryReportData(): Promise<any[]> {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return inventoryData;
+    if (!db) throw new Error("Firestore is not configured.");
+    const inventoryGroup = collectionGroup(db, 'primaryInventory');
+    const snapshot = await getDocs(inventoryGroup);
+    return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
 }
 
 
@@ -35,28 +37,46 @@ export default function InventoryReportsPage() {
     const { toast } = useToast();
     const [inventory, setInventory] = useState<InventoryItemReport[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [fetchError, setFetchError] = useState<string|null>(null);
     const [statusFilter, setStatusFilter] = useState<string>('all');
-
-    useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const data = await fetchInventoryReportData();
-                const processedData = data.map(item => ({
-                    ...item,
-                    totalValue: item.quantity * item.unitCost,
-                }));
-                setInventory(processedData);
-            } catch (error) {
-                toast({ variant: "destructive", title: "Error", description: "Could not load inventory data." });
-            } finally {
-                setIsLoading(false);
-            }
-        };
-        loadData();
-    }, [toast]);
     
-    const uniqueStatuses = useMemo(() => ['all', ...Array.from(new Set(inventory.map(i => i.status)))], [inventory]);
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        setFetchError(null);
+        if(!isFirebaseConfigured) {
+            setIsLoading(false);
+            return;
+        }
+        try {
+            const data = await fetchInventoryReportData();
+            const processedData = data.map(item => {
+                const quantity = item.quantity || 0;
+                let status: InventoryItemReport['status'] = 'In Stock';
+                if (quantity <= 0) status = 'Out of Stock';
+                else if (quantity < 10) status = 'Low Stock'; // Example threshold
+
+                return {
+                    id: item.id,
+                    item: item.itemName,
+                    quantity: quantity,
+                    unitCost: item.value || 0,
+                    totalValue: (item.quantity || 0) * (item.value || 0),
+                    status: status,
+                };
+            });
+            setInventory(processedData);
+        } catch (error) {
+            setFetchError(error instanceof Error ? error.message : "Could not load inventory data.");
+        } finally {
+            setIsLoading(false);
+        }
+    }, []);
+    
+    useEffect(() => {
+        loadData();
+    }, [loadData]);
+    
+    const uniqueStatuses = useMemo(() => ['all', 'In Stock', 'Low Stock', 'Out of Stock'], []);
 
     const filteredData = useMemo(() => {
         return inventory.filter(item => 
@@ -107,6 +127,11 @@ export default function InventoryReportsPage() {
         title="Inventory Reports"
         description="View reports on stock levels, usage, and value of school inventory."
       />
+
+      {!isFirebaseConfigured && (
+        <Card className="bg-amber-50 border-amber-300"><CardHeader><CardTitle className="font-headline text-amber-800 flex items-center"><AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active</CardTitle></CardHeader><CardContent><p className="text-amber-700">Firebase is not configured. This page is in read-only mode and cannot load live data.</p></CardContent></Card>
+      )}
+
       <Card className="shadow-lg rounded-lg">
         <CardHeader>
           <CardTitle className="font-headline">Inventory Report Generator</CardTitle>
@@ -137,9 +162,9 @@ export default function InventoryReportsPage() {
                     </div>
                 </div>
 
-                {isLoading ? (
-                    <Skeleton className="h-64 w-full" />
-                ) : filteredData.length === 0 ? (
+                {isLoading ? <Skeleton className="h-64 w-full" />
+                 : fetchError ? <Card className="bg-destructive/10 border-destructive"><CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error</CardTitle></CardHeader><CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent></Card>
+                 : filteredData.length === 0 ? (
                     <Card className="mt-6 bg-muted/30">
                       <CardHeader><CardTitle className="font-headline text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />No Inventory Found</CardTitle></CardHeader>
                       <CardContent><p className="text-sm text-foreground">No inventory items match your current filter criteria.</p></CardContent>
@@ -147,27 +172,13 @@ export default function InventoryReportsPage() {
                 ) : (
                     <div className="overflow-x-auto rounded-md border">
                         <Table>
-                            <TableHeader>
-                                <TableRow>
-                                    <TableHead>Item</TableHead>
-                                    <TableHead className="text-right">Quantity</TableHead>
-                                    <TableHead className="text-right">Unit Cost</TableHead>
-                                    <TableHead className="text-right">Total Value</TableHead>
-                                    <TableHead className="text-center">Status</TableHead>
-                                </TableRow>
-                            </TableHeader>
+                            <TableHeader><TableRow><TableHead>Item</TableHead><TableHead className="text-right">Quantity</TableHead><TableHead className="text-right">Unit Cost</TableHead><TableHead className="text-right">Total Value</TableHead><TableHead className="text-center">Status</TableHead></TableRow></TableHeader>
                             <TableBody>
                                 {filteredData.map(item => (
                                     <TableRow key={item.id}>
-                                        <TableCell className="font-medium">{item.item}</TableCell>
-                                        <TableCell className="text-right">{item.quantity}</TableCell>
-                                        <TableCell className="text-right">${item.unitCost.toFixed(2)}</TableCell>
-                                        <TableCell className="text-right font-bold">${item.totalValue.toFixed(2)}</TableCell>
-                                        <TableCell className="text-center">
-                                            <Badge variant={statusVariants[item.status]} className={cn(statusVariants[item.status] === 'default' && 'bg-green-600')}>
-                                                {item.status}
-                                            </Badge>
-                                        </TableCell>
+                                        <TableCell className="font-medium">{item.item}</TableCell><TableCell className="text-right">{item.quantity}</TableCell>
+                                        <TableCell className="text-right">${item.unitCost.toFixed(2)}</TableCell><TableCell className="text-right font-bold">${item.totalValue.toFixed(2)}</TableCell>
+                                        <TableCell className="text-center"><Badge variant={statusVariants[item.status]} className={cn(statusVariants[item.status] === 'default' && 'bg-green-600')}>{item.status}</Badge></TableCell>
                                     </TableRow>
                                 ))}
                             </TableBody>

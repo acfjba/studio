@@ -10,42 +10,39 @@ import { Input } from "@/components/ui/input";
 import { Star, Search, AlertCircle, Building } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { usersSeedData } from '@/lib/data';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+
 
 interface Teacher {
   id: string;
   name: string;
   position: string;
-  email: string;
   avatar: string;
   dataAiHint: string;
   schoolId: string | null;
-  isRateable: boolean;
   role: string;
 }
 
 // SIMULATED BACKEND FETCH using the central seed file
-async function fetchTeachersFromBackend(): Promise<Teacher[]> {
-  console.log("Simulating fetch teachers from backend...");
-  await new Promise(resolve => setTimeout(resolve, 800));
-  
-  return usersSeedData
-    .map(staff => {
-        const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
-        const isRateable = rateableRoles.includes((staff.role || "").toLowerCase());
-        return {
-            id: staff.id,
-            name: staff.displayName,
-            position: staff.role.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' '),
-            email: staff.email,
+async function fetchTeachersFromBackend(schoolId: string): Promise<Teacher[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const staffCollection = collection(db, 'staff');
+    const q = query(staffCollection, where("schoolId", "==", schoolId), where("role", "in", ["teacher", "head-teacher", "assistant-head-teacher"]));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+      const staff = doc.data();
+      return {
+            id: staff.userId,
+            name: staff.name,
+            position: staff.position,
             avatar: `https://placehold.co/80x80.png`,
             dataAiHint: "teacher portrait",
             schoolId: staff.schoolId,
-            isRateable,
             role: staff.role
-        };
+      };
     });
 }
 
@@ -59,11 +56,15 @@ export default function TeachersListPage() {
   const [loggedInSchoolId, setLoggedInSchoolId] = useState<string | null>(null);
   const [userRole, setUserRole] = useState<string | null>(null);
   
-  const loadInitialData = useCallback(async () => {
+  const loadInitialData = useCallback(async (id) => {
     setIsLoading(true);
     setFetchError(null);
+    if (!isFirebaseConfigured) {
+        setIsLoading(false);
+        return;
+    }
     try {
-        const fetchedTeachers = await fetchTeachersFromBackend();
+        const fetchedTeachers = await fetchTeachersFromBackend(id);
         setTeachers(fetchedTeachers);
     } catch (err) {
         setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
@@ -79,12 +80,16 @@ export default function TeachersListPage() {
         const storedUserRole = localStorage.getItem('userRole');
         setLoggedInSchoolId(storedSchoolId);
         setUserRole(storedUserRole);
-        // Automatically apply the school filter if the user is not a system admin
-        if (storedUserRole !== 'system-admin' && storedSchoolId) {
-            setSchoolIdFilter(storedSchoolId);
+        
+        const idToLoad = storedUserRole === 'system-admin' ? '3046' : storedSchoolId;
+
+        if (idToLoad) {
+            setSchoolIdFilter(idToLoad);
+            loadInitialData(idToLoad);
+        } else {
+            setIsLoading(false);
         }
     }
-    loadInitialData();
   }, [loadInitialData]);
 
   const filteredTeachers = useMemo(() => {
@@ -162,24 +167,11 @@ export default function TeachersListPage() {
                             <Building className="h-3 w-3" /> School ID: {teacher.schoolId}
                         </p>
                     </div>
-                    {teacher.isRateable ? (
-                      <Link href={`/dashboard/teachers/${teacher.id}/rate`} passHref className="w-full">
+                    <Link href={`/dashboard/teachers/${teacher.id}/rate`} passHref className="w-full">
                         <Button className="w-full">
                           <Star className="mr-2 h-4 w-4" /> Rate Teacher
                         </Button>
-                      </Link>
-                    ) : (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                           <Button className="w-full" disabled>
-                               <Star className="mr-2 h-4 w-4" /> Not Rateable
-                           </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>This user's role ({teacher.role}) is not eligible for rating.</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
+                    </Link>
                   </Card>
                 ))}
                  {filteredTeachers.length === 0 && (
