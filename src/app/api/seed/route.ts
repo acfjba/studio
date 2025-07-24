@@ -2,7 +2,6 @@
 import { NextResponse } from 'next/server';
 import { seedDatabase } from '../../../../functions/src/firebase/seed';
 
-export const dynamic = 'force-dynamic'; // Ensures this route is always executed dynamically
 
 // This function handles POST requests to /api/seed
 export async function POST() {

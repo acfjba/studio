@@ -1,4 +1,3 @@
-
 // src/lib/firebase/config.ts
 
 // This file is the central point for initializing the Firebase SDK for your application.
@@ -29,7 +28,8 @@ const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 // Conditionally initialize Firestore. If the configuration is not fully present,
 // db will be null, and the application will show a "Firebase not configured" message.
-const db = isAllConfigPresent() ? getFirestore(app) : null;
+// We explicitly pass the database ID to ensure connection to the correct instance.
+const db = isAllConfigPresent() ? getFirestore(app, process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID) : null;
 
 // Export a boolean that can be used throughout the app to check if Firebase is connected.
 export const isFirebaseConfigured = isAllConfigPresent();
