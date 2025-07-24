@@ -125,11 +125,11 @@ export default function StaffRecordsPage() {
 
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
+    setSchoolId(id);
     if (id) {
-        setSchoolId(id);
-        fetchStaffList(id);
+      fetchStaffList(id);
     } else {
-        setIsLoading(false);
+      setIsLoading(false);
     }
   }, [fetchStaffList]);
 
@@ -186,12 +186,11 @@ export default function StaffRecordsPage() {
 
   const handleDeleteStaff = async (staffIdToDelete: string, staffName?: string) => {
     if (window.confirm(`Are you sure you want to delete ${staffName || 'this staff member'}?`)) {
-        if (!isFirebaseConfigured) {
+        if (!isFirebaseConfigured || !schoolId) {
             setStaffList(staffList.filter(s => s.id !== staffIdToDelete));
             toast({ title: "Staff Deleted (Simulated)", description: `${staffName || 'Staff member'}'s record has been removed.`, variant: "default" });
             return;
         }
-        if (!schoolId) return;
         try {
             await deleteStaffFromFirestore(staffIdToDelete);
             await fetchStaffList(schoolId);

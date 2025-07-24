@@ -103,10 +103,8 @@ export default function CounsellingPage() {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const id = localStorage.getItem('schoolId');
-      setSchoolId(id);
-    }
+    const id = localStorage.getItem('schoolId');
+    setSchoolId(id);
   }, []);
 
   const {
@@ -167,21 +165,11 @@ export default function CounsellingPage() {
     }
   }, [searchName, searchDob, schoolId, toast]);
 
-  const loadRecords = useCallback(async () => {
-    if (!schoolId) {
-        if (isFirebaseConfigured) return; 
-        else {
-            setIsLoading(false);
-            setFetchError("Firebase is not configured. Displaying mock data.");
-            setRecords([]);
-            return;
-        }
-    }
-    
+  const loadRecords = useCallback(async (currentSchoolId: string) => {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId);
+      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(currentSchoolId);
       setRecords(fetchedRecords);
       setSearchResults(fetchedRecords); // Initially show all
     } catch (err) {
@@ -191,11 +179,13 @@ export default function CounsellingPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [schoolId]);
+  }, []);
 
   useEffect(() => {
-    if (schoolId !== null) {
-      loadRecords();
+    if (schoolId) {
+      loadRecords(schoolId);
+    } else if (schoolId === null) {
+      setIsLoading(false);
     }
   }, [schoolId, loadRecords]);
   
@@ -229,7 +219,7 @@ export default function CounsellingPage() {
 
     try {
         await saveCounsellingRecordToFirestore(recordToSaveBase, editingRecordId ?? undefined);
-        await loadRecords(); // Reload all records from Firestore
+        await loadRecords(schoolId); // Reload all records from Firestore
         
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Counselling record for ${data.studentName} has been processed.` });
         
@@ -261,10 +251,11 @@ export default function CounsellingPage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete record because Firebase is not configured." });
         return;
     }
+    if (!schoolId) return;
 
     try {
         await deleteCounsellingRecordFromFirestore(recordId);
-        await loadRecords(); // Reload to reflect deletion
+        await loadRecords(schoolId); // Reload to reflect deletion
         toast({ title: "Record Deleted", description: "The counselling record has been deleted." });
     } catch (error) {
         console.error("Error deleting record from Firestore:", error);
@@ -276,7 +267,7 @@ export default function CounsellingPage() {
     setSearchName('');
     setSearchDob('');
     setHasSearched(false);
-    loadRecords();
+    if(schoolId) loadRecords(schoolId);
     toast({ title: "Search Cleared", description: "Displaying all records." });
   };
   

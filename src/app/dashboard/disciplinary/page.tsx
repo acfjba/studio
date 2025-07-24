@@ -95,10 +95,8 @@ export default function DisciplinaryPage() {
   const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const id = localStorage.getItem('schoolId');
-      setSchoolId(id);
-    }
+    const id = localStorage.getItem('schoolId');
+    setSchoolId(id);
   }, []);
 
   const {
@@ -130,20 +128,11 @@ export default function DisciplinaryPage() {
   const showDrugType = watchedIssues.includes('Drug');
   const showOtherIssue = watchedIssues.includes('Other');
 
-  const loadRecords = useCallback(async () => {
-    if (!schoolId) {
-        if (isFirebaseConfigured) return; 
-        else {
-            setIsLoading(false);
-            setFetchError("Firebase not configured.");
-            setRecords([]);
-            return;
-        }
-    }
+  const loadRecords = useCallback(async (currentSchoolId: string) => {
     setIsLoading(true);
     setFetchError(null);
     try {
-      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId);
+      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(currentSchoolId);
       setRecords(fetchedRecords);
        if (hasSearched) {
           const results = fetchedRecords.filter(record =>
@@ -160,11 +149,13 @@ export default function DisciplinaryPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [schoolId, hasSearched, searchName, searchDob]);
+  }, [hasSearched, searchName, searchDob]);
 
   useEffect(() => {
-    if (schoolId !== null) {
-      loadRecords();
+    if (schoolId) {
+      loadRecords(schoolId);
+    } else if (schoolId === null) {
+      setIsLoading(false);
     }
   }, [schoolId, loadRecords]);
   
@@ -195,7 +186,7 @@ export default function DisciplinaryPage() {
 
     try {
         await saveDisciplinaryRecordToFirestore(recordToSaveBase, editingRecordId ?? undefined);
-        await loadRecords(); // Reload from firestore
+        await loadRecords(schoolId); // Reload from firestore
 
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Disciplinary record for ${data.studentName} has been processed.` });
         setIsFormModalOpen(false);
@@ -224,10 +215,11 @@ export default function DisciplinaryPage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete because Firebase is not configured." });
         return;
     }
-
+    if (!schoolId) return;
+    
     try {
         await deleteDisciplinaryRecordFromFirestore(recordId);
-        await loadRecords();
+        await loadRecords(schoolId);
         toast({ title: "Record Deleted", description: "The disciplinary record has been deleted." });
     } catch (error) {
         console.error("Error deleting record from Firestore:", error);

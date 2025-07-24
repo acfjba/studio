@@ -122,6 +122,7 @@ export default function ExamResultsManagementPage() {
         } else {
             if (!school) {
                 setFetchError("Your school ID is not set. Cannot load data.");
+                setIsLoading(false);
                 return;
             }
             fetchedResults = await fetchExamResultsFromBackend(school);
@@ -135,18 +136,16 @@ export default function ExamResultsManagementPage() {
   }, []);
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const storedSchoolId = localStorage.getItem('schoolId');
-      const storedUserRole = localStorage.getItem('userRole');
-      setSchoolId(storedSchoolId);
-      setUserRole(storedUserRole);
-      
-      if (storedUserRole) {
-          loadResults(storedUserRole, storedSchoolId);
-      } else {
-          setIsLoading(false);
-          setFetchError("User role not found. Cannot load data.");
-      }
+    const storedSchoolId = localStorage.getItem('schoolId');
+    const storedUserRole = localStorage.getItem('userRole');
+    setSchoolId(storedSchoolId);
+    setUserRole(storedUserRole);
+    
+    if (storedUserRole) {
+        loadResults(storedUserRole, storedSchoolId);
+    } else {
+        // This case should be handled by the DashboardLayout's auth check
+        setIsLoading(false);
     }
   }, [loadResults]);
 

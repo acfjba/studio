@@ -134,25 +134,17 @@ export default function LibraryServicePage() {
   const transactionForm = useForm<LibraryTransactionFormData>({ resolver: zodResolver(LibraryTransactionFormSchema) });
 
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const id = localStorage.getItem('schoolId');
-      setSchoolId(id);
-    }
+    const id = localStorage.getItem('schoolId');
+    setSchoolId(id);
   }, []);
 
-  const loadData = useCallback(async () => {
-    if (!schoolId) {
-      if(isFirebaseConfigured) return; // Don't run if schoolId isn't loaded yet but firebase is configured
-      setIsLoading(false);
-      return;
-    }
-    
+  const loadData = useCallback(async (currentSchoolId: string) => {
     setIsLoading(true);
     setFetchError(null);
     try {
         const [fetchedBooks, fetchedTransactions] = await Promise.all([
-            fetchBooksFromFirestore(schoolId),
-            fetchTransactionsFromFirestore(schoolId),
+            fetchBooksFromFirestore(currentSchoolId),
+            fetchTransactionsFromFirestore(currentSchoolId),
         ]);
         setBooks(fetchedBooks);
         setTransactions(fetchedTransactions);
@@ -163,11 +155,13 @@ export default function LibraryServicePage() {
     } finally {
         setIsLoading(false);
     }
-  }, [toast, schoolId]);
+  }, [toast]);
 
   useEffect(() => {
-    if (schoolId !== null) {
-        loadData();
+    if (schoolId) {
+        loadData(schoolId);
+    } else if (schoolId === null) {
+      setIsLoading(false);
     }
   }, [schoolId, loadData]);
 
@@ -182,7 +176,7 @@ export default function LibraryServicePage() {
     }
     try {
         await addBookToFirestore(data, schoolId);
-        await loadData();
+        await loadData(schoolId);
         toast({ title: "Book Added", description: `"${data.title}" has been added to the catalogue.`});
         setIsAddBookModalOpen(false);
         addBookForm.reset();
@@ -208,7 +202,7 @@ export default function LibraryServicePage() {
 
     try {
         await issueBookTransaction(data, bookToLoan.title, schoolId);
-        await loadData();
+        await loadData(schoolId);
         toast({ title: "Transaction Successful", description: `"${bookToLoan.title}" issued to ${data.memberName}.` });
         setIsTransactionModalOpen(false);
         transactionForm.reset();
@@ -222,9 +216,10 @@ export default function LibraryServicePage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot return book because Firebase is not configured." });
         return;
     }
+    if (!schoolId) return;
     try {
         await returnBookTransaction(transactionId, bookId);
-        await loadData();
+        await loadData(schoolId);
         toast({ title: "Book Returned", description: "The book has been marked as returned." });
     } catch(err) {
          toast({ variant: "destructive", title: "Return Failed", description: "Could not process book return." });
@@ -240,10 +235,11 @@ export default function LibraryServicePage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete book because Firebase is not configured." });
         return;
     }
+    if (!schoolId) return;
     if (window.confirm(`Are you sure you want to delete "${bookTitle}"? This is a permanent action.`)) {
       try {
         await deleteBookFromFirestore(bookId);
-        await loadData();
+        await loadData(schoolId);
         toast({ title: "Book Deleted", description: `"${bookTitle}" has been removed from the list.` });
       } catch(err) {
         toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete book." });
