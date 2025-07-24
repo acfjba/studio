@@ -1,3 +1,4 @@
+
 // functions/src/firebase/seed-script.ts
 
 /**
@@ -6,7 +7,7 @@
  * To run this script, use the command: `npm run db:seed`
  */
 import { config } from 'dotenv';
-import { seedDatabase } from './seed';
+import { seedUsersFromCsv } from './seed';
 import path from 'path';
 
 // Load environment variables from .env file at the project root
@@ -24,7 +25,9 @@ async function runSeed() {
   }
   
   try {
-    await seedDatabase();
+    const defaultCsvPath = path.resolve(__dirname, '../../../teachers.csv');
+    const csvPath = process.argv[2] ? path.resolve(process.argv[2]) : defaultCsvPath;
+    await seedUsersFromCsv(csvPath);
     console.log('\n--- Database Seeding Completed Successfully! ---');
     process.exit(0);
   } catch (error) {
