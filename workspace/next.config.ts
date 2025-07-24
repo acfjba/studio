@@ -5,6 +5,7 @@ import {config} from 'dotenv';
 config({path: '.env'});
 
 const nextConfig: NextConfig = {
+  output: 'standalone',
   /* config options here */
   typescript: {
     ignoreBuildErrors: true,
