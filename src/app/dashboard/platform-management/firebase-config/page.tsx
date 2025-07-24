@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -22,6 +21,7 @@ import { collection, doc, setDoc } from 'firebase/firestore';
 export default function FirebaseConfigPage() {
     const [isSeeding, setIsSeeding] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
+    const [isTestingConnection, setIsTestingConnection] = useState(false);
     const { toast } = useToast();
 
     // State for connection keys
@@ -48,6 +48,42 @@ export default function FirebaseConfigPage() {
             geminiApiKey: process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 4)}...${process.env.GEMINI_API_KEY.slice(-4)}` : 'Not Set (Server-side)',
         });
     }, []);
+
+    const handleTestConnection = async () => {
+        if (!isFirebaseConfigured || !db) {
+            toast({
+                variant: "destructive",
+                title: "Firebase Not Configured",
+                description: "Cannot test connection. Please configure your .env file.",
+            });
+            return;
+        }
+
+        setIsTestingConnection(true);
+        toast({ title: 'Testing Connection...', description: "Attempting to write to Firestore..." });
+
+        try {
+            const testDocRef = doc(collection(db, 'test_connection'));
+            await setDoc(testDocRef, {
+                message: "Connection successful!",
+                timestamp: new Date().toISOString(),
+            });
+            toast({
+                title: "Connection Successful!",
+                description: `Successfully wrote a document to the 'test_connection' collection in Firestore.`,
+            });
+        } catch (error) {
+            console.error("Firestore connection test failed:", error);
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            toast({
+                variant: "destructive",
+                title: "Connection Test Failed",
+                description: `Could not write to Firestore. Check your security rules and configuration. Error: ${errorMessage}`,
+            });
+        } finally {
+            setIsTestingConnection(false);
+        }
+    };
 
     const handleSeedDatabase = async () => {
         if (!isFirebaseConfigured) {
@@ -146,9 +182,9 @@ export default function FirebaseConfigPage() {
                             )}
                         </CardContent>
                         <CardFooter className="flex-wrap gap-2">
-                             <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured} variant="default">
-                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                {isSeeding ? "Seeding..." : "Connect & Seed Database"}
+                            <Button onClick={handleTestConnection} disabled={isTestingConnection || !isFirebaseConfigured} variant="outline">
+                                {isTestingConnection ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-2 h-4 w-4" />}
+                                {isTestingConnection ? "Testing..." : "Test Firestore Connection"}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -167,7 +203,7 @@ export default function FirebaseConfigPage() {
                             <br />
                             4. Choose a location (e.g., us-central1) and click "Enable".
                             <br />
-                            After the database is created, you can use the "Seed Database" button above.
+                            After the database is created, you can use the "Seed Database" button below.
                         </AlertDescription>
                     </Alert>
 
@@ -222,6 +258,10 @@ export default function FirebaseConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
+                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                {isSeeding ? "Seeding..." : "Seed Database"}
+                            </Button>
                             <Button className="w-full" onClick={handleClearData} disabled={isClearing || !isFirebaseConfigured} variant="destructive">
                                 {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                                 {isClearing ? "Clearing..." : "Clear All Data (Simulated)"}
