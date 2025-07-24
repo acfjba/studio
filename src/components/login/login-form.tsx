@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useRouter } from 'next/navigation';
@@ -57,12 +58,12 @@ export function LoginForm() {
 
         localStorage.setItem('userRole', userData.role);
         localStorage.setItem('schoolId', userData.schoolId || '');
-        toast({ title: "Login Successful", description: `Welcome, ${userData.displayName}!` });
+        toast({ title: "Login Successful", description: `Welcome, ${userData.name}!` });
         
         // Redirect based on role
-        if (userData.role === 'systemAdmin') {
+        if (userData.role === 'system-admin') {
             router.push('/dashboard/platform-management');
-        } else if (userData.role === 'headteacher') {
+        } else if (userData.role === 'head-teacher') {
             router.push('/dashboard/head-teacher');
         }
         else {
@@ -102,13 +103,13 @@ export function LoginForm() {
         const userDocRef = doc(db, 'users', user.uid);
         const userDocSnap = await getDoc(userDocRef);
 
-        if (!userDocSnap.exists() || (userDocSnap.data().role !== 'system-admin' && userDocSnap.data().role !== 'systemAdmin')) {
+        if (!userDocSnap.exists() || (userDocSnap.data().role !== 'system-admin')) {
              throw new Error("User is not a system administrator.");
         }
         const userData = userDocSnap.data();
         localStorage.setItem('userRole', userData.role);
         localStorage.setItem('schoolId', ''); // System admins don't have a schoolId
-        toast({ title: "Admin Login Successful", description: `Welcome, ${userData.displayName}!` });
+        toast({ title: "Admin Login Successful", description: `Welcome, ${userData.name}!` });
         
         router.push('/dashboard/platform-management');
 

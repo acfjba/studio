@@ -20,9 +20,9 @@ const schoolsData = [
 ];
 
 const usersData = [
-    { uid: "sys01",     email: "acjfk@hotmail.com",        name: "System Administrator", role: "systemAdmin" },
-    { uid: "prim01",    email: "gandhi.bhawan@yahoo.com",  name: "Primary Admin",        role: "primaryAdmin", schoolId: SCHOOL_ID_MAIN },
-    { uid: "head01",    email: "headteachergb@gmail.com",  name: "Head Teacher",         role: "headteacher", schoolId: SCHOOL_ID_MAIN },
+    { uid: "sys01",     email: "acjfk@hotmail.com",        name: "System Administrator", role: "system-admin" },
+    { uid: "prim01",    email: "gandhi.bhawan@yahoo.com",  name: "Primary Admin",        role: "primary-admin", schoolId: SCHOOL_ID_MAIN },
+    { uid: "head01",    email: "headteachergb@gmail.com",  name: "Head Teacher",         role: "head-teacher", schoolId: SCHOOL_ID_MAIN },
     { uid: "teacher01", email: "schoolteachergb@gmail.com",name: "School Teacher",       role: "teacher", schoolId: SCHOOL_ID_MAIN },
 ];
 
