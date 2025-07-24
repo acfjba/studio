@@ -22,8 +22,6 @@ import { collection, doc, setDoc } from 'firebase/firestore';
 export default function FirebaseConfigPage() {
     const [isSeeding, setIsSeeding] = useState(false);
     const [isClearing, setIsClearing] = useState(false);
-    const [isTestingConnection, setIsTestingConnection] = useState(false);
-    const [isTestingCentralConnection, setIsTestingCentralConnection] = useState(false);
     const { toast } = useToast();
 
     // State for connection keys
@@ -34,6 +32,7 @@ export default function FirebaseConfigPage() {
         storageBucket: '',
         messagingSenderId: '',
         appId: '',
+        databaseId: '',
         geminiApiKey: ''
     });
 
@@ -45,48 +44,10 @@ export default function FirebaseConfigPage() {
             storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'Not Set',
             messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'Not Set',
             appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'Not Set',
+            databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || 'Not Set',
             geminiApiKey: process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 4)}...${process.env.GEMINI_API_KEY.slice(-4)}` : 'Not Set (Server-side)',
         });
     }, []);
-
-    const handleTestConnection = async (collectionName: string, region?: string) => {
-        if (!isFirebaseConfigured || !db) {
-            toast({
-                variant: "destructive",
-                title: "Firebase Not Configured",
-                description: "Cannot test connection. Please configure your .env file.",
-            });
-            return;
-        }
-
-        const setLoading = region === 'us-central1' ? setIsTestingCentralConnection : setIsTestingConnection;
-        setLoading(true);
-
-        const toastTitle = region ? `Testing ${region} Connection...` : 'Testing Connection...';
-        toast({ title: toastTitle, description: "Attempting to write to Firestore..." });
-
-        try {
-            const testDocRef = doc(collection(db, collectionName));
-            await setDoc(testDocRef, {
-                message: "Connection successful!",
-                timestamp: new Date().toISOString(),
-            });
-            toast({
-                title: "Connection Successful!",
-                description: `Successfully wrote a document to the '${collectionName}' collection in Firestore.`,
-            });
-        } catch (error) {
-            console.error("Firestore connection test failed:", error);
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-            toast({
-                variant: "destructive",
-                title: "Connection Test Failed",
-                description: `Could not write to Firestore. Check your security rules and configuration. Error: ${errorMessage}`,
-            });
-        } finally {
-            setLoading(false);
-        }
-    };
 
     const handleSeedDatabase = async () => {
         if (!isFirebaseConfigured) {
@@ -185,13 +146,9 @@ export default function FirebaseConfigPage() {
                             )}
                         </CardContent>
                         <CardFooter className="flex-wrap gap-2">
-                            <Button onClick={() => handleTestConnection('test_connection')} disabled={isTestingConnection || !isFirebaseConfigured} variant="outline">
-                                {isTestingConnection ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-2 h-4 w-4" />}
-                                {isTestingConnection ? "Testing..." : "Test Firestore Connection"}
-                            </Button>
-                            <Button onClick={() => handleTestConnection('test_connection_uscentral1', 'us-central1')} disabled={isTestingCentralConnection || !isFirebaseConfigured} variant="outline">
-                                {isTestingCentralConnection ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <TestTube2 className="mr-2 h-4 w-4" />}
-                                {isTestingCentralConnection ? "Testing..." : "Test us-central1 Connection"}
+                             <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured} variant="default">
+                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                {isSeeding ? "Seeding..." : "Connect & Seed Database"}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -210,7 +167,7 @@ export default function FirebaseConfigPage() {
                             <br />
                             4. Choose a location (e.g., us-central1) and click "Enable".
                             <br />
-                            After the database is created, you can use the "Seed Database" button below.
+                            After the database is created, you can use the "Seed Database" button above.
                         </AlertDescription>
                     </Alert>
 
@@ -265,10 +222,6 @@ export default function FirebaseConfigPage() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
-                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                {isSeeding ? "Seeding..." : "Seed Database"}
-                            </Button>
                             <Button className="w-full" onClick={handleClearData} disabled={isClearing || !isFirebaseConfigured} variant="destructive">
                                 {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                                 {isClearing ? "Clearing..." : "Clear All Data (Simulated)"}
@@ -304,4 +257,3 @@ export default function FirebaseConfigPage() {
         </div>
     );
 }
-
