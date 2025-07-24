@@ -94,31 +94,40 @@ export async function seedDatabase() {
     
     // 2) Seed Users and Auth
     for (const u of usersData) {
-      // Create Auth user if not exists
+      // Upsert Auth user
       try {
-        await adminAuth.createUser({
-          uid: u.uid,
-          email: u.email,
-          password: u.password,
-          displayName: u.name,
-        });
-        console.log(`Auth user created: ${u.uid}`);
-      } catch (e: any) {
-        if (["auth/uid-already-exists", "auth/email-already-exists"].includes(e.code)) {
-          console.log(`Auth user exists, skipping: ${u.uid}`);
+        let userRecord = await adminAuth.getUserByEmail(u.email).catch(() => null);
+
+        if (userRecord) {
+            // User exists, update them
+            await adminAuth.updateUser(userRecord.uid, {
+                password: u.password,
+                displayName: u.name,
+            });
+            console.log(`Auth user updated: ${u.email}`);
         } else {
-          throw e;
+            // User does not exist, create them
+            userRecord = await adminAuth.createUser({
+                uid: u.uid,
+                email: u.email,
+                password: u.password,
+                displayName: u.name,
+            });
+            console.log(`Auth user created: ${u.email}`);
         }
-      }
 
-      // Set Custom Claims
-      const claims: { role: string; schoolId?: string | null } = { role: u.role };
-      if (u.schoolId) {
-        claims.schoolId = u.schoolId;
-      }
-      await adminAuth.setCustomUserClaims(u.uid, claims);
-      console.log(`Successfully set claims for ${u.email}:`, claims);
+        // Set Custom Claims
+        const claims: { role: string; schoolId?: string | null } = { role: u.role };
+        if (u.schoolId) {
+            claims.schoolId = u.schoolId;
+        }
+        await adminAuth.setCustomUserClaims(userRecord.uid, claims);
+        console.log(`Successfully set claims for ${u.email}:`, claims);
 
+      } catch (e: any) {
+          console.error(`Failed to process Auth user ${u.email}:`, e);
+      }
+      
       // Firestore profile
       const userDocData = {
           name: u.name,
