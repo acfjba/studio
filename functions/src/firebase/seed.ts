@@ -14,9 +14,14 @@ import { adminDb, adminAuth } from './admin';
 
 // --- Configuration ---
 const SCHOOL_ID_MAIN = "la3046"; 
+const SCHOOL_ID_SECONDARY = "na2024";
+const SCHOOL_ID_TERTIARY = "su1010";
+
 
 const schoolsData = [
   { id: SCHOOL_ID_MAIN, name: "Example Primary School", address: "123 Main St." },
+  { id: SCHOOL_ID_SECONDARY, name: "Natabua High School", address: "456 School Rd." },
+  { id: SCHOOL_ID_TERTIARY, name: "Adi Cakobau School", address: "789 University Ave." },
 ];
 
 const usersData = [
@@ -24,6 +29,14 @@ const usersData = [
     { uid: "user_primaryadmin_3046", email: "gandhi.bhawan@yahoo.com",  name: "Primary Admin", role: "primary-admin", schoolId: SCHOOL_ID_MAIN, password: "Lastword123#" },
     { uid: "user_headteacher_3046", email: "headteachergb@gmail.com",  name: "Head Teacher", role: "head-teacher", schoolId: SCHOOL_ID_MAIN, password: "password123" },
     { uid: "user_teacher_3046_1", email: "schoolteachergb@gmail.com",name: "School Teacher", role: "teacher", schoolId: SCHOOL_ID_MAIN, password: "password123" },
+    { uid: "user_nilesh_sharma", email: "nileshdsharma1982@yahoo.com", name: "NILESH SHARMA", role: "head-teacher", schoolId: "la3046", password: "83985abc"},
+    { uid: "user_senirosi_ledua", email: "leduasenirosi@gmail.com", name: "SENIROSI LEDUA", role: "teacher", schoolId: "la3046", password: "83060abc"},
+    { uid: "user_gayleshni_dev", email: "gayleshnigdev@gmail.com", name: "GAYLESHNI GAYETRI DEV", role: "teacher", schoolId: "na2024", password: "password123"},
+    { uid: "user_shivam_raj", email: "shivamraj@gmail.com", name: "SHIVAM MELVIN RAJ", role: "teacher", schoolId: "su1010", password: "password123"},
+    { uid: "user_seema_sharma", email: "seemasharma@gmail.com", name: "SEEMA SHARMA", role: "teacher", schoolId: "la3046", password: "password123"},
+    { uid: "user_grace_wilson", email: "gracewilson@gmail.com", name: "GRACE WILSON", role: "teacher", schoolId: "na2024", password: "password123"},
+    { uid: "user_librarian", email: "librarian@example.com", name: "Laura Jones", role: "librarian", schoolId: "la3046", password: "nasty@1121"},
+    
 ];
 
 
@@ -117,11 +130,8 @@ export async function seedDatabase() {
           schoolId: u.schoolId || null,
       };
       
-      const userDocPath = u.schoolId ? `schools/${u.schoolId}/users` : 'users';
+      const userDocPath = 'users';
       await adminDb.collection(userDocPath).doc(u.uid).set(userDocData);
-      
-      // Also create a top-level user for easy lookup
-       await adminDb.collection('users').doc(u.uid).set(userDocData);
     }
     
     // 3) Seed Workbook Plan
