@@ -96,8 +96,40 @@ export default function DisciplinaryPage() {
 
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
-    setSchoolId(id);
+    if (id) {
+      setSchoolId(id);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
+
+  const loadRecords = useCallback(async () => {
+    if (!schoolId) return;
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId);
+      setRecords(fetchedRecords);
+       if (hasSearched) {
+          const results = fetchedRecords.filter(record =>
+              (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
+              (!searchDob || record.studentDob === searchDob)
+          );
+          setSearchResults(results);
+      } else {
+          setSearchResults(fetchedRecords);
+      }
+    } catch (err) {
+      setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
+      setRecords([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [schoolId, hasSearched, searchName, searchDob]);
+
+  useEffect(() => {
+    loadRecords();
+  }, [loadRecords]);
 
   const {
     register,
@@ -127,37 +159,6 @@ export default function DisciplinaryPage() {
   const watchedIssues = watch("issues", []);
   const showDrugType = watchedIssues.includes('Drug');
   const showOtherIssue = watchedIssues.includes('Other');
-
-  const loadRecords = useCallback(async (currentSchoolId: string) => {
-    setIsLoading(true);
-    setFetchError(null);
-    try {
-      const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(currentSchoolId);
-      setRecords(fetchedRecords);
-       if (hasSearched) {
-          const results = fetchedRecords.filter(record =>
-              (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
-              (!searchDob || record.studentDob === searchDob)
-          );
-          setSearchResults(results);
-      } else {
-          setSearchResults(fetchedRecords);
-      }
-    } catch (err) {
-      setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
-      setRecords([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, [hasSearched, searchName, searchDob]);
-
-  useEffect(() => {
-    if (schoolId) {
-      loadRecords(schoolId);
-    } else if (schoolId === null) {
-      setIsLoading(false);
-    }
-  }, [schoolId, loadRecords]);
   
   useEffect(() => {
     if (editingRecordId && isFormModalOpen) {
@@ -186,7 +187,7 @@ export default function DisciplinaryPage() {
 
     try {
         await saveDisciplinaryRecordToFirestore(recordToSaveBase, editingRecordId ?? undefined);
-        await loadRecords(schoolId); // Reload from firestore
+        await loadRecords(); // Reload from firestore
 
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Disciplinary record for ${data.studentName} has been processed.` });
         setIsFormModalOpen(false);
@@ -215,11 +216,10 @@ export default function DisciplinaryPage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete because Firebase is not configured." });
         return;
     }
-    if (!schoolId) return;
     
     try {
         await deleteDisciplinaryRecordFromFirestore(recordId);
-        await loadRecords(schoolId);
+        await loadRecords();
         toast({ title: "Record Deleted", description: "The disciplinary record has been deleted." });
     } catch (error) {
         console.error("Error deleting record from Firestore:", error);

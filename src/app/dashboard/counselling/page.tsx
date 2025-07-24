@@ -104,8 +104,33 @@ export default function CounsellingPage() {
 
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
-    setSchoolId(id);
+    if (id) {
+      setSchoolId(id);
+    } else {
+      setIsLoading(false);
+    }
   }, []);
+
+  const loadRecords = useCallback(async () => {
+    if (!schoolId) return; // Don't fetch if schoolId is not set
+    setIsLoading(true);
+    setFetchError(null);
+    try {
+      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId);
+      setRecords(fetchedRecords);
+      setSearchResults(fetchedRecords); // Initially show all
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "An unknown error occurred.";
+      setFetchError(msg);
+      setRecords([]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [schoolId]);
+
+  useEffect(() => {
+    loadRecords();
+  }, [loadRecords]);
 
   const {
     register,
@@ -164,30 +189,6 @@ export default function CounsellingPage() {
         setIsSearching(false);
     }
   }, [searchName, searchDob, schoolId, toast]);
-
-  const loadRecords = useCallback(async (currentSchoolId: string) => {
-    setIsLoading(true);
-    setFetchError(null);
-    try {
-      const fetchedRecords = await fetchCounsellingRecordsFromFirestore(currentSchoolId);
-      setRecords(fetchedRecords);
-      setSearchResults(fetchedRecords); // Initially show all
-    } catch (err) {
-      const msg = err instanceof Error ? err.message : "An unknown error occurred.";
-      setFetchError(msg);
-      setRecords([]);
-    } finally {
-      setIsLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    if (schoolId) {
-      loadRecords(schoolId);
-    } else if (schoolId === null) {
-      setIsLoading(false);
-    }
-  }, [schoolId, loadRecords]);
   
   useEffect(() => {
     if (editingRecordId && isFormModalOpen) {
@@ -219,7 +220,7 @@ export default function CounsellingPage() {
 
     try {
         await saveCounsellingRecordToFirestore(recordToSaveBase, editingRecordId ?? undefined);
-        await loadRecords(schoolId); // Reload all records from Firestore
+        await loadRecords(); // Reload all records from Firestore
         
         toast({ title: editingRecordId ? "Record Updated" : "Record Saved", description: `Counselling record for ${data.studentName} has been processed.` });
         
@@ -251,11 +252,10 @@ export default function CounsellingPage() {
         toast({ variant: "destructive", title: "Action Disabled", description: "Cannot delete record because Firebase is not configured." });
         return;
     }
-    if (!schoolId) return;
 
     try {
         await deleteCounsellingRecordFromFirestore(recordId);
-        await loadRecords(schoolId); // Reload to reflect deletion
+        await loadRecords(); // Reload to reflect deletion
         toast({ title: "Record Deleted", description: "The counselling record has been deleted." });
     } catch (error) {
         console.error("Error deleting record from Firestore:", error);
@@ -267,7 +267,7 @@ export default function CounsellingPage() {
     setSearchName('');
     setSearchDob('');
     setHasSearched(false);
-    if(schoolId) loadRecords(schoolId);
+    loadRecords();
     toast({ title: "Search Cleared", description: "Displaying all records." });
   };
   

@@ -47,7 +47,7 @@ async function getStaffListFromFirestore(schoolId: string): Promise<StaffMember[
     });
 }
 
-async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId: string): Promise<StaffMember> {
+async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>, schoolId: string): Promise<StaffMember> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollectionRef = collection(db, 'staff');
     const fullStaffData = {
@@ -105,11 +105,21 @@ export default function StaffRecordsPage() {
   const editForm = useForm<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>>({ resolver: zodResolver(StaffMemberFormDataSchema) });
   const inviteForm = useForm<InviteFormData>({ resolver: zodResolver(InviteFormSchema) });
 
-  const fetchStaffList = useCallback(async (currentSchoolId: string) => {
+  useEffect(() => {
+    const id = localStorage.getItem('schoolId');
+    if (id) {
+        setSchoolId(id);
+    } else {
+        setIsLoading(false);
+    }
+  }, []);
+
+  const fetchStaffList = useCallback(async () => {
+    if (!schoolId) return;
     setIsLoading(true);
     try {
         if (isFirebaseConfigured) {
-            const result = await getStaffListFromFirestore(currentSchoolId);
+            const result = await getStaffListFromFirestore(schoolId);
             setStaffList(result);
         } else {
             toast({ variant: "destructive", title: "Offline Mode", description: "Firebase not configured. Displaying mock data." });
@@ -121,16 +131,10 @@ export default function StaffRecordsPage() {
         setStaffList([]);
     }
     setIsLoading(false);
-  }, [toast]);
+  }, [schoolId, toast]);
 
   useEffect(() => {
-    const id = localStorage.getItem('schoolId');
-    setSchoolId(id);
-    if (id) {
-      fetchStaffList(id);
-    } else {
-      setIsLoading(false);
-    }
+    fetchStaffList();
   }, [fetchStaffList]);
 
 
@@ -162,7 +166,7 @@ export default function StaffRecordsPage() {
       }
   };
 
-  const handleAddSubmit: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>> = async (data) => {
+  const handleAddSubmit: SubmitHandler<Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>> = async (data) => {
     if (!isFirebaseConfigured) {
       toast({ variant: "destructive", title: "Action Disabled", description: "Cannot add staff because Firebase is not configured." });
       return;
@@ -173,7 +177,7 @@ export default function StaffRecordsPage() {
     }
     try {
       await addStaffToFirestore(data, schoolId);
-      await fetchStaffList(schoolId);
+      await fetchStaffList();
       toast({ title: "Staff Added", description: `${data.name} has been added.` });
       setIsAddModalOpen(false);
       addForm.reset();
@@ -186,14 +190,14 @@ export default function StaffRecordsPage() {
 
   const handleDeleteStaff = async (staffIdToDelete: string, staffName?: string) => {
     if (window.confirm(`Are you sure you want to delete ${staffName || 'this staff member'}?`)) {
-        if (!isFirebaseConfigured || !schoolId) {
+        if (!isFirebaseConfigured) {
             setStaffList(staffList.filter(s => s.id !== staffIdToDelete));
             toast({ title: "Staff Deleted (Simulated)", description: `${staffName || 'Staff member'}'s record has been removed.`, variant: "default" });
             return;
         }
         try {
             await deleteStaffFromFirestore(staffIdToDelete);
-            await fetchStaffList(schoolId);
+            await fetchStaffList();
             toast({ title: "Staff Deleted", description: `${staffName || 'Staff member'}'s record has been removed.`, variant: "default" });
         } catch (error) {
             console.error("Error deleting staff from Firestore:", error);
