@@ -136,17 +136,14 @@ export default function LibraryServicePage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const id = localStorage.getItem('schoolId');
-      if (id) {
-        setSchoolId(id);
-      } else {
-        setIsLoading(false);
-      }
+      setSchoolId(id);
     }
   }, []);
 
   const loadData = useCallback(async () => {
     if (!schoolId) {
-      if (isFirebaseConfigured) setIsLoading(false);
+      if(isFirebaseConfigured) return; // Don't run if schoolId isn't loaded yet but firebase is configured
+      setIsLoading(false);
       return;
     }
     

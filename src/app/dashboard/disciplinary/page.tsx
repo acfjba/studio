@@ -97,11 +97,7 @@ export default function DisciplinaryPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       const id = localStorage.getItem('schoolId');
-      if (id) {
-        setSchoolId(id);
-      } else {
-        setIsLoading(false);
-      }
+      setSchoolId(id);
     }
   }, []);
 

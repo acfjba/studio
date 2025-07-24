@@ -151,8 +151,14 @@ export default function ExamResultsManagementPage() {
   const watchedExamType = watch("examType");
 
   const loadResults = useCallback(async () => {
-    // Prevent fetching if role is not determined yet
-    if (userRole === null) return;
+    // Prevent fetching if role/schoolId is not determined yet
+    if (userRole === null || (userRole !== 'system-admin' && schoolId === null)) {
+        // If Firebase is not configured, we can stop loading and show the message.
+        if (!isFirebaseConfigured) {
+            setIsLoading(false);
+        }
+        return;
+    }
     
     setIsLoading(true);
     setFetchError(null);
@@ -167,7 +173,10 @@ export default function ExamResultsManagementPage() {
         } else {
             // For non-admins, schoolId is required
             if (!schoolId) {
-                throw new Error("School ID not found for this user.");
+                // This case should be prevented by the guard at the start, but as a safeguard:
+                setIsLoading(false);
+                setFetchError("Your school ID is not set. Cannot load data.");
+                return;
             }
             fetchedResults = await fetchExamResultsFromBackend(schoolId);
         }

@@ -125,13 +125,18 @@ export default function StaffRecordsPage() {
 
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
-    if (id) {
-        setSchoolId(id);
-        fetchStaffList(id);
-    } else {
-        setIsLoading(false);
+    setSchoolId(id);
+  }, []);
+
+  useEffect(() => {
+    if (schoolId) {
+      fetchStaffList(schoolId);
+    } else if (schoolId === null) {
+      // This means we've checked localStorage and it's not there.
+      setIsLoading(false);
     }
-  }, [fetchStaffList]);
+  }, [schoolId, fetchStaffList]);
+
 
   useEffect(() => {
     if (editingStaff) {
@@ -261,6 +266,7 @@ export default function StaffRecordsPage() {
                              <div><Label htmlFor="name">Name</Label><Input id="name" {...addForm.register('name')} />{addForm.formState.errors.name && <p className="text-destructive text-xs">{addForm.formState.errors.name.message}</p>}</div>
                              <div><Label htmlFor="role">Role</Label><Input id="role" {...addForm.register('role')} />{addForm.formState.errors.role && <p className="text-destructive text-xs">{addForm.formState.errors.role.message}</p>}</div>
                              <div><Label htmlFor="position">Position</Label><Input id="position" {...addForm.register('position')} />{addForm.formState.errors.position && <p className="text-destructive text-xs">{addForm.formState.errors.position.message}</p>}</div>
+                             <div><Label htmlFor="department">Department</Label><Input id="department" {...addForm.register('department')} />{addForm.formState.errors.department && <p className="text-destructive text-xs">{addForm.formState.errors.department.message}</p>}</div>
                              <div><Label htmlFor="status">Status</Label><Input id="status" {...addForm.register('status')} />{addForm.formState.errors.status && <p className="text-destructive text-xs">{addForm.formState.errors.status.message}</p>}</div>
                              <div><Label htmlFor="email">Email</Label><Input id="email" type="email" {...addForm.register('email')} />{addForm.formState.errors.email && <p className="text-destructive text-xs">{addForm.formState.errors.email.message}</p>}</div>
                              <div><Label htmlFor="phone">Phone</Label><Input id="phone" {...addForm.register('phone')} /></div>
