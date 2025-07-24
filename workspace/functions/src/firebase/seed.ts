@@ -1,3 +1,4 @@
+
 // functions/src/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
@@ -82,7 +83,7 @@ export async function seedDatabase() {
     });
 
     try {
-        let userRecord = await adminAuth.getUser(u.id).catch(() => null);
+        let userRecord = await adminAuth.getUserByEmail(u.email).catch(() => null);
         if (!userRecord) {
             userRecord = await adminAuth.createUser({ 
                 uid: u.id, 
@@ -91,8 +92,12 @@ export async function seedDatabase() {
                 password: u.password,
             });
             console.log(`Created Auth user: ${u.email}`);
+        } else {
+             console.log(`Auth user already exists: ${u.email}`);
         }
+        // Set custom claims which are essential for security rules
         await adminAuth.setCustomUserClaims(userRecord.uid, { role: u.role, schoolId: u.schoolId ?? null });
+        console.log(`Set custom claims for ${u.email}: role=${u.role}, schoolId=${u.schoolId ?? null}`);
     } catch (error) {
         console.error(`Error processing Auth user ${u.email}:`, error);
     }
