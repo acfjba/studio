@@ -1,0 +1,10 @@
+[
+    { "id": "user-sysadmin", "displayName": "System Admin", "email": "sysadmin@system.com", "role": "system-admin", "schoolId": null, "name": "System Admin", "password": "password123", "phone": "N/A" },
+    { "id": "user-head-teacher-1", "displayName": "Dr. Evelyn Reed", "email": "e.reed@suvagrammar.ac.fj", "role": "head-teacher", "schoolId": "SCH-001", "name": "Dr. Evelyn Reed", "password": "password123", "phone": "+679 123 4567" },
+    { "id": "user-asst-head-teacher-1", "displayName": "Mr. Johnathan Lee", "email": "j.lee@suvagrammar.ac.fj", "role": "assistant-head-teacher", "schoolId": "SCH-001", "name": "Mr. Johnathan Lee", "password": "password123", "phone": "+679 123 4569" },
+    { "id": "user-primary-admin-1", "displayName": "Ms. Clara Bell", "email": "c.bell@natabuahigh.ac.fj", "role": "primary-admin", "schoolId": "SCH-002", "name": "Ms. Clara Bell", "password": "password123", "phone": "+679 234 5678" },
+    { "id": "user-teacher-1", "displayName": "Mr. Samuel Greene", "email": "s.greene@suvagrammar.ac.fj", "role": "teacher", "schoolId": "SCH-001", "name": "Mr. Samuel Greene", "password": "password123", "phone": "+679 123 4568" },
+    { "id": "user-teacher-2", "displayName": "Mrs. Helen Chu", "email": "h.chu@natabuahigh.ac.fj", "role": "teacher", "schoolId": "SCH-002", "name": "Mrs. Helen Chu", "password": "password123", "phone": "+679 234 5679" },
+    { "id": "user-librarian-1", "displayName": "Mr. David Chen", "email": "d.chen@adiscakobau.ac.fj", "role": "librarian", "schoolId": "SCH-003", "name": "Mr. David Chen", "password": "password123", "phone": "+679 345 6789" },
+    { "id": "user-kinder-1", "displayName": "Ms. Kinder Teacher", "email": "kinder@suvagrammar.ac.fj", "role": "kindergarten", "schoolId": "SCH-001", "name": "Ms. Kinder Teacher", "password": "password123", "phone": "+679 111 2222" }
+]

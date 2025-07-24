@@ -1,0 +1,19 @@
+[
+  {
+    "id": "disc-001",
+    "incidentDate": "2024-05-12",
+    "studentName": "Adi Litia",
+    "studentId": "stu-002",
+    "studentDob": "2010-02-20",
+    "studentYear": "7",
+    "issues": ["Absent"],
+    "drugType": "",
+    "otherIssue": "",
+    "comments": "Student was late for morning assembly.",
+    "raisedBy": "Mr. Smith",
+    "parentsInformed": "Yes",
+    "actionComments": "Verbal warning given.",
+    "schoolId": "SCH-002",
+    "userId": "user-teacher-2"
+  }
+]

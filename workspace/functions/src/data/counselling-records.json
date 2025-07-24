@@ -1,0 +1,18 @@
+[
+    {
+        "id": "counselling-001",
+        "sessionDate": "2024-05-10",
+        "studentName": "Sereana Vula",
+        "studentId": "stu-003",
+        "studentDob": "2011-08-15",
+        "studentYear": "6",
+        "counsellingType": "Academic",
+        "otherCounsellingType": "",
+        "sessionDetails": "Discussed exam anxiety and study strategies. Student is worried about upcoming math exam.",
+        "actionPlan": "Scheduled follow-up session. Provided with breathing exercises and a study timetable template.",
+        "parentsContacted": "Yes",
+        "counsellorName": "Mrs. Davis",
+        "userId": "user-head-teacher-1",
+        "schoolId": "SCH-001"
+    }
+]

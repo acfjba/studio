@@ -1,5 +1,4 @@
-
-// src/lib/firebase/seed.ts
+// functions/src/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
 import { 
@@ -11,10 +10,10 @@ import {
     disciplinaryRecordsData,
     counsellingRecordsData,
     ohsRecordsData
-} from '@/lib/data';
+} from '../data';
 
 export async function seedDatabase() {
-  console.log("Seeding database with data from @/lib/data.ts");
+  console.log("Seeding database with data from functions/src/data.ts");
 
   const batch = writeBatch(adminDb);
 
@@ -103,4 +102,3 @@ export async function seedDatabase() {
   await batch.commit();
   console.log('Firestore data seeding complete!');
 }
-
