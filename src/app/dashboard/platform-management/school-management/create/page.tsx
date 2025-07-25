@@ -18,7 +18,7 @@ import { isFirebaseConfigured, db } from '@/lib/firebase/config';
 import { doc, setDoc } from 'firebase/firestore';
 
 const CreateSchoolSchema = z.object({
-  id: z.string().min(3, 'School ID must be at least 3 characters.').regex(/^[A-Z0-9-]+$/, 'School ID can only contain uppercase letters, numbers, and hyphens.'),
+  id: z.string().min(3, 'School ID must be at least 3 characters.'),
   name: z.string().min(3, 'School Name is required.'),
   address: z.string().min(5, 'Address is required.'),
   type: z.string().min(3, 'School type is required (e.g., Primary, Secondary).'),
@@ -90,7 +90,7 @@ export default function CreateSchoolPage() {
                     <CardContent className="space-y-4">
                         <div>
                             <Label htmlFor="id">School ID</Label>
-                            <Input id="id" {...register('id')} placeholder="e.g., SCH-001" />
+                            <Input id="id" {...register('id')} placeholder="e.g., SCH-001 or 2009" />
                             {errors.id && <p className="text-sm text-destructive mt-1">{errors.id.message}</p>}
                         </div>
                          <div>
@@ -120,4 +120,3 @@ export default function CreateSchoolPage() {
         </div>
     );
 }
-
