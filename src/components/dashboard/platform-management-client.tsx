@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { usersSeedData } from '@/data/users.json';
+import usersSeedData from '@/data/users.json';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -133,28 +133,6 @@ const allAvailablePermissions: Permission[] = [
   { id: 'dashboard_iwp', description: 'Access Individual Work Plan (IWP)' },
 ];
 
-const initialPermissionGroups: PermissionGroup[] = [
-  {
-    id: 'group_hod',
-    name: 'Head of Department',
-    permissions: ['view_all_workbooks', 'edit_all_workbooks', 'access_kpi_reports'],
-    userIds: usersSeedData.filter(u => u.role === 'head-teacher').slice(0,1).map(u => u.id),
-  },
-  {
-    id: 'group_discipline_committee',
-    name: 'Discipline Committee',
-    permissions: ['manage_disciplinary', 'manage_staff'],
-    userIds: [],
-  },
-  {
-    id: 'group_academic_board',
-    name: 'Academic Board',
-    permissions: ['manage_exam_results', 'view_all_workbooks'],
-    userIds: [],
-  },
-];
-
-
 const chartConfigBase = {
   count: { label: "Count" },
   users: { label: "Users", color: "hsl(var(--primary))" },
@@ -184,7 +162,7 @@ export function PlatformManagementClient() {
   const [isManagingData, setIsManagingData] = useState(false);
 
   // State for Permission Groups
-  const [permissionGroups, setPermissionGroups] = useState<PermissionGroup[]>(initialPermissionGroups);
+  const [permissionGroups, setPermissionGroups] = useState<PermissionGroup[]>([]);
   const [newGroupName, setNewGroupName] = useState('');
   const [isProcessingGroup, setIsProcessingGroup] = useState(false);
   const [editingGroup, setEditingGroup] = useState<PermissionGroup | null>(null);
@@ -220,6 +198,30 @@ export function PlatformManagementClient() {
 
   const fetchDataSimulator = useCallback(async () => {
     setIsLoading(true);
+    
+    // Initialize permission groups here to ensure usersSeedData is available
+    const initialPermissionGroups: PermissionGroup[] = [
+      {
+        id: 'group_hod',
+        name: 'Head of Department',
+        permissions: ['view_all_workbooks', 'edit_all_workbooks', 'access_kpi_reports'],
+        userIds: usersSeedData.filter(u => u.role === 'head-teacher').slice(0,1).map(u => u.id),
+      },
+      {
+        id: 'group_discipline_committee',
+        name: 'Discipline Committee',
+        permissions: ['manage_disciplinary', 'manage_staff'],
+        userIds: [],
+      },
+      {
+        id: 'group_academic_board',
+        name: 'Academic Board',
+        permissions: ['manage_exam_results', 'view_all_workbooks'],
+        userIds: [],
+      },
+    ];
+    setPermissionGroups(initialPermissionGroups);
+
     await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate network delay
 
     const fetchedMetrics: AdminMetrics = { totalUsers: 1250, totalTasks: 780, totalSchools: 45 };
