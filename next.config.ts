@@ -2,7 +2,7 @@
 import type {NextConfig} from 'next';
 import {config} from 'dotenv';
 
-config({path: './workspace/.env'});
+config({path: './.env'});
 
 const nextConfig: NextConfig = {
   output: 'standalone',

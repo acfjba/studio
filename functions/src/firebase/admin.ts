@@ -21,10 +21,12 @@ if (!admin.apps.length) {
             credential: admin.credential.cert(serviceAccount)
         });
         console.log("Firebase Admin SDK initialized with local service account key.");
-    } else {
+    } else if (process.env.GCLOUD_PROJECT) {
         // Otherwise, use default credentials provided by the App Hosting environment
         admin.initializeApp();
         console.log("Firebase Admin SDK initialized with default App Hosting credentials.");
+    } else {
+        console.log("Firebase Admin SDK not initialized. Missing serviceAccountKey.json or GCLOUD_PROJECT environment variable.");
     }
   } catch (error) {
     console.error('Firebase admin initialization error', error);

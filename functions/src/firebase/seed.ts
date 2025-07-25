@@ -104,7 +104,7 @@ export async function seedDatabase(): Promise<SeedReport> {
       const batch = adminDb.batch();
       collection.data.forEach((item: any) => {
         if(item.id) { // Ensure items have an ID to be seeded
-            const docRef = doc(adminDb, collection.name, item.id);
+            const docRef = adminDb.collection(collection.name).doc(item.id);
             batch.set(docRef, item);
             (report[collection.reportKey] as string[]).push(`Seeded ${item.id} into ${collection.name}`);
         }

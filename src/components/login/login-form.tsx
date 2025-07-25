@@ -129,6 +129,8 @@ export function LoginForm() {
         let errorMessage = "Invalid credentials or user not found.";
         if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
             errorMessage = "The email or password you entered is incorrect.";
+        } else if (error.code === 'auth/invalid-email') {
+            errorMessage = "Please enter a valid email address.";
         }
         toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
     } finally {
