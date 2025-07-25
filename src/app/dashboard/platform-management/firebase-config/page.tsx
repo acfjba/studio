@@ -84,6 +84,31 @@ export default function FirebaseConfigPage() {
         }
     };
     
+     const handleSeedDatabase = async () => {
+        if (!isFirebaseConfigured) {
+            toast({ variant: 'destructive', title: 'Action Failed', description: 'Firebase is not configured.' });
+            return;
+        }
+        setIsSeeding(true);
+        toast({ title: 'Database Seeding Started', description: 'This may take a moment...' });
+        
+        try {
+            const response = await fetch('/api/seed', { method: 'POST' });
+            const data = await response.json();
+            
+            if (!response.ok) {
+                throw new Error(data.message || 'An unknown error occurred.');
+            }
+            
+            toast({ title: 'Database Seeded Successfully!', description: 'Your database has been populated with sample data.' });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
+            toast({ variant: 'destructive', title: 'Database Seeding Failed', description: errorMessage });
+        } finally {
+            setIsSeeding(false);
+        }
+    };
+    
     const copyToClipboard = (text: string) => {
         if(!text || text === 'Not Set' || text.includes('Hidden')) return;
         navigator.clipboard.writeText(text);
@@ -145,17 +170,19 @@ export default function FirebaseConfigPage() {
                             <CardTitle className="flex items-center gap-2 font-headline">
                                 <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
                             </CardTitle>
+                        </CardHeader>
+                         <CardContent>
                              <Alert>
-                                <AlertTitle>Seeding the Database</AlertTitle>
+                                <AlertTitle>Seed Database</AlertTitle>
                                 <AlertDescription>
-                                    To populate your database with sample data, you must run a command from the terminal. This is a secure, server-side operation. First, ensure you have set up a service account by saving your service account key as <code className="font-mono">serviceAccountKey.json</code> in the project root. Then, run the command: <code className="font-mono bg-muted p-1 rounded-md">npm run db:seed</code>.
+                                    Click the button below to populate your database with initial users, schools, and sample data. This action is idempotent, meaning you can run it multiple times without creating duplicate entries.
                                 </AlertDescription>
                             </Alert>
-                        </CardHeader>
+                         </CardContent>
                          <CardFooter>
-                            <Button disabled={true} className="w-full">
-                                <DatabaseZap className="mr-2 h-4 w-4" /> 
-                                Seed Database (Use Terminal)
+                            <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured} className="w-full">
+                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                {isSeeding ? "Seeding..." : "Seed Database"}
                             </Button>
                         </CardFooter>
                     </Card>
@@ -173,7 +200,7 @@ export default function FirebaseConfigPage() {
                             <br />
                             4. Choose a location (e.g., us-central1) and click "Enable".
                             <br />
-                            After the database is created, you can use the "Seed Database" command.
+                            After the database is created, you can use the "Seed Database" button.
                         </AlertDescription>
                     </Alert>
                 </TabsContent>
