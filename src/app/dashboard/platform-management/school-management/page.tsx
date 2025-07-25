@@ -3,6 +3,7 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
@@ -18,6 +19,16 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { PageHeader } from '@/components/layout/page-header';
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
 import { collection, getDocs, query, where, deleteDoc, doc, getCountFromServer } from 'firebase/firestore';
@@ -30,7 +41,6 @@ interface School {
   userCount: number;
 }
 
-// SIMULATED BACKEND FETCH
 async function fetchSchoolsWithUsers(): Promise<School[]> {
   if (!db || !isFirebaseConfigured) {
     throw new Error("Firebase is not configured.");
@@ -58,14 +68,12 @@ async function fetchSchoolsWithUsers(): Promise<School[]> {
   return schools;
 }
 
-// SIMULATED BACKEND DELETE
 async function deleteSchoolFromBackend(schoolId: string): Promise<{success: boolean}> {
     if (!db || !isFirebaseConfigured) {
       throw new Error("Firebase is not configured.");
     }
-    // Note: In a real app, you'd need a Cloud Function for a cascading delete of all related data (users, inventory, etc.)
     await deleteDoc(doc(db, "schools", schoolId));
-    console.log(`Successfully deleted school document for ID: ${schoolId}`);
+    // Note: In a real app, you'd need a Cloud Function for a cascading delete of all related data (users, inventory, etc.)
     return { success: true };
 }
 
@@ -74,6 +82,8 @@ export default function SchoolManagementPage() {
   const [schools, setSchools] = useState<School[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [recordToDelete, setRecordToDelete] = useState<{ id: string; name: string } | null>(null);
+  const router = useRouter();
   const { toast } = useToast();
 
   const loadSchools = useCallback(async () => {
@@ -100,26 +110,17 @@ export default function SchoolManagementPage() {
     loadSchools();
   }, [loadSchools]);
 
-  const handleSimulatedAction = (action: string, schoolName: string) => {
-    toast({
-      title: "Action Simulated",
-      description: `The '${action}' action was clicked for ${schoolName}. This would trigger a real function in a live app.`,
-    });
-  };
+  const handleRemoveSchool = async () => {
+    if (!recordToDelete) return;
 
-  const handleRemoveSchool = async (schoolId: string, schoolName: string) => {
-    if (!window.confirm(`Are you sure you want to remove "${schoolName}" and all its associated data? This action cannot be undone.`)) {
-        return;
-    }
-
-    toast({ title: "Removing School...", description: `Attempting to remove ${schoolName}.` });
+    toast({ title: "Removing School...", description: `Attempting to remove ${recordToDelete.name}.` });
 
     try {
-        await deleteSchoolFromBackend(schoolId);
+        await deleteSchoolFromBackend(recordToDelete.id);
         await loadSchools(); // Refresh the list
         toast({
             title: "School Removed",
-            description: `${schoolName} (ID: ${schoolId}) has been removed.`,
+            description: `${recordToDelete.name} (ID: ${recordToDelete.id}) has been removed.`,
         });
     } catch (err) {
         const msg = err instanceof Error ? err.message : "An unknown error occurred.";
@@ -128,6 +129,8 @@ export default function SchoolManagementPage() {
             title: "Removal Failed",
             description: msg,
         });
+    } finally {
+        setRecordToDelete(null);
     }
   };
 
@@ -185,25 +188,22 @@ export default function SchoolManagementPage() {
                           <DropdownMenu>
                             <DropdownMenuTrigger asChild>
                               <Button variant="ghost" className="h-8 w-8 p-0">
-                                <span className="sr-only">Open menu</span>
+                                <span className="sr-only">Open menu for {school.name}</span>
                                 <MoreHorizontal className="h-4 w-4" />
                               </Button>
                             </DropdownMenuTrigger>
                             <DropdownMenuContent align="end">
                               <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                              <DropdownMenuItem onClick={() => handleSimulatedAction('View', school.name)}>
-                                <Eye className="mr-2 h-4 w-4" /> View Details
-                              </DropdownMenuItem>
-                               <DropdownMenuItem onClick={() => handleSimulatedAction('Manage Users', school.name)}>
+                              <DropdownMenuItem onSelect={() => router.push(`/dashboard/invite-teachers?schoolId=${school.id}`)}>
                                 <Users className="mr-2 h-4 w-4" /> Manage Users
                               </DropdownMenuItem>
-                              <DropdownMenuItem onClick={() => handleSimulatedAction('Edit', school.name)}>
+                              <DropdownMenuItem onSelect={() => router.push(`/dashboard/platform-management/school-management/edit/${school.id}`)}>
                                 <Edit className="mr-2 h-4 w-4" /> Edit School Info
                               </DropdownMenuItem>
                               <DropdownMenuSeparator />
                               <DropdownMenuItem
                                 className="text-destructive focus:text-destructive focus:bg-destructive/10"
-                                onClick={() => handleRemoveSchool(school.id, school.name)}
+                                onSelect={() => setRecordToDelete({ id: school.id, name: school.name })}
                               >
                                 <Trash2 className="mr-2 h-4 w-4" /> Remove School
                               </DropdownMenuItem>
@@ -224,6 +224,23 @@ export default function SchoolManagementPage() {
             )}
           </CardContent>
         </Card>
+
+        <AlertDialog open={!!recordToDelete} onOpenChange={(open) => !open && setRecordToDelete(null)}>
+            <AlertDialogContent>
+                <AlertDialogHeader>
+                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                        This will permanently remove the school "{recordToDelete?.name}" (ID: {recordToDelete?.id}). This action cannot be undone and will not delete associated users or data, which will need to be reassigned or cleaned up manually.
+                    </AlertDialogDescription>
+                </AlertDialogHeader>
+                <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => setRecordToDelete(null)}>Cancel</AlertDialogCancel>
+                    <AlertDialogAction onClick={handleRemoveSchool} className="bg-destructive hover:bg-destructive/90">
+                        Yes, Remove School
+                    </AlertDialogAction>
+                </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
       </div>
   );
 }
