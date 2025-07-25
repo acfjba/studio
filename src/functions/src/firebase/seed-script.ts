@@ -11,7 +11,7 @@ import { seedDatabase } from './seed';
 import path from 'path';
 
 // Load environment variables from .env file at the project root
-config({ path: path.resolve(__dirname, '../../../.env') });
+config({ path: path.resolve(__dirname, '../../../../workspace/.env') });
 
 async function runSeed() {
   console.log('--- Starting Database Seed via Command Line ---');
@@ -19,7 +19,7 @@ async function runSeed() {
   // Check for necessary environment variables to connect to Firebase Admin
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && (!process.env.GCLOUD_PROJECT && !process.env.FUNCTIONS_EMULATOR)) {
       console.error('\nERROR: Firebase Admin credentials not found.');
-      console.error('For local seeding, please ensure you have the GOOGLE_APPLICATION_CREDENTIALS environment variable set.');
+      console.error('For local seeding, please ensure you have the GOOGLE_APPLICATION_CREDENTIALS environment variable set by pointing it to your serviceAccountKey.json file.');
       console.log('Refer to Firebase documentation on setting up a service account for local development.');
       process.exit(1);
   }
