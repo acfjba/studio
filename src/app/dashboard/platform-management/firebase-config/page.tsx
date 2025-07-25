@@ -11,7 +11,7 @@ import {
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
-import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { isFirebaseConfigured, db, firebaseConfig } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -32,21 +32,20 @@ export default function FirebaseConfigPage() {
         storageBucket: '',
         messagingSenderId: '',
         appId: '',
-        databaseId: '',
+        databaseId: '(default)',
         geminiApiKey: ''
     });
-    
-    // This effect runs on the client and has access to environment variables
+
     useEffect(() => {
         const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
         setConnectionKeys({
-            apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'Not Set',
-            authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'Not Set',
-            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'Not Set',
-            storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'Not Set',
-            messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'Not Set',
-            appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'Not Set',
-            databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || 'Not Set',
+            apiKey: firebaseConfig.apiKey || 'Not Set',
+            authDomain: firebaseConfig.authDomain || 'Not Set',
+            projectId: firebaseConfig.projectId || 'Not Set',
+            storageBucket: firebaseConfig.storageBucket || 'Not Set',
+            messagingSenderId: firebaseConfig.messagingSenderId || 'Not Set',
+            appId: firebaseConfig.appId || 'Not Set',
+            databaseId: '(default)',
             geminiApiKey: geminiKey ? `${geminiKey.substring(0, 4)}...${geminiKey.slice(-4)}` : 'Not Set',
         });
     }, []);
@@ -138,6 +137,7 @@ export default function FirebaseConfigPage() {
     };
 
     const copyToClipboard = (text: string) => {
+        if(!text || text === 'Not Set') return;
         navigator.clipboard.writeText(text);
         toast({ title: "Copied to clipboard!" });
     };
@@ -286,8 +286,8 @@ export default function FirebaseConfigPage() {
                                 <div key={key} className="space-y-1">
                                     <Label htmlFor={key} className="text-xs uppercase text-muted-foreground font-bold">{key.replace(/([A-Z])/g, ' $1').trim()}</Label>
                                     <div className="flex items-center gap-2">
-                                        <Input id={key} readOnly value={value} className="font-mono bg-muted/50" />
-                                        <Button variant="ghost" size="icon" onClick={() => copyToClipboard(value)}>
+                                        <Input id={key} readOnly value={value || ''} className="font-mono bg-muted/50" />
+                                        <Button variant="ghost" size="icon" onClick={() => copyToClipboard(value || '')}>
                                             <Copy className="h-4 w-4" />
                                         </Button>
                                     </div>
