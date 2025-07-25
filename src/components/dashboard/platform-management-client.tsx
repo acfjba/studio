@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-    BarChart2, UserCog, Users, Building, Database, Settings, Bot, History, ArrowRight
+    BarChart2, UserCog, Users, Building, Database, Settings, Bot, ArrowRight, Wifi
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -25,12 +25,6 @@ const adminLinks: AdminLink[] = [
         description: "Generate and view reports."
     },
     {
-        href: "/dashboard/platform-management",
-        icon: UserCog,
-        title: "Platform Management",
-        description: "Manage the entire platform."
-    },
-    {
         href: "/dashboard/user-management",
         icon: Users,
         title: "User Management",
@@ -45,8 +39,14 @@ const adminLinks: AdminLink[] = [
     {
         href: "/dashboard/platform-management/firebase-config",
         icon: Database,
-        title: "Firebase Config",
+        title: "Firebase Dashboard",
         description: "View Firebase status and manage data."
+    },
+     {
+        href: "/dashboard/platform-management/platform-status",
+        icon: Wifi,
+        title: "Platform Status",
+        description: "Monitor school connectivity and health."
     },
     {
         href: "/dashboard/platform-management/app-settings",
@@ -60,23 +60,10 @@ const adminLinks: AdminLink[] = [
         title: "AI Assistant",
         description: "Develop the app with AI."
     },
-    {
-        href: "/dashboard/history",
-        icon: History,
-        title: "Rating History",
-        description: "Review your submitted ratings."
-    },
-    {
-        href: "/dashboard/settings",
-        icon: Settings,
-        title: "Settings",
-        description: "View application settings."
-    }
 ];
 
 const AdminCard = ({ link }: { link: AdminLink }) => {
   const Icon = link.icon;
-  const isCurrentPage = link.href === "/dashboard/platform-management";
 
   return (
     <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col">
@@ -92,16 +79,12 @@ const AdminCard = ({ link }: { link: AdminLink }) => {
          <p className="text-sm text-muted-foreground">{link.description}</p>
       </CardContent>
       <CardContent>
-        {isCurrentPage ? (
-             <Button variant="secondary" className="w-full" disabled>Currently Viewing</Button>
-        ) : (
-            <Link href={link.href}>
-            <Button variant="outline" className="w-full">
-                Go to {link.title}
-                <ArrowRight className="ml-2 h-4 w-4" />
-            </Button>
-            </Link>
-        )}
+        <Link href={link.href}>
+        <Button variant="outline" className="w-full">
+            Go to {link.title}
+            <ArrowRight className="ml-2 h-4 w-4" />
+        </Button>
+        </Link>
       </CardContent>
     </Card>
   );
