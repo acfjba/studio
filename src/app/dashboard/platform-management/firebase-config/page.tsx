@@ -19,6 +19,8 @@ import { Label } from "@/components/ui/label";
 import { collection, doc, setDoc } from 'firebase/firestore';
 
 export default function FirebaseConfigPage() {
+    const [isSeeding, setIsSeeding] = useState(false);
+    const [isClearing, setIsClearing] = useState(false);
     const [isTestingConnection, setIsTestingConnection] = useState(false);
     const { toast } = useToast();
 
@@ -33,8 +35,10 @@ export default function FirebaseConfigPage() {
         databaseId: '',
         geminiApiKey: ''
     });
-
+    
+    // This effect runs on the client and has access to environment variables
     useEffect(() => {
+        const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
         setConnectionKeys({
             apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'Not Set',
             authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'Not Set',
@@ -43,7 +47,7 @@ export default function FirebaseConfigPage() {
             messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'Not Set',
             appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'Not Set',
             databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || 'Not Set',
-            geminiApiKey: process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 4)}...${process.env.GEMINI_API_KEY.slice(-4)}` : 'Not Set (Server-side)',
+            geminiApiKey: geminiKey ? `${geminiKey.substring(0, 4)}...${geminiKey.slice(-4)}` : 'Not Set',
         });
     }, []);
 
@@ -83,7 +87,56 @@ export default function FirebaseConfigPage() {
             setIsTestingConnection(false);
         }
     };
+
+    const handleSeedDatabase = async () => {
+        if (!isFirebaseConfigured) {
+            toast({
+                variant: "destructive",
+                title: "Firebase Not Configured",
+                description: "Cannot seed database. Please configure your .env file.",
+            });
+            return;
+        }
+
+        if (!window.confirm("Are you sure you want to seed the database? This may overwrite existing data with the same IDs.")) {
+            return;
+        }
+
+        setIsSeeding(true);
+        toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
+        
+        try {
+            const response = await fetch('/api/seed', { method: 'POST' });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.message || 'An unknown error occurred during seeding.');
+            }
+
+            toast({ title: "Database Seeded Successfully", description: result.message });
+        } catch (error) {
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
+        } finally {
+            setIsSeeding(false);
+        }
+    };
     
+    const handleClearData = async () => {
+        if (!isFirebaseConfigured) {
+            toast({ variant: "destructive", title: "Action Disabled" });
+            return;
+        }
+        if (!window.confirm("This will delete all data in your Firestore database. This is irreversible. Are you sure?")) {
+            return;
+        }
+        setIsClearing(true);
+        toast({ title: "Clearing Database...", description: "This is a simulation. In a real app, this would be a high-privilege operation.", variant: "destructive" });
+        await new Promise(res => setTimeout(res, 2000));
+        toast({ title: "Database Cleared (Simulated)", description: "The database has been cleared." });
+        setIsClearing(false);
+    };
+
     const copyToClipboard = (text: string) => {
         navigator.clipboard.writeText(text);
         toast({ title: "Copied to clipboard!" });
@@ -152,6 +205,8 @@ export default function FirebaseConfigPage() {
                             3. Select **Production mode** (this is important for security rules).
                             <br />
                             4. Choose a location (e.g., us-central1) and click "Enable".
+                            <br />
+                            After the database is created, you can use the "Seed Database" button below.
                         </AlertDescription>
                     </Alert>
 
@@ -202,16 +257,18 @@ export default function FirebaseConfigPage() {
                                 <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
                             </CardTitle>
                             <CardDescription>
-                                To seed the database with sample data, open a terminal for this project and run the following command. This requires Node.js and npm to be installed.
+                                Use these actions to manage the data in your Firestore database.
                             </CardDescription>
                         </CardHeader>
-                        <CardContent>
-                           <div className="p-4 rounded-md bg-muted font-mono text-sm overflow-x-auto">
-                                <span className="text-muted-foreground">$</span> npm run db:seed
-                           </div>
-                           <p className="text-xs text-muted-foreground mt-2">
-                                Note: This process uses the Firebase Admin SDK and requires proper authentication (e.g., `GOOGLE_APPLICATION_CREDENTIALS` environment variable) to run locally.
-                           </p>
+                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
+                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                {isSeeding ? "Seeding..." : "Seed Database"}
+                            </Button>
+                            <Button className="w-full" onClick={handleClearData} disabled={isClearing || !isFirebaseConfigured} variant="destructive">
+                                {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                {isClearing ? "Clearing..." : "Clear All Data (Simulated)"}
+                            </Button>
                         </CardContent>
                     </Card>
                 </TabsContent>
