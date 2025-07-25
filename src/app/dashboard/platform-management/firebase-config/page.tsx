@@ -17,10 +17,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { collection, doc, setDoc } from 'firebase/firestore';
+import { seedDatabaseAction } from '@/app/actions';
 
 export default function FirebaseConfigPage() {
     const [isSeeding, setIsSeeding] = useState(false);
-    const [isClearing, setIsClearing] = useState(false);
     const [isTestingConnection, setIsTestingConnection] = useState(false);
     const { toast } = useToast();
 
@@ -45,7 +45,7 @@ export default function FirebaseConfigPage() {
             messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'Not Set',
             appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'Not Set',
             databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || '(default)',
-            geminiApiKey: process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 4)}...${process.env.GEMINI_API_KEY.slice(-4)}` : 'Not Set',
+            geminiApiKey: 'Set on Server (Hidden)',
         });
     }, []);
 
@@ -96,7 +96,7 @@ export default function FirebaseConfigPage() {
             return;
         }
 
-        if (!window.confirm("This will create or update the system admin user. It's safe to run multiple times. Continue?")) {
+        if (!window.confirm("This will overwrite existing data with the same IDs. This is useful for resetting the demo data. Continue?")) {
             return;
         }
 
@@ -104,14 +104,13 @@ export default function FirebaseConfigPage() {
         toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
         
         try {
-            const response = await fetch('/api/seed', { method: 'POST' });
-            const result = await response.json();
+            const result = await seedDatabaseAction();
 
-            if (!response.ok) {
-                throw new Error(result.message || 'An unknown error occurred during seeding.');
+            if (result.success) {
+                toast({ title: "Database Seeded Successfully", description: result.message });
+            } else {
+                 throw new Error(result.message || 'An unknown error occurred during seeding.');
             }
-
-            toast({ title: "Database Seeded Successfully", description: result.message });
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
             toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
@@ -120,23 +119,9 @@ export default function FirebaseConfigPage() {
         }
     };
     
-    const handleClearData = async () => {
-        if (!isFirebaseConfigured) {
-            toast({ variant: "destructive", title: "Action Disabled" });
-            return;
-        }
-        if (!window.confirm("This will delete all data in your Firestore database. This is irreversible. Are you sure?")) {
-            return;
-        }
-        setIsClearing(true);
-        toast({ title: "Clearing Database...", description: "This is a simulation. In a real app, this would be a high-privilege operation.", variant: "destructive" });
-        await new Promise(res => setTimeout(res, 2000));
-        toast({ title: "Database Cleared (Simulated)", description: "The database has been cleared." });
-        setIsClearing(false);
-    };
 
     const copyToClipboard = (text: string) => {
-        if(!text || text === 'Not Set') return;
+        if(!text || text === 'Not Set' || text.includes('Hidden')) return;
         navigator.clipboard.writeText(text);
         toast({ title: "Copied to clipboard!" });
     };
@@ -209,64 +194,23 @@ export default function FirebaseConfigPage() {
                         </AlertDescription>
                     </Alert>
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 font-headline">
-                                    <Code className="w-5 h-5 text-primary" /> Frontend Connection
-                                </CardTitle>
-                                <CardDescription>
-                                    The keys in <code className="font-mono text-xs">src/lib/firebase/config.ts</code> are for the client-side SDK.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <a href={authUrl} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full" disabled={!connectionKeys.projectId} variant="outline">
-                                        <KeyRound className="mr-2 h-4 w-4" /> Manage Users
-                                    </Button>
-                                </a>
-                                <a href={rulesUrl} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full" disabled={!connectionKeys.projectId} variant="outline">
-                                        <Database className="mr-2 h-4 w-4" /> Manage Security Rules
-                                    </Button>
-                                </a>
-                            </CardContent>
-                        </Card>
-                        <Card>
-                            <CardHeader>
-                                <CardTitle className="flex items-center gap-2 font-headline">
-                                    <Server className="w-5 h-5 text-primary" /> Backend Connection
-                                </CardTitle>
-                                <CardDescription>
-                                A secure backend connection with admin rights is handled by <strong className="text-foreground">Firebase App Hosting</strong>.
-                                </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                                <a href={functionsUrl} target="_blank" rel="noopener noreferrer">
-                                    <Button className="w-full" disabled={!connectionKeys.projectId}>
-                                        Manage Cloud Functions <ExternalLink className="ml-2 h-4 w-4" />
-                                    </Button>
-                                </a>
-                            </CardContent>
-                        </Card>
-                    </div>
                     <Card>
                         <CardHeader>
                             <CardTitle className="flex items-center gap-2 font-headline">
                                 <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
                             </CardTitle>
-                            <CardDescription>
-                                Use these actions to manage the data in your Firestore database.
-                            </CardDescription>
+                            <Alert>
+                                <AlertTriangle className="h-4 w-4" />
+                                <AlertTitle>Seeding Command (for Local Dev)</AlertTitle>
+                                <AlertDescription>
+                                To seed the database from your local terminal, you must first set up a service account. Download your service account key, save it as <code className="font-mono text-xs">serviceAccountKey.json</code> in the root, and set the <code className="font-mono text-xs">GOOGLE_APPLICATION_CREDENTIALS</code> environment variable to its path. Then run <code className="font-mono text-xs">npm run db:seed</code>.
+                                </AlertDescription>
+                            </Alert>
                         </CardHeader>
                         <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
                                 {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
                                 {isSeeding ? "Seeding..." : "Seed Database"}
-                            </Button>
-                            <Button className="w-full" onClick={handleClearData} disabled={isClearing || !isFirebaseConfigured} variant="destructive">
-                                {isClearing ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                {isClearing ? "Clearing..." : "Clear All Data (Simulated)"}
                             </Button>
                         </CardContent>
                     </Card>
@@ -286,7 +230,7 @@ export default function FirebaseConfigPage() {
                                     <Label htmlFor={key} className="text-xs uppercase text-muted-foreground font-bold">{key.replace(/([A-Z])/g, ' $1').trim()}</Label>
                                     <div className="flex items-center gap-2">
                                         <Input id={key} readOnly value={value || ''} className="font-mono bg-muted/50" />
-                                        <Button variant="ghost" size="icon" onClick={() => copyToClipboard(value || '')}>
+                                        <Button variant="ghost" size="icon" onClick={() => copyToClipboard(value || '')} disabled={!value || value === 'Not Set' || value.includes('Hidden')}>
                                             <Copy className="h-4 w-4" />
                                         </Button>
                                     </div>
