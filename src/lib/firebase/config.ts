@@ -8,13 +8,13 @@ import { initializeApp, getApp, getApps, type FirebaseOptions } from "firebase/a
 import { getFirestore } from "firebase/firestore";
 
 // These variables are loaded from the `env` block in your next.config.ts file.
-const firebaseConfig: FirebaseOptions = {
-  apiKey: "AIzaSyD-L2Zx9FSDysCO6OypaaswfsQX4F4q73s",
-  authDomain: "school-platform-kc9uh.firebaseapp.com",
-  projectId: "school-platform-kc9uh",
-  storageBucket: "school-platform-kc9uh.appspot.com",
-  messagingSenderId: "840322255670",
-  appId: "1:840322255670:web:98e2f0f3ef1774a850c197",
+export const firebaseConfig: FirebaseOptions = {
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // This function checks if all the necessary Firebase configuration values are present.
@@ -36,4 +36,4 @@ const db = isAllConfigPresent() ? getFirestore(app) : null;
 export const isFirebaseConfigured = isAllConfigPresent();
 
 // Export the Firestore database instance to be used for all database operations.
-export { db, firebaseConfig };
+export { db };
