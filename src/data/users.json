@@ -2,8 +2,8 @@
 [
   {
     "id": "user_sysadmin_global",
-    "email": "systemadmin@example.com",
-    "password": "adminpassword",
+    "email": "sysadmin@system.com",
+    "password": "password123",
     "displayName": "System Admin",
     "role": "system-admin",
     "schoolId": null
