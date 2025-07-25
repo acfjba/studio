@@ -1,50 +1,80 @@
 
 "use client";
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import { PageHeader } from "@/components/layout/page-header";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Printer, Download, Filter, AlertCircle } from "lucide-react";
-import { sampleExamResultsData } from '@/lib/data';
+import { Printer, Download, Filter, AlertCircle, AlertTriangle } from "lucide-react";
 import type { ExamResult } from '@/lib/schemas/exam-results';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs, Timestamp, query, where } from 'firebase/firestore';
+
 
 // Simulate fetching data for the report
-async function fetchAcademicReportData(): Promise<ExamResult[]> {
-    await new Promise(resolve => setTimeout(resolve, 800));
-    return sampleExamResultsData;
+async function fetchAcademicReportData(schoolId: string): Promise<ExamResult[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const recordsCollectionRef = collection(db, 'examResults');
+    const q = query(recordsCollectionRef, where("schoolId", "==", schoolId));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+      const data = doc.data();
+      return {
+          ...data,
+          id: doc.id,
+          createdAt: data.createdAt instanceof Timestamp ? data.createdAt.toDate().toISOString() : data.createdAt,
+          updatedAt: data.updatedAt instanceof Timestamp ? data.updatedAt.toDate().toISOString() : data.updatedAt,
+      } as ExamResult;
+  });
 }
 
 export default function AcademicReportsPage() {
     const { toast } = useToast();
     const [examData, setExamData] = useState<ExamResult[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [schoolId, setSchoolId] = useState<string|null>(null);
 
     // Filter states
     const [yearFilter, setYearFilter] = useState<string>('all');
     const [examTypeFilter, setExamTypeFilter] = useState<string>('all');
+    
+    useEffect(() => {
+        const id = localStorage.getItem('schoolId');
+        setSchoolId(id);
+    }, []);
+
+    const loadData = useCallback(async () => {
+        if (!isFirebaseConfigured) {
+            toast({ variant: 'destructive', title: 'Firebase Not Configured', description: 'Cannot load data.'});
+            setIsLoading(false);
+            return;
+        }
+        if (!schoolId) {
+             setIsLoading(false);
+             return;
+        }
+
+        setIsLoading(true);
+        try {
+            const data = await fetchAcademicReportData(schoolId);
+            setExamData(data);
+        } catch (error) {
+            toast({ variant: "destructive", title: "Error", description: "Could not load academic data." });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [schoolId, toast]);
 
     useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const data = await fetchAcademicReportData();
-                setExamData(data);
-            } catch (error) {
-                toast({ variant: "destructive", title: "Error", description: "Could not load academic data." });
-            } finally {
-                setIsLoading(false);
-            }
-        };
         loadData();
-    }, [toast]);
+    }, [loadData]);
     
     const uniqueYears = useMemo(() => ['all', ...Array.from(new Set(examData.map(e => e.studentYear)))].sort(), [examData]);
     const uniqueExamTypes = useMemo(() => ['all', ...Array.from(new Set(examData.map(e => e.examType)))], [examData]);
@@ -108,6 +138,20 @@ export default function AcademicReportsPage() {
                 title="Academic Reports"
                 description="Generate and view reports on student performance and exam results."
             />
+             {!isFirebaseConfigured && (
+                <Card className="bg-amber-50 border-amber-300">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-amber-800 flex items-center">
+                            <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-amber-700">
+                            Firebase is not configured. This page is in read-only mode and cannot load live data.
+                        </p>
+                    </CardContent>
+                </Card>
+            )}
             <Card className="shadow-lg rounded-lg">
                 <CardHeader>
                     <CardTitle className="font-headline">Academic Report Generator</CardTitle>
@@ -187,4 +231,5 @@ export default function AcademicReportsPage() {
             </Card>
         </div>
     );
-}
+
+    
