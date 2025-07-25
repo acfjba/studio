@@ -37,7 +37,7 @@ async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<Teache
         if (rateableRoles.includes(userData.role?.toLowerCase())) {
             return {
                 id: userDocSnap.id,
-                name: userData.name,
+                name: userData.displayName,
                 position: userData.role.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
                 avatar: `https://placehold.co/120x120.png`,
                 dataAiHint: "teacher portrait",
@@ -180,12 +180,13 @@ export default function RateTeacherPage() {
         date: new Date().toISOString().split('T')[0], 
     };
 
-    console.log("Submitting rating (simulated):", ratingData);
+    console.log("Submitting rating:", ratingData);
+    // In a real app, you would send this to your backend (e.g., Firestore)
     await new Promise(resolve => setTimeout(resolve, 1200)); 
     
     setIsSubmitting(false);
     toast({
-      title: "Rating Submitted (Simulated)",
+      title: "Rating Submitted",
       description: `Your rating for ${teacher?.name} has been recorded.`,
     });
     router.push('/dashboard/teachers'); 

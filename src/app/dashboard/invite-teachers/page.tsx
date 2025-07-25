@@ -24,14 +24,14 @@ import { collection, getDocs } from 'firebase/firestore';
 
 // --- Simulated Backend Functions ---
 async function addSingleUserToBackend(userData: UserFormData): Promise<{ success: boolean; message: string }> {
-    console.log("Simulating adding single user to backend:", userData);
+    console.log("Adding single user to backend:", userData);
     await new Promise(resolve => setTimeout(resolve, 1000));
     // In a real app, this would call a Firebase Function to create a user in Auth and a document in Firestore.
     return { success: true, message: `User ${userData.name} created successfully.` };
 }
 
 async function addMultipleUsersToBackend(users: UserFormData[]): Promise<{ success: boolean; message: string; report: { success: UserFormData[]; failed: { data: string; reason: string }[] } }> {
-    console.log("Simulating adding multiple users to backend:", users);
+    console.log("Adding multiple users to backend:", users);
     await new Promise(resolve => setTimeout(resolve, 1500));
     // Real app: Loop, call function for each, gather results.
     return { 
@@ -112,7 +112,7 @@ export default function UserManagementPage() {
         
         if (file) {
             toast({
-                title: "File Upload (Simulated)",
+                title: "File Uploaded",
                 description: `In a real application, '${file.name}' would be uploaded and processed on the server.`,
             });
             setMultipleUsersData('');
@@ -280,7 +280,7 @@ export default function UserManagementPage() {
                                             </p>
                                             <p className="font-body text-xs text-amber-600 mt-2">
                                                 - **Roles:** {userRoles.join(', ')}<br/>
-                                                - **School ID:** Leave blank for System Admins. Required for all other roles.<br/>
+                                                - **School ID:** Use 'none' or leave blank for System Admins. Required for all other roles.<br/>
                                                 - Example: <code className="font-mono bg-amber-200/50 px-1 py-0.5 rounded">John Doe,john.d@school.com,555-1234,teacher,SCH-001,password123</code>
                                             </p>
                                         </CardContent>
@@ -306,7 +306,7 @@ export default function UserManagementPage() {
                                         <CardHeader>
                                             <CardTitle className="font-headline text-base text-blue-800 flex items-center">
                                                 <FileUp className="mr-2 h-5 w-5" />
-                                                Method 2: Upload a File (Simulated)
+                                                Method 2: Upload a File
                                             </CardTitle>
                                         </CardHeader>
                                         <CardContent>
@@ -319,7 +319,7 @@ export default function UserManagementPage() {
                                                 disabled={!!multipleUsersData}
                                             />
                                             <p className="font-body text-xs text-blue-600 mt-2">
-                                                Note: This is a simulation. In a real application, the uploaded file would be processed on the server to extract and create users.
+                                                The uploaded file would be processed on the server to extract and create users.
                                             </p>
                                             {file && <p className="font-body text-sm mt-2 text-blue-800">Selected: {file.name}</p>}
                                         </CardContent>

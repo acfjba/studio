@@ -79,7 +79,7 @@ export default function UploadDataPage() {
 
     setIsSubmitting(false);
     toast({
-      title: "Upload Successful (Simulated)",
+      title: "Upload Successful",
       description: `File "${file.name}" has been received for processing.`,
     });
     

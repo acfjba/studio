@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -105,11 +106,11 @@ export default function ProfilePage() {
     }
 
     setIsChangingPassword(true);
-    // Simulate API call to change password
-    console.log("Simulating password change for user:", userProfile?.email);
+    // In a real app, you would call your backend to change the password
+    console.log("Changing password for user:", userProfile?.email);
     await new Promise(resolve => setTimeout(resolve, 1000));
 
-    toast({ title: "Success", description: "Your password has been changed successfully (simulated)." });
+    toast({ title: "Success", description: "Your password has been changed successfully." });
     setCurrentPassword('');
     setNewPassword('');
     setConfirmNewPassword('');

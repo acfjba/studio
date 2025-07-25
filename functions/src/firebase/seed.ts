@@ -19,58 +19,72 @@ export async function seedDatabase() {
   const batch = writeBatch(adminDb);
 
   // ---------- Schools ----------
-  console.log("Seeding schools...");
-  schoolData.forEach((sch) => {
-    batch.set(doc(adminDb, 'schools', sch.id), sch);
-  });
+  if (schoolData.length > 0) {
+    console.log("Seeding schools...");
+    schoolData.forEach((sch) => {
+      batch.set(doc(adminDb, 'schools', sch.id), sch);
+    });
+  }
 
   // ---------- Staff ----------
-  console.log("Seeding staff...");
-  staffData.forEach((st) => {
-    const { id, ...rest } = st;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'staff', id), data);
-  });
+  if (staffData.length > 0) {
+    console.log("Seeding staff...");
+    staffData.forEach((st) => {
+      const { id, ...rest } = st;
+      const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      batch.set(doc(adminDb, 'staff', id), data);
+    });
+  }
   
   // ---------- Library Books ----------
-  console.log("Seeding library books...");
-  libraryBooksData.forEach((bk) => {
-    const { id, ...rest } = bk;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'books', id), data);
-  });
+  if (libraryBooksData.length > 0) {
+    console.log("Seeding library books...");
+    libraryBooksData.forEach((bk) => {
+      const { id, ...rest } = bk;
+      const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      batch.set(doc(adminDb, 'books', id), data);
+    });
+  }
 
   // ---------- Exam Results ----------
-  console.log("Seeding exam results...");
-  sampleExamResultsData.forEach((ex) => {
-    const { id, ...rest } = ex;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'examResults', id), data);
-  });
+  if (sampleExamResultsData.length > 0) {
+    console.log("Seeding exam results...");
+    sampleExamResultsData.forEach((ex) => {
+      const { id, ...rest } = ex;
+      const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      batch.set(doc(adminDb, 'examResults', id), data);
+    });
+  }
 
   // ---------- Disciplinary Records ----------
-  console.log("Seeding disciplinary records...");
-  disciplinaryRecordsData.forEach((dr) => {
-    const { id, ...rest } = dr;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'disciplinary', id), data);
-  });
+  if (disciplinaryRecordsData.length > 0) {
+    console.log("Seeding disciplinary records...");
+    disciplinaryRecordsData.forEach((dr) => {
+      const { id, ...rest } = dr;
+      const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      batch.set(doc(adminDb, 'disciplinary', id), data);
+    });
+  }
 
   // ---------- Counselling Records ----------
-  console.log("Seeding counselling records...");
-  counsellingRecordsData.forEach((cr) => {
-    const { id, ...rest } = cr;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'counselling', cr.id), data);
-  });
+  if (counsellingRecordsData.length > 0) {
+    console.log("Seeding counselling records...");
+    counsellingRecordsData.forEach((cr) => {
+      const { id, ...rest } = cr;
+      const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      batch.set(doc(adminDb, 'counselling', cr.id), data);
+    });
+  }
 
   // ---------- OHS Records ----------
-  console.log("Seeding OHS records...");
-  ohsRecordsData.forEach((or) => {
-    const { id, ...rest } = or;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'ohs', id), data);
-  });
+  if (ohsRecordsData.length > 0) {
+    console.log("Seeding OHS records...");
+    ohsRecordsData.forEach((or) => {
+      const { id, ...rest } = or;
+      const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+      batch.set(doc(adminDb, 'ohs', id), data);
+    });
+  }
   
   // ---------- Users + Auth Claims ----------
   console.log("Processing Auth users and Firestore user documents...");
