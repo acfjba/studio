@@ -3,7 +3,7 @@ import { initializeApp, getApp, getApps, type FirebaseOptions } from "firebase/a
 import { getFirestore } from "firebase/firestore";
 import { getAuth } from "firebase/auth";
 
-// Your web app's Firebase configuration, directly embedded.
+// Your web app's Firebase configuration, as provided.
 const firebaseConfig: FirebaseOptions = {
   apiKey: "AIzaSyD-L2Zx9FSDysCO6OypaaswfsQX4F4q73s",
   authDomain: "school-platform-kc9uh.firebaseapp.com",
