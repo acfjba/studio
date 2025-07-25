@@ -1,6 +1,8 @@
+
 'use server';
 
 import { z } from 'zod';
+import { seedDatabase } from '../../functions/src/firebase/seed';
 
 // Define the schema for the feedback form
 const feedbackSchema = z.object({
@@ -40,4 +42,15 @@ export async function submitFeedback(prevState: { message: string, error: boolea
   // });
 
   return { message: 'Thank you for your feedback! It has been received successfully.', error: false };
+}
+
+
+/**
+ * Server Action to trigger database seeding.
+ * This action is now deprecated and seeding must be done via the command line.
+ * @returns An object with a success message or an error.
+ */
+export async function seedDatabaseAction(): Promise<{ success: boolean; message: string }> {
+    console.warn("Seeding from the web UI is not supported in this architecture. Please use `npm run db:seed` from the terminal.");
+    return { success: false, message: "This feature must be run from the command line. See server logs for details." };
 }

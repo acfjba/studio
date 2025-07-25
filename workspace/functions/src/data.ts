@@ -4,7 +4,7 @@
 // from the /data directory for use in server-side functions.
 import schoolData from './data/schools.json';
 import staffData from './data/staff.json';
-import usersSeedData from '../../src/data/users.json'; // Updated path
+import usersSeedData from './data/users.json';
 import inventoryData from './data/inventory.json';
 import sampleExamResultsData from './data/exam-results.json';
 import libraryBooksData from './data/library-books.json';
