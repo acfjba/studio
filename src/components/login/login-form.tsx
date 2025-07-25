@@ -78,20 +78,28 @@ export function LoginForm() {
         const userRole = claims.role as string;
         const userSchoolId = claims.schoolId as string | null;
 
-        if (isSchoolLogin && userSchoolId !== schoolId) {
-            toast({ variant: "destructive", title: "Login Failed", description: "School ID does not match this user account." });
-            setIsLoading(false);
-            return;
-        }
-
-        if (!isSchoolLogin && userRole !== 'system-admin') {
-            toast({ variant: "destructive", title: "Access Denied", description: "This account does not have system admin privileges." });
-            setIsLoading(false);
-            return;
+        if (isSchoolLogin) {
+            // --- SCHOOL LOGIN LOGIC ---
+            if (!userSchoolId || userSchoolId !== schoolId) {
+                toast({ variant: "destructive", title: "Login Failed", description: "The School ID does not match this user account." });
+                setIsLoading(false);
+                return;
+            }
+        } else {
+            // --- ADMIN LOGIN LOGIC ---
+            if (userRole !== 'system-admin') {
+                toast({ variant: "destructive", title: "Access Denied", description: "This account does not have System Admin privileges. Please use the School Login tab." });
+                setIsLoading(false);
+                return;
+            }
         }
         
         localStorage.setItem('userRole', userRole);
-        if(userSchoolId) localStorage.setItem('schoolId', userSchoolId);
+        if(userSchoolId) {
+          localStorage.setItem('schoolId', userSchoolId);
+        } else {
+          localStorage.removeItem('schoolId');
+        }
         
         toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
 
@@ -119,7 +127,7 @@ export function LoginForm() {
     } catch (error: any) {
         console.error("Firebase Auth Error:", error);
         let errorMessage = "Invalid credentials or user not found.";
-        if (error.code === 'auth/invalid-credential') {
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
             errorMessage = "The email or password you entered is incorrect.";
         }
         toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
