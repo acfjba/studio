@@ -86,7 +86,6 @@ const platformLinks = [
 ];
 
 const allLinks = [
-    {category: "Dashboard", href: "/dashboard", icon: LayoutGrid, label: "Dashboard", roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten']},
     ...dashboardLinks.map(l => ({...l, category: "Dashboards"})),
     ...academicLinks.map(l => ({...l, category: "Academics"})),
     ...studentServicesLinks.map(l => ({...l, category: "Student Services"})),
@@ -141,20 +140,12 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-        <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold md:text-base">
+        <Link href="/dashboard/profile" className="flex items-center gap-2 text-lg font-semibold md:text-base">
           <School className="h-6 w-6 text-primary" />
           <span className="sr-only">School Data Insights</span>
         </Link>
         <NavigationMenu>
           <NavigationMenuList>
-            <NavigationMenuItem>
-               <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
-                 <Link href="/dashboard">
-                    Main Dashboard
-                 </Link>
-               </NavigationMenuLink>
-            </NavigationMenuItem>
-            
             {accessibleNavMenus.map(menu => (
                 <NavigationMenuItem key={menu.name}>
                     <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
@@ -185,7 +176,7 @@ export function Header() {
             <SheetDescription className="sr-only">A list of links to navigate the application.</SheetDescription>
           </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
-            <Link href="/dashboard" className="flex items-center gap-2 text-lg font-semibold">
+            <Link href="/dashboard/profile" className="flex items-center gap-2 text-lg font-semibold">
               <School className="h-6 w-6 text-primary" />
               <span className="sr-only">School Data Insights</span>
             </Link>
