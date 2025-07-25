@@ -858,7 +858,7 @@ export function HeadTeacherClient() {
         className="w-64 bg-background border-r p-6 flex-col shadow-lg fixed inset-y-0 left-0 print:hidden hidden md:flex" 
       >
         <div className="mb-4 text-center flex items-center justify-center gap-2">
-           <Link href="/dashboard" passHref>
+           <Link href="/dashboard/profile" passHref>
              <Button variant="ghost" className="h-auto p-1">
                 <ArrowLeft className="h-5 w-5 text-muted-foreground"/>
              </Button>
