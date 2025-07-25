@@ -29,7 +29,7 @@ export default function PresentationPage() {
              <nav className="fixed top-0 left-0 w-full bg-primary/90 backdrop-blur-sm z-10 p-4 flex justify-between items-center shadow-lg">
                 <h1 className="text-xl font-headline font-bold text-primary-foreground">School Data Insights</h1>
                 <Link href="/" passHref>
-                    <Button variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90 border-accent">
+                    <Button variant="secondary" className="bg-accent text-accent-foreground hover:bg-accent/90 border-accent">
                         <Home className="mr-2 h-4 w-4" /> Back to App Login
                     </Button>
                 </Link>
