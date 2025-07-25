@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, type ChangeEvent, useEffect } from 'react';
+import React, { useState, type ChangeEvent, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,8 +17,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { userRoles, SingleUserFormSchema, type UserFormData } from "@/lib/schemas/user";
 import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import { PageHeader } from '@/components/layout/page-header';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
 
 // --- Simulated Backend Functions ---
@@ -39,6 +40,13 @@ async function addMultipleUsersToBackend(users: UserFormData[]): Promise<{ succe
         report: { success: users, failed: [] }
     };
 }
+
+async function fetchSchools(): Promise<{id: string, name: string}[]> {
+    if (!db || !isFirebaseConfigured) return [];
+    const schoolsSnapshot = await getDocs(collection(db, "schools"));
+    return schoolsSnapshot.docs.map(doc => ({ id: doc.id, name: doc.data().name }));
+}
+
 // ---
 
 export default function UserManagementPage() {
@@ -47,6 +55,7 @@ export default function UserManagementPage() {
     const [file, setFile] = useState<File | null>(null);
     const [users, setUsers] = useState<UserFormData[]>([]);
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
+    const [schools, setSchools] = useState<{id: string, name: string}[]>([]);
 
 
     useEffect(() => {
@@ -62,6 +71,12 @@ export default function UserManagementPage() {
         } else {
             setHasAccess(true);
         }
+
+        const loadSchools = async () => {
+            const fetchedSchools = await fetchSchools();
+            setSchools(fetchedSchools);
+        };
+        loadSchools();
     }, [router, toast]);
 
     const singleUserForm = useForm<UserFormData>({
@@ -219,8 +234,20 @@ export default function UserManagementPage() {
                                             {singleUserForm.formState.errors.role && <p className="text-destructive text-xs mt-1">{singleUserForm.formState.errors.role.message}</p>}
                                         </div>
                                         <div>
-                                            <Label htmlFor="schoolId">School ID</Label>
-                                            <Input id="schoolId" {...singleUserForm.register("schoolId")} placeholder="e.g., SCH-001 (Required for non-admins)" />
+                                            <Label htmlFor="schoolId">School</Label>
+                                            <Controller
+                                                name="schoolId"
+                                                control={singleUserForm.control}
+                                                render={({ field }) => (
+                                                    <Select onValueChange={field.onChange} value={field.value}>
+                                                        <SelectTrigger id="schoolId"><SelectValue placeholder="Select a school (if not System Admin)" /></SelectTrigger>
+                                                        <SelectContent>
+                                                          <SelectItem value="">N/A (for System Admin)</SelectItem>
+                                                          {schools.map(school => <SelectItem key={school.id} value={school.id}>{school.name} ({school.id})</SelectItem>)}
+                                                        </SelectContent>
+                                                    </Select>
+                                                )}
+                                            />
                                             {singleUserForm.formState.errors.schoolId && <p className="text-destructive text-xs mt-1">{singleUserForm.formState.errors.schoolId.message}</p>}
                                         </div>
                                         <div>

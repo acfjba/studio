@@ -1,12 +1,13 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Building, AlertCircle, Eye, Edit, Trash2, MoreHorizontal, Users } from "lucide-react";
+import { Building, AlertCircle, Eye, Edit, Trash2, MoreHorizontal, Users, PlusCircle } from "lucide-react";
 import { Skeleton } from '@/components/ui/skeleton';
 import { useToast } from "@/hooks/use-toast";
 import {
@@ -19,13 +20,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { PageHeader } from '@/components/layout/page-header';
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
-
-interface SchoolUser {
-  name: string;
-  email: string;
-  role: string;
-}
+import { collection, getDocs, query, where, deleteDoc, doc, getCountFromServer } from 'firebase/firestore';
 
 interface School {
   id: string;
@@ -40,38 +35,37 @@ async function fetchSchoolsWithUsers(): Promise<School[]> {
   if (!db || !isFirebaseConfigured) {
     throw new Error("Firebase is not configured.");
   }
-  console.log("Fetching all schools with user data...");
-  const schoolsSnapshot = await getDocs(collection(db, "schools"));
-  const staffSnapshot = await getDocs(collection(db, "staff"));
-  
-  const staffBySchool = staffSnapshot.docs.reduce((acc, doc) => {
-    const staff = doc.data();
-    if (staff.schoolId) {
-      if (!acc[staff.schoolId]) {
-        acc[staff.schoolId] = 0;
-      }
-      acc[staff.schoolId]++;
-    }
-    return acc;
-  }, {} as Record<string, number>);
 
-  return schoolsSnapshot.docs.map(doc => {
-    const school = doc.data();
-    return {
-      id: doc.id,
-      name: school.name,
-      address: school.address,
-      type: school.type,
-      userCount: staffBySchool[doc.id] || 0
-    };
-  });
+  const schoolsSnapshot = await getDocs(collection(db, "schools"));
+  
+  const schools: School[] = await Promise.all(
+    schoolsSnapshot.docs.map(async (schoolDoc) => {
+      const school = schoolDoc.data();
+      const usersQuery = query(collection(db, "users"), where("schoolId", "==", schoolDoc.id));
+      const usersSnapshot = await getCountFromServer(usersQuery);
+      const userCount = usersSnapshot.data().count;
+
+      return {
+        id: schoolDoc.id,
+        name: school.name,
+        address: school.address,
+        type: school.type,
+        userCount: userCount
+      };
+    })
+  );
+
+  return schools;
 }
 
 // SIMULATED BACKEND DELETE
 async function deleteSchoolFromBackend(schoolId: string): Promise<{success: boolean}> {
-    console.log(`Simulating DELETE request for school ID: ${schoolId}`);
-    await new Promise(resolve => setTimeout(resolve, 800));
-    console.log(`Successfully simulated deletion for school ID: ${schoolId}`);
+    if (!db || !isFirebaseConfigured) {
+      throw new Error("Firebase is not configured.");
+    }
+    // Note: In a real app, you'd need a Cloud Function for a cascading delete of all related data (users, inventory, etc.)
+    await deleteDoc(doc(db, "schools", schoolId));
+    console.log(`Successfully deleted school document for ID: ${schoolId}`);
     return { success: true };
 }
 
@@ -82,10 +76,14 @@ export default function SchoolManagementPage() {
   const [error, setError] = useState<string | null>(null);
   const { toast } = useToast();
 
-  useEffect(() => {
-    const loadSchools = async () => {
+  const loadSchools = useCallback(async () => {
       setIsLoading(true);
       setError(null);
+      if (!isFirebaseConfigured) {
+        setError("Firebase is not configured.");
+        setIsLoading(false);
+        return;
+      }
       try {
         const fetchedSchools = await fetchSchoolsWithUsers();
         setSchools(fetchedSchools);
@@ -96,9 +94,11 @@ export default function SchoolManagementPage() {
       } finally {
         setIsLoading(false);
       }
-    };
+    }, [toast]);
+
+  useEffect(() => {
     loadSchools();
-  }, [toast]);
+  }, [loadSchools]);
 
   const handleSimulatedAction = (action: string, schoolName: string) => {
     toast({
@@ -112,21 +112,21 @@ export default function SchoolManagementPage() {
         return;
     }
 
-    toast({ title: "Removing School...", description: `Simulating removal of ${schoolName}.` });
+    toast({ title: "Removing School...", description: `Attempting to remove ${schoolName}.` });
 
-    const result = await deleteSchoolFromBackend(schoolId);
-
-    if (result.success) {
-        setSchools(currentSchools => currentSchools.filter(school => school.id !== schoolId));
+    try {
+        await deleteSchoolFromBackend(schoolId);
+        await loadSchools(); // Refresh the list
         toast({
-            title: "School Removed (Simulated)",
-            description: `${schoolName} (ID: ${schoolId}) and all its data have been removed.`,
+            title: "School Removed",
+            description: `${schoolName} (ID: ${schoolId}) has been removed.`,
         });
-    } else {
+    } catch (err) {
+        const msg = err instanceof Error ? err.message : "An unknown error occurred.";
         toast({
             variant: "destructive",
             title: "Removal Failed",
-            description: `Could not remove ${schoolName}. Please try again.`,
+            description: msg,
         });
     }
   };
@@ -136,7 +136,11 @@ export default function SchoolManagementPage() {
         <PageHeader 
             title="School Management"
             description="View, manage, and edit schools on the platform."
-        />
+        >
+          <Link href="/dashboard/platform-management/school-management/create">
+            <Button><PlusCircle className="mr-2 h-4 w-4" />Create School</Button>
+          </Link>
+        </PageHeader>
         <Card className="shadow-xl rounded-lg">
           <CardContent className="pt-6">
             {isLoading && (
@@ -215,7 +219,7 @@ export default function SchoolManagementPage() {
              {!isLoading && !error && schools.length === 0 && (
                 <Card className="mt-6 bg-muted/30 border">
                     <CardHeader><CardTitle className="font-headline text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />No Schools Found</CardTitle></CardHeader>
-                    <CardContent><p className="font-body text-sm text-foreground">There are no schools to display. All schools may have been removed.</p></CardContent>
+                    <CardContent><p className="font-body text-sm text-foreground">There are no schools to display. Use the 'Create School' button to add one.</p></CardContent>
                 </Card>
             )}
           </CardContent>
