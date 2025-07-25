@@ -1,7 +1,6 @@
 'use server';
 
 import { z } from 'zod';
-import { seedDatabase } from '../../functions/src/firebase/seed';
 
 // Define the schema for the feedback form
 const feedbackSchema = z.object({
@@ -41,23 +40,4 @@ export async function submitFeedback(prevState: { message: string, error: boolea
   // });
 
   return { message: 'Thank you for your feedback! It has been received successfully.', error: false };
-}
-
-
-/**
- * Server Action to trigger database seeding.
- * This function runs only on the server and is designed to be called from the UI.
- * @returns An object with a success message or an error.
- */
-export async function seedDatabaseAction(): Promise<{ success: boolean; message: string }> {
-  try {
-    console.log("--- Seeding database via Server Action ---");
-    await seedDatabase();
-    console.log("--- Seeding complete ---");
-    return { success: true, message: 'Database seeded successfully!' };
-  } catch (error) {
-    console.error("Error during database seeding via Server Action:", error);
-    const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
-    return { success: false, message: `Seeding failed: ${errorMessage}` };
-  }
 }

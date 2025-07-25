@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -17,7 +16,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { collection, doc, setDoc } from 'firebase/firestore';
-import { seedDatabaseAction } from '@/app/actions';
 
 export default function FirebaseConfigPage() {
     const [isSeeding, setIsSeeding] = useState(false);
@@ -48,30 +46,6 @@ export default function FirebaseConfigPage() {
             geminiApiKey: 'Set on Server (Hidden)',
         });
     }, []);
-
-    const handleSeedDatabase = async () => {
-        if (!window.confirm("Are you sure you want to seed the database? This may overwrite existing data with the same IDs.")) {
-            return;
-        }
-        setIsSeeding(true);
-        toast({ title: 'Seeding Database...', description: "Please wait. This may take a moment." });
-
-        const result = await seedDatabaseAction();
-
-        if (result.success) {
-            toast({
-                title: "Database Seeding Complete!",
-                description: result.message,
-            });
-        } else {
-            toast({
-                variant: "destructive",
-                title: "Seeding Failed",
-                description: result.message,
-            });
-        }
-        setIsSeeding(false);
-    };
 
     const handleTestConnection = async () => {
         if (!isFirebaseConfigured || !db) {
@@ -171,17 +145,17 @@ export default function FirebaseConfigPage() {
                             <CardTitle className="flex items-center gap-2 font-headline">
                                 <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
                             </CardTitle>
-                            <Alert>
+                             <Alert>
                                 <AlertTitle>Seeding the Database</AlertTitle>
                                 <AlertDescription>
-                                    Use the button below to populate your database with sample data. This is a secure, server-side operation.
+                                    To populate your database with sample data, you must run a command from the terminal. This is a secure, server-side operation. First, ensure you have set up a service account by saving your service account key as <code className="font-mono">serviceAccountKey.json</code> in the project root. Then, run the command: <code className="font-mono bg-muted p-1 rounded-md">npm run db:seed</code>.
                                 </AlertDescription>
                             </Alert>
                         </CardHeader>
                          <CardFooter>
-                            <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured} className="w-full">
-                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                Seed Database
+                            <Button disabled={true} className="w-full">
+                                <DatabaseZap className="mr-2 h-4 w-4" /> 
+                                Seed Database (Use Terminal)
                             </Button>
                         </CardFooter>
                     </Card>
@@ -199,7 +173,7 @@ export default function FirebaseConfigPage() {
                             <br />
                             4. Choose a location (e.g., us-central1) and click "Enable".
                             <br />
-                            After the database is created, you can use the "Seed Database" button above.
+                            After the database is created, you can use the "Seed Database" command.
                         </AlertDescription>
                     </Alert>
                 </TabsContent>
