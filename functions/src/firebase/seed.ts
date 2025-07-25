@@ -1,126 +1,109 @@
 
-
-/**
- * @fileOverview Firestore Seeding Script for School Users from CSV.
- *
- * This script reads a CSV file containing user data and seeds Firebase
- * Authentication and Firestore. It's designed to be idempotent, meaning
- * it can be run multiple times without creating duplicate users.
- */
-import fs from "fs";
-import csvParser from "csv-parser";
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
+// functions/src/firebase/seed.ts
+import { writeBatch, doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
+import { 
+    schoolData, 
+    staffData, 
+    usersSeedData,
+    libraryBooksData,
+    sampleExamResultsData,
+    disciplinaryRecordsData,
+    counsellingRecordsData,
+    ohsRecordsData
+} from '../data';
 
-/**
- * Reads and parses a CSV file into an array of objects.
- * @param path - The absolute path to the CSV file.
- * @returns A promise that resolves to an array of row objects.
- */
-function readCsv(path: string): Promise<any[]> {
-  const rows: any[] = [];
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(path)
-      .pipe(csvParser())
-      .on("data", row => rows.push(row))
-      .on("end", () => resolve(rows))
-      .on("error", reject);
+export async function seedDatabase() {
+  console.log("Seeding database with data from functions/src/data.ts");
+
+  const batch = writeBatch(adminDb);
+
+  // ---------- Schools ----------
+  console.log("Seeding schools...");
+  schoolData.forEach((sch) => {
+    batch.set(doc(adminDb, 'schools', sch.id), sch);
   });
-}
 
-/**
- * Normalizes a row from the CSV file, trimming whitespace and setting defaults.
- * @param r - The raw row object from the CSV parser.
- * @returns A normalized row object.
- */
-function normalizeRow(r: any) {
-  return {
-    email:     (r.email     || "").trim().toLowerCase(),
-    name:      (r.name      || "").trim(),
-    role:      (r.role      || "teacher").trim().toLowerCase().replace(/\s+/g, "-"),
-    schoolId:  (r.schoolId  || "").trim(),
-    password:  (r.password  || "Welcome123!").trim()
-  };
-}
+  // ---------- Staff ----------
+  console.log("Seeding staff...");
+  staffData.forEach((st) => {
+    const { id, ...rest } = st;
+    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    batch.set(doc(adminDb, 'staff', id), data);
+  });
+  
+  // ---------- Library Books ----------
+  console.log("Seeding library books...");
+  libraryBooksData.forEach((bk) => {
+    const { id, ...rest } = bk;
+    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    batch.set(doc(adminDb, 'books', id), data);
+  });
 
-/**
- * Main seeding routine.
- * Iterates through CSV rows and seeds users into Firebase.
- * @param csvPath - The absolute path to the CSV file.
- */
-export async function seedUsersFromCsv(csvPath: string): Promise<void> {
-  console.log(`\n📥 Reading ${csvPath} …`);
-  if (!fs.existsSync(csvPath)) {
-    throw new Error(`CSV file not found at path: ${csvPath}`);
-  }
-  const rawRows = await readCsv(csvPath);
-  const rows = rawRows.map(normalizeRow).filter(r => r.email && r.schoolId);
-  console.log(`   → Found ${rows.length} valid rows to process\n`);
+  // ---------- Exam Results ----------
+  console.log("Seeding exam results...");
+  sampleExamResultsData.forEach((ex) => {
+    const { id, ...rest } = ex;
+    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    batch.set(doc(adminDb, 'examResults', id), data);
+  });
 
-  for (const r of rows) {
-    let user;
+  // ---------- Disciplinary Records ----------
+  console.log("Seeding disciplinary records...");
+  disciplinaryRecordsData.forEach((dr) => {
+    const { id, ...rest } = dr;
+    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    batch.set(doc(adminDb, 'disciplinary', id), data);
+  });
+
+  // ---------- Counselling Records ----------
+  console.log("Seeding counselling records...");
+  counsellingRecordsData.forEach((cr) => {
+    const { id, ...rest } = cr;
+    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    batch.set(doc(adminDb, 'counselling', cr.id), data);
+  });
+
+  // ---------- OHS Records ----------
+  console.log("Seeding OHS records...");
+  ohsRecordsData.forEach((or) => {
+    const { id, ...rest } = or;
+    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+    batch.set(doc(adminDb, 'ohs', id), data);
+  });
+  
+  // ---------- Users + Auth Claims ----------
+  console.log("Processing Auth users and Firestore user documents...");
+  for (const u of usersSeedData) {
+    batch.set(doc(adminDb, 'users', u.id), {
+      email: u.email,
+      displayName: u.displayName,
+      role: u.role,
+      schoolId: u.schoolId ?? null,
+    });
+
     try {
-      // 1. Check if user exists in Auth, if so update, otherwise create.
-      try {
-        user = await adminAuth.getUserByEmail(r.email);
-        await adminAuth.updateUser(user.uid, {
-          displayName: r.name,
-          password:     r.password
-        });
-        console.log(`📝 Updated Auth user  ${r.email}  (uid=${user.uid})`);
-      } catch (e: any) {
-        if (e.code === "auth/user-not-found") {
-          user = await adminAuth.createUser({
-            email:        r.email,
-            password:     r.password,
-            displayName:  r.name
-          });
-          console.log(`➕ Created Auth user  ${r.email}  (uid=${user.uid})`);
+        let userRecord = await adminAuth.getUserByEmail(u.email).catch(() => null);
+        if (!userRecord) {
+            userRecord = await adminAuth.createUser({ 
+                uid: u.id, 
+                email: u.email, 
+                displayName: u.displayName,
+                password: u.password,
+            });
+            console.log(`Created Auth user: ${u.email}`);
         } else {
-          throw e; // Rethrow other auth errors
+             console.log(`Auth user already exists: ${u.email}`);
         }
-      }
-
-      // 2. Set Custom Claims for Firebase Rules
-      await adminAuth.setCustomUserClaims(user.uid, { role: r.role, schoolId: r.schoolId });
-      
-      // 3. Slim top-level profile (optional but handy for rule checks)
-      await adminDb.collection("users").doc(user.uid).set(
-        {
-          email: r.email,
-          role:  r.role,
-          schoolId: r.schoolId
-        },
-        { merge: true }
-      );
-
-      // 4. Full profile under the school path
-      await adminDb.collection("schools").doc(r.schoolId)
-        .collection("users").doc(user.uid)
-        .set(
-          {
-            email:        r.email,
-            displayName:  r.name,
-            name: r.name, // Add name for consistency
-            role:         r.role,
-            schoolId:     r.schoolId,
-            status: 'active',
-            position: r.role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            tpfNumber: `TPF-${user.uid}`,
-            createdAt:    FieldValue.serverTimestamp(),
-            updatedAt:    FieldValue.serverTimestamp()
-          },
-          { merge: true }
-        );
-
-      console.log(`   🔹 Seeded /schools/${r.schoolId}/users/${user.uid}`);
-
-    } catch (err: any) {
-      console.error(`⚠️  Failed to process row for ${r.email}:`, err.message);
-      continue; // Continue to next row on error
+        // Set custom claims which are essential for security rules
+        await adminAuth.setCustomUserClaims(userRecord.uid, { role: u.role, schoolId: u.schoolId ?? null });
+        console.log(`Set custom claims for ${u.email}: role=${u.role}, schoolId=${u.schoolId ?? null}`);
+    } catch (error) {
+        console.error(`Error processing Auth user ${u.email}:`, error);
     }
   }
 
-  console.log("\n✅ All school users from CSV seeded.\n");
+  console.log("Committing all data to Firestore...");
+  await batch.commit();
+  console.log('Firestore data seeding complete!');
 }

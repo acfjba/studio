@@ -1,3 +1,4 @@
+
 // src/app/api/seed/route.ts
 import { NextResponse } from 'next/server';
 import { seedDatabase } from '../../../../functions/src/firebase/seed';
