@@ -25,6 +25,12 @@ const adminLinks: AdminLink[] = [
         description: "Generate and view reports."
     },
     {
+        href: "/dashboard/platform-management",
+        icon: UserCog,
+        title: "Platform Management",
+        description: "Manage the entire platform."
+    },
+    {
         href: "/dashboard/invite-teachers",
         icon: Users,
         title: "User Management",
@@ -70,24 +76,32 @@ const adminLinks: AdminLink[] = [
 
 const AdminCard = ({ link }: { link: AdminLink }) => {
   const Icon = link.icon;
+  const isCurrentPage = link.href === "/dashboard/platform-management";
+
   return (
-    <Card className="shadow-md hover:shadow-lg transition-shadow">
+    <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col">
       <CardHeader>
         <div className="flex items-start gap-4">
             <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
             <div>
                 <CardTitle className="font-headline text-lg">{link.title}</CardTitle>
-                <CardDescription>{link.description}</CardDescription>
             </div>
         </div>
       </CardHeader>
+      <CardContent className="flex-grow">
+         <p className="text-sm text-muted-foreground">{link.description}</p>
+      </CardContent>
       <CardContent>
-        <Link href={link.href}>
-          <Button variant="outline" className="w-full">
-            Go to {link.title}
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Button>
-        </Link>
+        {isCurrentPage ? (
+             <Button variant="secondary" className="w-full" disabled>Currently Viewing</Button>
+        ) : (
+            <Link href={link.href}>
+            <Button variant="outline" className="w-full">
+                Go to {link.title}
+                <ArrowRight className="ml-2 h-4 w-4" />
+            </Button>
+            </Link>
+        )}
       </CardContent>
     </Card>
   );
@@ -104,21 +118,6 @@ export function PlatformManagementClient() {
             {adminLinks.map(link => (
                 <AdminCard key={link.href} link={link} />
             ))}
-             <Card className="shadow-md hover:shadow-lg transition-shadow bg-primary text-primary-foreground">
-                <CardHeader>
-                    <div className="flex items-start gap-4">
-                        <UserCog className="h-6 w-6 flex-shrink-0 mt-1" />
-                        <div>
-                            <CardTitle className="font-headline text-lg">Platform Management</CardTitle>
-                            <CardDescription className="text-primary-foreground/80">Manage the entire platform.</CardDescription>
-                        </div>
-                    </div>
-                </CardHeader>
-                <CardContent>
-                    {/* This is the current page, so no link is needed */}
-                    <Button variant="secondary" className="w-full" disabled>Currently Viewing</Button>
-                </CardContent>
-            </Card>
         </div>
     </div>
   );
