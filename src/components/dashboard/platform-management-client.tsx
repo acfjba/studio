@@ -32,7 +32,7 @@ import { Input } from "@/components/ui/input";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { usersSeedData } from '@/lib/data';
+import { usersSeedData } from '@/data/users.json';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Separator } from '@/components/ui/separator';
 import { TooltipProvider, Tooltip as UiTooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
@@ -773,7 +773,7 @@ export function PlatformManagementClient() {
                         </Button>
                         <Button className="w-full" onClick={handleClearData} disabled={isManagingData} variant="destructive">
                            {isManagingData ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Trash2 className="mr-2 h-4 w-4" />}
-                           Clear All Data
+                           Clear All Data (Simulated)
                         </Button>
                     </CardContent>
                 </Card>
