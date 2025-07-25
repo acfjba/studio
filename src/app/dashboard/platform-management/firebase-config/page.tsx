@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -5,7 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from "@/components/ui/button";
 import { 
     CheckCircle, AlertTriangle, ExternalLink, Database, KeyRound, 
-    Loader2, Server, Code, DatabaseZap, Copy, TestTube2
+    Loader2, Server, Code, DatabaseZap, Copy, TestTube2, ListChecks
 } from "lucide-react";
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
@@ -17,9 +18,23 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { collection, doc, setDoc } from 'firebase/firestore';
 
+interface SeedReport {
+    users: string[];
+    schools: string[];
+    staff: string[];
+    inventory: string[];
+    examResults: string[];
+    libraryBooks: string[];
+    disciplinaryRecords: string[];
+    counsellingRecords: string[];
+    ohsRecords: string[];
+}
+
+
 export default function FirebaseConfigPage() {
     const [isSeeding, setIsSeeding] = useState(false);
     const [isTestingConnection, setIsTestingConnection] = useState(false);
+    const [seedReport, setSeedReport] = useState<SeedReport | null>(null);
     const { toast } = useToast();
 
     // State for connection keys
@@ -90,6 +105,7 @@ export default function FirebaseConfigPage() {
             return;
         }
         setIsSeeding(true);
+        setSeedReport(null);
         toast({ title: 'Database Seeding Started', description: 'This may take a moment...' });
         
         try {
@@ -101,6 +117,7 @@ export default function FirebaseConfigPage() {
             }
             
             toast({ title: 'Database Seeded Successfully!', description: 'Your database has been populated with sample data.' });
+            setSeedReport(data.report);
         } catch (error) {
             const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
             toast({ variant: 'destructive', title: 'Database Seeding Failed', description: errorMessage });
@@ -186,6 +203,26 @@ export default function FirebaseConfigPage() {
                             </Button>
                         </CardFooter>
                     </Card>
+                    
+                    {seedReport && (
+                        <Card>
+                             <CardHeader>
+                                <CardTitle className="flex items-center gap-2 font-headline">
+                                    <ListChecks className="w-5 h-5 text-primary" /> Seeding Report
+                                </CardTitle>
+                                <CardDescription>Summary of the data synchronization process.</CardDescription>
+                            </CardHeader>
+                            <CardContent className="space-y-2 text-sm">
+                                {Object.entries(seedReport).map(([key, value]) => (
+                                    <div key={key} className="flex justify-between items-center p-2 rounded-md bg-muted/50">
+                                        <span className="capitalize font-medium text-foreground">{key.replace(/([A-Z])/g, ' $1')}</span>
+                                        <span className="font-bold text-primary">{Array.isArray(value) ? value.length : 'N/A'} records</span>
+                                    </div>
+                                ))}
+                            </CardContent>
+                        </Card>
+                    )}
+
 
                     <Alert variant="destructive">
                         <AlertTitle>Important: One-Time Setup Required</AlertTitle>

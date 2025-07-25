@@ -15,8 +15,8 @@ export async function POST() {
   // }
 
   try {
-    await seedDatabase();
-    return NextResponse.json({ message: 'Database seeded successfully!' }, { status: 200 });
+    const report = await seedDatabase();
+    return NextResponse.json({ message: 'Database seeded successfully!', report }, { status: 200 });
   } catch (error) {
     console.error("Error during database seeding:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
