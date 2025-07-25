@@ -86,7 +86,7 @@ export default function UserManagementPage() {
             email: '',
             phone: '',
             role: 'teacher',
-            schoolId: '',
+            schoolId: 'none',
             password: '',
         }
     });
@@ -242,7 +242,7 @@ export default function UserManagementPage() {
                                                     <Select onValueChange={field.onChange} value={field.value}>
                                                         <SelectTrigger id="schoolId"><SelectValue placeholder="Select a school (if not System Admin)" /></SelectTrigger>
                                                         <SelectContent>
-                                                          <SelectItem value="">N/A (for System Admin)</SelectItem>
+                                                          <SelectItem value="none">N/A (for System Admin)</SelectItem>
                                                           {schools.map(school => <SelectItem key={school.id} value={school.id}>{school.name} ({school.id})</SelectItem>)}
                                                         </SelectContent>
                                                     </Select>
