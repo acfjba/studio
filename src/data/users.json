@@ -1,0 +1,67 @@
+
+[
+  {
+    "id": "user_sysadmin_global",
+    "email": "systemadmin@example.com",
+    "password": "adminpassword",
+    "displayName": "System Admin",
+    "role": "system-admin",
+    "schoolId": null
+  },
+  {
+    "id": "user_primaryadmin_3046",
+    "email": "primaryadmin@example.com",
+    "password": "password",
+    "displayName": "Primary Admin (Vuda)",
+    "role": "primary-admin",
+    "schoolId": "3046"
+  },
+  {
+    "id": "user_headteacher_3046",
+    "email": "headteacher@example.com",
+    "password": "password",
+    "displayName": "Head Teacher (Vuda)",
+    "role": "head-teacher",
+    "schoolId": "3046"
+  },
+  {
+    "id": "user_assthead_3046",
+    "email": "asst.head@example.com",
+    "password": "password",
+    "displayName": "Assistant Head Teacher (Vuda)",
+    "role": "assistant-head-teacher",
+    "schoolId": "3046"
+  },
+  {
+    "id": "user_teacher_3046",
+    "email": "teacher@example.com",
+    "password": "password",
+    "displayName": "Teacher (Vuda)",
+    "role": "teacher",
+    "schoolId": "3046"
+  },
+  {
+    "id": "user_librarian_3046",
+    "email": "librarian@example.com",
+    "password": "password",
+    "displayName": "Librarian (Vuda)",
+    "role": "librarian",
+    "schoolId": "3046"
+  },
+  {
+    "id": "user_kindergarten_3046",
+    "email": "kindergarten@example.com",
+    "password": "password",
+    "displayName": "Kindergarten Teacher (Vuda)",
+    "role": "kindergarten",
+    "schoolId": "3046"
+  },
+  {
+    "id": "user_headteacher_suva",
+    "email": "headteacher.suva@example.com",
+    "password": "password",
+    "displayName": "Head Teacher (Suva)",
+    "role": "head-teacher",
+    "schoolId": "SCH-001"
+  }
+]
