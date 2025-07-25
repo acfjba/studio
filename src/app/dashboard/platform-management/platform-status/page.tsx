@@ -1,7 +1,7 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, Cell } from 'recharts';
@@ -76,32 +76,33 @@ export default function PlatformStatusPage() {
     const [isLoading, setIsLoading] = useState(true);
     const { toast } = useToast();
 
-    useEffect(() => {
-        const loadData = async () => {
-            setIsLoading(true);
-            try {
-                const schools = await fetchSchoolsFromFirestore();
-                if (schools.length > 0) {
-                    const data = await fetchSchoolStatuses(schools);
-                    setSchoolStatuses(data);
-                } else {
-                    setSchoolStatuses([]);
-                }
-            } catch (error) {
-                toast({
-                    variant: "destructive",
-                    title: "Error fetching data",
-                    description: "Could not load school status information."
-                });
-            } finally {
-                setIsLoading(false);
+    const loadData = useCallback(async () => {
+        setIsLoading(true);
+        try {
+            const schools = await fetchSchoolsFromFirestore();
+            if (schools.length > 0) {
+                const data = await fetchSchoolStatuses(schools);
+                setSchoolStatuses(data);
+            } else {
+                setSchoolStatuses([]);
             }
-        };
+        } catch (error) {
+            toast({
+                variant: "destructive",
+                title: "Error fetching data",
+                description: "Could not load school status information."
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    }, [toast]);
+
+    useEffect(() => {
         loadData();
 
         const interval = setInterval(loadData, 30000); // Refresh every 30 seconds
         return () => clearInterval(interval);
-    }, [toast]);
+    }, [loadData]);
 
     const latencyChartData = schoolStatuses
         .filter(s => s.status !== 'Disconnected')
@@ -170,7 +171,7 @@ export default function PlatformStatusPage() {
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip
-                                    formatter={(value) => `${value}ms`}
+                                    formatter={(value: any) => `${value}ms`}
                                     cursor={{fill: 'hsla(var(--muted), 0.5)'}}
                                 />
                                 <Bar dataKey="latency" name="Latency (ms)" >

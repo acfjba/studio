@@ -42,6 +42,7 @@ import {
     Database,
     FolderArchive,
     UserPlus,
+    Wifi,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -82,6 +83,7 @@ const platformLinks = [
     { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
     { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage schools, users, and settings.', roles: ['system-admin'] },
     { href: '/dashboard/user-management', icon: UserPlus, label: 'Invite & Manage Users', description: 'Invite new users to the platform.', roles: ['system-admin'] },
+    { href: '/dashboard/platform-management/platform-status', icon: Wifi, label: 'Platform Status', description: 'Monitor school connectivity and latency.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
     { href: '/dashboard/history', icon: History, label: 'My Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
 ];

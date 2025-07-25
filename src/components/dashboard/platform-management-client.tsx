@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { 
-    BarChart2, UserCog, Users, Building, Database, Settings, Bot, History, ArrowRight
+    BarChart2, UserCog, Users, Building, Database, Settings, Bot, History, ArrowRight, Wifi
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -31,9 +31,9 @@ const adminLinks: AdminLink[] = [
         description: "Manage the entire platform."
     },
     {
-        href: "/dashboard/invite-teachers",
+        href: "/dashboard/user-management",
         icon: Users,
-        title: "User Management",
+        title: "Invite & Manage Users",
         description: "Invite users and manage roles."
     },
     {
@@ -47,6 +47,12 @@ const adminLinks: AdminLink[] = [
         icon: Database,
         title: "Firebase Config",
         description: "View Firebase status and manage data."
+    },
+    {
+        href: "/dashboard/platform-management/platform-status",
+        icon: Wifi,
+        title: "Platform Status",
+        description: "Monitor school connectivity & latency."
     },
     {
         href: "/dashboard/platform-management/app-settings",
