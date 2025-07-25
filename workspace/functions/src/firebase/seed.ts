@@ -26,7 +26,7 @@ export async function seedDatabase() {
       
       let userRecord;
       try {
-        userRecord = await adminAuth.getUserByEmail(email);
+        userRecord = await adminAuth.getUser(id);
         // User exists, update them
         await adminAuth.updateUser(userRecord.uid, {
           email: email,
@@ -65,7 +65,7 @@ export async function seedDatabase() {
       };
       // Use a batch or individual set for simplicity here
       await adminDb.collection("users").doc(id).set(userDocPayload);
-      console.log(`Set Firestore document for user: ${id}`);
+      console.log(`Set Firestore document for user: ${id} in collection 'users'`);
 
     } catch (error) {
       console.error(`Error processing user ${u.email}:`, error);
