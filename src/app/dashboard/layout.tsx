@@ -23,7 +23,7 @@ export default function DashboardLayout({
       // We can check local storage as a fallback for the demo.
       const role = localStorage.getItem('userRole');
       if (!role) {
-        router.push('/login');
+        router.push('/');
       } else {
         setIsAuthLoaded(true);
       }
@@ -40,7 +40,7 @@ export default function DashboardLayout({
         // Also check localStorage as a fallback for the demo login system.
         const role = localStorage.getItem('userRole');
         if (!role) {
-            router.push('/login');
+            router.push('/');
         } else {
             // This allows the demo login to work without real Firebase Auth sign-in
             setIsAuthLoaded(true);

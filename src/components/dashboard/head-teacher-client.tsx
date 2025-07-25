@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -858,7 +857,7 @@ export function HeadTeacherClient() {
         className="w-64 bg-background border-r p-6 flex-col shadow-lg fixed inset-y-0 left-0 print:hidden hidden md:flex" 
       >
         <div className="mb-4 text-center flex items-center justify-center gap-2">
-           <Link href="/dashboard/profile" passHref>
+           <Link href="/dashboard" passHref>
              <Button variant="ghost" className="h-auto p-1">
                 <ArrowLeft className="h-5 w-5 text-muted-foreground"/>
              </Button>
@@ -873,15 +872,15 @@ export function HeadTeacherClient() {
         </nav>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link href="/dashboard/profile">
+            <Link href="/dashboard">
               <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary mb-2 p-3">
                 <Home size={18} className="mr-2" />
-                Return to My Profile
+                Return to Dashboard
               </Button>
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Go back to your user profile page.</p>
+            <p>Go back to the main user dashboard.</p>
           </TooltipContent>
         </Tooltip>
         <Button 
