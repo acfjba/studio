@@ -32,7 +32,7 @@ export default function FirebaseConfigPage() {
         storageBucket: '',
         messagingSenderId: '',
         appId: '',
-        databaseId: '(default)',
+        databaseId: '',
         geminiApiKey: ''
     });
 
@@ -45,7 +45,7 @@ export default function FirebaseConfigPage() {
             storageBucket: firebaseConfig.storageBucket || 'Not Set',
             messagingSenderId: firebaseConfig.messagingSenderId || 'Not Set',
             appId: firebaseConfig.appId || 'Not Set',
-            databaseId: '(default)',
+            databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || '(default)',
             geminiApiKey: geminiKey ? `${geminiKey.substring(0, 4)}...${geminiKey.slice(-4)}` : 'Not Set',
         });
     }, []);
