@@ -37,7 +37,7 @@ export default function FirebaseConfigPage() {
     });
 
     useEffect(() => {
-        const geminiKey = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+        const geminiKey = process.env.GEMINI_API_KEY; // Correctly reads from server-side env in build
         setConnectionKeys({
             apiKey: firebaseConfig.apiKey || 'Not Set',
             authDomain: firebaseConfig.authDomain || 'Not Set',
