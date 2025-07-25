@@ -1,7 +1,7 @@
 
 // functions/src/firebase/seed.ts
 import { doc } from 'firebase/firestore';
-import { adminDb, adminAuth } from './admin';
+import { adminDb, adminAuth, projectId } from './admin';
 import { 
   usersSeedData, 
   schoolData, 
@@ -20,7 +20,7 @@ import {
  * them if they don't exist, ensuring Auth and Firestore are in sync.
  */
 export async function seedDatabase() {
-  console.log("Starting database seed process...");
+  console.log(`Starting database seed process for project: ${projectId || 'Default Project'}...`);
 
   // --- Users + Auth Claims ---
   if (!usersSeedData || usersSeedData.length === 0) {
@@ -97,14 +97,12 @@ export async function seedDatabase() {
   ];
 
   for (const collection of collectionsToSeed) {
-    if (collection.data && Array.isArray(collection.data) && collection.data.length > 0) {
+    if (collection.data.length > 0) {
       console.log(`Seeding ${collection.name}...`);
       const batch = adminDb.batch();
       collection.data.forEach((item: any) => {
-        if (item.id) {
-          const docRef = doc(adminDb, collection.name, item.id);
-          batch.set(docRef, item);
-        }
+        const docRef = doc(adminDb, collection.name, item.id);
+        batch.set(docRef, item);
       });
       await batch.commit();
       console.log(`✅ Seeded ${collection.data.length} documents into ${collection.name}.`);
