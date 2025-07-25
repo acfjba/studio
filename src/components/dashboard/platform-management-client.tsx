@@ -199,7 +199,6 @@ export function PlatformManagementClient() {
   const fetchDataSimulator = useCallback(async () => {
     setIsLoading(true);
     
-    // Initialize permission groups here to ensure usersSeedData is available
     const initialPermissionGroups: PermissionGroup[] = [
       {
         id: 'group_hod',
