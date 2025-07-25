@@ -1,6 +1,6 @@
 // functions/src/firebase/admin.ts
 import admin from 'firebase-admin';
-import { type ServiceAccount } from 'firebase-admin';
+import type { ServiceAccount } from 'firebase-admin';
 import fs from 'fs';
 import path from 'path';
 
@@ -12,9 +12,9 @@ import path from 'path';
 if (!admin.apps.length) {
   try {
     // Check if the serviceAccountKey.json file exists for local development
-    const serviceAccountPath = path.resolve(process.cwd(), 'serviceAccountKey.json');
+    const serviceAccountPath = path.join(process.cwd(), 'serviceAccountKey.json');
     if (fs.existsSync(serviceAccountPath)) {
-        const serviceAccount = require(serviceAccountPath) as ServiceAccount;
+        const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, 'utf8')) as ServiceAccount;
         admin.initializeApp({
             credential: admin.credential.cert(serviceAccount)
         });
