@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect } from 'react';
@@ -26,23 +27,24 @@ interface TeacherDetails {
   email?: string;
 }
 
+// Fetch teacher details from the 'staff' collection
 async function fetchTeacherDetailsFromBackend(teacherId: string): Promise<TeacherDetails | null> {
     if (!db) throw new Error("Firestore is not configured.");
-    const userDocRef = doc(db, 'users', teacherId);
-    const userDocSnap = await getDoc(userDocRef);
+    const staffDocRef = doc(db, 'staff', teacherId);
+    const staffDocSnap = await getDoc(staffDocRef);
 
-    if (userDocSnap.exists()) {
-        const userData = userDocSnap.data();
+    if (staffDocSnap.exists()) {
+        const staffData = staffDocSnap.data();
         const rateableRoles = ["teacher", "head-teacher", "assistant-head-teacher"];
-        if (rateableRoles.includes(userData.role?.toLowerCase())) {
+        if (rateableRoles.includes(staffData.role?.toLowerCase())) {
             return {
-                id: userDocSnap.id,
-                name: userData.displayName,
-                position: userData.role.replace('-', ' ').replace(/\b\w/g, (l: string) => l.toUpperCase()),
+                id: staffDocSnap.id,
+                name: staffData.name,
+                position: staffData.position,
                 avatar: `https://placehold.co/120x120.png`,
                 dataAiHint: "teacher portrait",
-                schoolId: userData.schoolId,
-                email: userData.email,
+                schoolId: staffData.schoolId,
+                email: staffData.email,
             };
         }
     }

@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useMemo, useEffect, useCallback } from 'react';
@@ -15,14 +16,15 @@ import {
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from '@/components/ui/skeleton';
-import { staffData } from '@/lib/data';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { getAuth, signOut } from 'firebase/auth';
-import { isFirebaseConfigured } from '@/lib/firebase/config';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { collection, getDocs, query, where } from 'firebase/firestore';
+
 
 type TabName = 'overview' | 'pending' | 'reports' | 'assessment';
 type TaskStatus = 'Submitted' | 'Accepted' | 'Review' | 'Rejected' | 'Draft';
@@ -92,6 +94,17 @@ async function saveTeacherAssessmentToBackend(teacherId: string, data: TeacherAs
     return { success: true };
 }
 
+async function fetchTeachersForSchoolFromFirestore(schoolId: string): Promise<Teacher[]> {
+    if (!db) throw new Error("Firestore is not configured.");
+    const staffCollection = collection(db, 'staff');
+    const q = query(staffCollection, where("schoolId", "==", schoolId), where("role", "in", ["teacher", "assistant-head-teacher"]));
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map(doc => {
+      const staff = doc.data();
+      return { id: doc.id, name: staff.name };
+    });
+}
+
 
 export function HeadTeacherClient() {
   const [activeTab, setActiveTab] = useState<TabName>('overview');
@@ -114,33 +127,19 @@ export function HeadTeacherClient() {
 
   const loadData = useCallback(async () => {
     if (schoolId === undefined) return;
+    if (!schoolId) {
+        setFetchError("Your account is not assigned to a school. Please contact an admin.");
+        setIsLoading(false);
+        return;
+    }
     
     setIsLoading(true);
     setFetchError(null);
     try {
-      // Simulate fetching all teachers for the school
-      let teachersForSchool: Teacher[] = [];
-      if (schoolId) {
-          teachersForSchool = staffData
-            .filter(staff => staff.schoolId === schoolId && (staff.role.toLowerCase() === 'teacher' || staff.role.toLowerCase() === 'assistant-head-teacher'))
-            .map(staff => ({ id: staff.id, name: staff.name }));
-      }
-
-      // If no teachers found for the current school, show some mock data as a fallback for demonstration purposes.
-      if (teachersForSchool.length === 0) {
-        toast({
-          title: "Showing Mock Data",
-          description: "No teachers found for your current context. Displaying sample data.",
-        });
-        teachersForSchool = staffData
-          .filter(staff => staff.schoolId === 'SCH-001' && (staff.role.toLowerCase() === 'teacher' || staff.role.toLowerCase() === 'assistant-head-teacher'))
-          .slice(0, 5) // Show up to 5 mock teachers
-          .map(staff => ({ id: staff.id, name: staff.name }));
-      }
+      let teachersForSchool = await fetchTeachersForSchoolFromFirestore(schoolId);
       
       setAllTeachers(teachersForSchool);
       
-      // Simulate fetching tasks
       const fetchedTasks = await fetchSchoolTasksFromBackend(schoolId || undefined);
       setAllSchoolTasks(fetchedTasks);
 
@@ -874,15 +873,15 @@ export function HeadTeacherClient() {
         </nav>
         <Tooltip>
           <TooltipTrigger asChild>
-            <Link href="/dashboard">
+            <Link href="/dashboard/profile">
               <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary mb-2 p-3">
                 <Home size={18} className="mr-2" />
-                Return to Dashboard
+                Return to My Profile
               </Button>
             </Link>
           </TooltipTrigger>
           <TooltipContent side="right">
-            <p>Go back to the main user dashboard.</p>
+            <p>Go back to your user profile page.</p>
           </TooltipContent>
         </Tooltip>
         <Button 

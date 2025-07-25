@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -26,7 +27,7 @@ interface Teacher {
   role: string;
 }
 
-// SIMULATED BACKEND FETCH using the central seed file
+// Fetch teachers from the 'staff' collection
 async function fetchTeachersFromBackend(schoolId: string): Promise<Teacher[]> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollection = collection(db, 'staff');
@@ -35,7 +36,7 @@ async function fetchTeachersFromBackend(schoolId: string): Promise<Teacher[]> {
     return snapshot.docs.map(doc => {
       const staff = doc.data();
       return {
-            id: staff.userId,
+            id: doc.id, // Using the document ID from staff collection
             name: staff.name,
             position: staff.position,
             avatar: `https://placehold.co/80x80.png`,
