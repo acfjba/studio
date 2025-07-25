@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, HelpCircle, Building } from "lucide-react";
+import { Users, History as HistoryIcon, Info, UploadCloud, ClipboardList, HelpCircle, Building, UserCog } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -33,7 +33,7 @@ export default function DashboardPage() {
     return () => clearInterval(timer);
   }, []);
 
-  const isAdmin = userRole === 'head-teacher' || userRole === 'primary-admin' || userRole === 'system-admin';
+  const isAdmin = userRole === 'system-admin';
 
   return (
     <TooltipProvider>
@@ -94,6 +94,7 @@ export default function DashboardPage() {
                 <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg">
                   <CardHeader>
                     <CardTitle className="font-headline text-xl text-primary flex items-center">
+                      <UserCog className="mr-2 h-6 w-6" />
                       Admin Dashboard
                     </CardTitle>
                   </CardHeader>
@@ -101,7 +102,7 @@ export default function DashboardPage() {
                     <CardDescription className="font-body mb-4">
                       Access your specific admin dashboard for management tasks.
                     </CardDescription>
-                    <Link href={userRole === 'system-admin' ? '/dashboard/platform-management' : userRole === 'primary-admin' ? '/dashboard/primary-admin' : '/dashboard/head-teacher'} passHref>
+                    <Link href={'/dashboard/platform-management'} passHref>
                       <Button className="w-full">
                         Go to Admin Dashboard
                       </Button>
