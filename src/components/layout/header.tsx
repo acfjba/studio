@@ -11,15 +11,13 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
-  navigationMenuTriggerStyle,
 } from '@/components/ui/navigation-menu';
 import { Button } from '@/components/ui/button';
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
   PanelLeft,
   Search,
   School,
-  Briefcase,
   GraduationCap,
   FileText,
   HeartHandshake,
@@ -31,18 +29,10 @@ import {
   BarChart2,
   UserCog,
   Bot,
-  Settings,
-  LayoutGrid,
-  History,
-  UploadCloud,
   ClipboardList,
   Gavel,
   BookOpen,
-    Building,
-    Database,
-    FolderArchive,
-    UserPlus,
-    Wifi,
+  Wifi,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -50,8 +40,8 @@ import { cn } from '@/lib/utils';
 
 const dashboardLinks = [
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage all school operations.', roles: ['primary-admin', 'system-admin'] },
-  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee teacher submissions and reports.', roles: ['head-teacher', 'assistant-head-teacher', 'system-admin'] },
-  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Access all essential teaching modules.', roles: ['teacher', 'kindergarten'] },
+  { href: '/dashboard/head-teacher', icon: GraduationCap, label: 'Head Teacher', description: 'Oversee teacher submissions and reports.', roles: ['head-teacher', 'assistant-head-teacher', 'system-admin', 'primary-admin'] },
+  { href: '/dashboard/teacher-panel', icon: Users, label: 'Teacher Panel', description: 'Access all essential teaching modules.', roles: ['teacher', 'kindergarten'] },
 ];
 
 const academicLinks = [
@@ -74,38 +64,24 @@ const operationsLinks = [
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin', 'teacher', 'primary-admin', 'assistant-head-teacher', 'kindergarten'] },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-  { href: '/dashboard/document-vault', icon: FolderArchive, label: 'Document Vault', description: 'Access your saved documents.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten']},
+  { href: '/dashboard/document-vault', icon: FileText, label: 'Document Vault', description: 'Access your saved documents.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten']},
 ];
 
 const platformLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/summarization', icon: FileText, label: 'AI Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
-    { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage schools, users, and settings.', roles: ['system-admin'] },
-    { href: '/dashboard/user-management', icon: UserPlus, label: 'Invite & Manage Users', description: 'Invite new users to the platform.', roles: ['system-admin'] },
-    { href: '/dashboard/platform-management/platform-status', icon: Wifi, label: 'Platform Status', description: 'Monitor school connectivity and latency.', roles: ['system-admin'] },
+    { href: '/dashboard/summarization', icon: Bot, label: 'AI Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
-    { href: '/dashboard/history', icon: History, label: 'My Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-];
-
-const allLinks = [
-    ...dashboardLinks.map(l => ({...l, category: "Dashboards"})),
-    ...academicLinks.map(l => ({...l, category: "Academics"})),
-    ...studentServicesLinks.map(l => ({...l, category: "Student Services"})),
-    ...operationsLinks.map(l => ({...l, category: "Operations"})),
-    ...platformLinks.map(l => ({...l, category: "Platform"})),
 ];
 
 const navMenuConfig = [
-  { name: 'Dashboards', links: dashboardLinks, roles: ['primary-admin', 'system-admin', 'head-teacher', 'assistant-head-teacher', 'teacher', 'kindergarten'] },
-  { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
-  { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
-  { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-  { name: 'Platform', links: platformLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
+  { name: 'Dashboards', links: dashboardLinks },
+  { name: 'Academics', links: academicLinks },
+  { name: 'Student Services', links: studentServicesLinks },
+  { name: 'Operations', links: operationsLinks },
+  { name: 'Platform', links: platformLinks },
 ];
 
 export function Header() {
-  const pathname = usePathname();
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
 
@@ -117,9 +93,10 @@ export function Header() {
     }
   }, []);
 
-  const hasAccess = (allowedRoles: string[]) => {
+  const hasAccess = (allowedRoles?: string[]) => {
     if (!userRole) return false;
-    if (userRole === 'system-admin') return true; // System admin has access to everything
+    if (userRole === 'system-admin') return true;
+    if (!allowedRoles) return true; // if no roles are specified, everyone has access
     return allowedRoles.includes(userRole);
   };
   
@@ -134,14 +111,17 @@ export function Header() {
     );
   }
 
-  const accessibleNavMenus = navMenuConfig.filter(menu => {
-    const hasLinksWithAccess = menu.links.some(link => hasAccess(link.roles));
-    return hasLinksWithAccess;
-  });
-  const accessibleMobileLinks = allLinks.filter(link => hasAccess(link.roles));
+  const accessibleNavMenus = navMenuConfig
+    .map(menu => ({
+      ...menu,
+      links: menu.links.filter(link => hasAccess(link.roles)),
+    }))
+    .filter(menu => menu.links.length > 0);
+
+  const allAccessibleLinks = accessibleNavMenus.flatMap(menu => menu.links);
 
   return (
-    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
+    <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 print:hidden">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
         <Link href="/dashboard/profile" className="flex items-center gap-2 text-lg font-semibold md:text-base">
           <School className="h-6 w-6 text-primary" />
@@ -154,7 +134,7 @@ export function Header() {
                     <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
                     <NavigationMenuContent>
                         <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                            {menu.links.filter(link => hasAccess(link.roles)).map((component) => (
+                            {menu.links.map((component) => (
                                 <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
                                     {component.description}
                                 </ListItem>
@@ -174,16 +154,12 @@ export function Header() {
           </Button>
         </SheetTrigger>
         <SheetContent side="left">
-           <SheetHeader>
-            <SheetTitle className="sr-only">Mobile Navigation Menu</SheetTitle>
-            <SheetDescription className="sr-only">A list of links to navigate the application.</SheetDescription>
-          </SheetHeader>
           <nav className="grid gap-6 text-lg font-medium">
             <Link href="/dashboard/profile" className="flex items-center gap-2 text-lg font-semibold">
               <School className="h-6 w-6 text-primary" />
-              <span className="sr-only">School Data Insights</span>
+              <span className="font-bold">School Data Insights</span>
             </Link>
-            {accessibleMobileLinks.map((item) => (
+            {allAccessibleLinks.map((item) => (
                  <Link key={item.label} href={item.href} className="text-muted-foreground hover:text-foreground">
                     {item.label}
                  </Link>

@@ -4,7 +4,7 @@
 import React from 'react';
 import { useForm, Controller, type SubmitHandler } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import type { LessonPlanFormData } from "@/lib/schemas/lesson-planner";
+import type { LessonPlanFormData, LessonPlan } from "@/lib/schemas/lesson-planner";
 import { LessonPlanSchema } from "@/lib/schemas/lesson-planner";
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
@@ -13,14 +13,36 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Save, Printer, Download, Mail } from "lucide-react";
+import { Save, Printer, Download, Mail, Loader2, AlertTriangle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import { useState, useEffect } from 'react';
 
 const terms = ["1", "2", "3", "4"];
 const weeks = Array.from({ length: 14 }, (_, i) => (i + 1).toString());
 
+
+async function saveLessonPlanToFirestore(data: LessonPlanFormData): Promise<LessonPlan> {
+    if (!db) throw new Error("Firestore not configured.");
+    const collectionRef = collection(db, 'lessonPlans');
+    const dataToAdd = { ...data, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+    const docRef = await addDoc(collectionRef, dataToAdd);
+    return { ...data, id: docRef.id, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+}
+
+
 export default function LessonPlannerPage() {
     const { toast } = useToast();
+    const [schoolId, setSchoolId] = useState<string|null>(null);
+    const [userId, setUserId] = useState<string|null>(null);
+    
+    useEffect(() => {
+        setSchoolId(localStorage.getItem('schoolId'));
+        // In a real app, you'd get the user ID from the auth state.
+        setUserId(localStorage.getItem('userId') || 'teacher_placeholder_id');
+    }, []);
+
     const { 
         register, 
         handleSubmit, 
@@ -42,12 +64,27 @@ export default function LessonPlannerPage() {
     });
 
     const onSubmitHandler: SubmitHandler<LessonPlanFormData> = async (data) => {
-        console.log("Submitting Lesson Plan (Simulated):", data);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        toast({
-            title: "Lesson Plan Saved (Simulated)",
-            description: `Your lesson plan for ${data.subject} - Week ${data.week} has been saved.`,
-        });
+        if (!isFirebaseConfigured) {
+            toast({ variant: "destructive", title: "Action Disabled", description: "Cannot save because Firebase is not configured." });
+            return;
+        }
+
+        const dataWithIds: LessonPlanFormData = {
+            ...data,
+            schoolId: schoolId || undefined,
+            teacherId: userId || undefined,
+        };
+        
+        try {
+            await saveLessonPlanToFirestore(dataWithIds);
+            toast({
+                title: "Lesson Plan Saved",
+                description: `Your lesson plan for ${data.subject} - Week ${data.week} has been saved to the database.`,
+            });
+        } catch(e) {
+            console.error(e);
+            toast({ variant: 'destructive', title: "Save Failed", description: "Could not save lesson plan."})
+        }
     };
 
     const handleEmailPlan = () => {
@@ -96,6 +133,20 @@ export default function LessonPlannerPage() {
                 title="Lesson Planner"
                 description="Create a detailed lesson plan for a specific subject and week."
             />
+            {!isFirebaseConfigured && (
+                <Card className="bg-amber-50 border-amber-300">
+                    <CardHeader>
+                        <CardTitle className="font-headline text-amber-800 flex items-center">
+                            <AlertTriangle className="mr-2 h-5 w-5" /> Simulation Mode Active
+                        </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-amber-700">
+                            Firebase is not configured. This page is in read-only mode and cannot load or save data.
+                        </p>
+                    </CardContent>
+                </Card>
+            )}
             <Card className="shadow-xl rounded-lg w-full max-w-4xl mx-auto">
                 <CardContent className="pt-6">
                     <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-6">
@@ -178,8 +229,8 @@ export default function LessonPlannerPage() {
                             <Button variant="outline" type="button" onClick={handleEmailPlan} disabled={isSubmitting}>
                                 <Mail className="mr-2 h-4 w-4" /> Email Plan
                             </Button>
-                            <Button type="submit" disabled={isSubmitting}>
-                                <Save className="mr-2 h-5 w-5" />
+                            <Button type="submit" disabled={isSubmitting || !isFirebaseConfigured}>
+                               {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Save className="mr-2 h-5 w-5" />}
                                 {isSubmitting ? "Saving..." : "Save Lesson Plan"}
                             </Button>
                         </div>

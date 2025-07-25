@@ -9,7 +9,7 @@ import {
     ArrowRight, BookOpenText, CheckCircle, Home, Library, ShieldCheck, Star, UserCheck, Users, 
     BarChart3, Bell, FileText, UserCog, Settings2, DatabaseZap, GraduationCap, ClipboardList, 
     HeartHandshake, Gavel, Printer, Download, FileSpreadsheet,
-    ShieldAlert, Boxes, Building2
+    ShieldAlert, Boxes, Building2, Wand2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,19 +27,54 @@ export default function PresentationPage() {
     return (
         <div className="font-body bg-background">
              <nav className="fixed top-0 left-0 w-full bg-primary/90 backdrop-blur-sm z-10 p-4 flex justify-between items-center shadow-lg">
-                <h1 className="text-xl font-headline font-bold text-primary-foreground">App Presentation</h1>
+                <h1 className="text-xl font-headline font-bold text-primary-foreground">School Data Insights</h1>
                 <Link href="/" passHref>
                     <Button variant="outline" className="bg-accent text-accent-foreground hover:bg-accent/90 border-accent">
-                        <Home className="mr-2 h-4 w-4" /> Back to Home
+                        <Home className="mr-2 h-4 w-4" /> Back to App Login
                     </Button>
                 </Link>
             </nav>
             <div className="snap-y snap-mandatory h-screen overflow-y-scroll">
                 <Slide>
                     <div className="text-center">
-                        <h1 className="text-6xl font-headline font-bold text-primary mb-4">Digital Platform for Schools</h1>
-                        <p className="text-2xl text-foreground">Empowering School Management with Modern, Efficient Tools.</p>
-                        <p className="text-muted-foreground mt-4">A Comprehensive Solution for Fijian Schools</p>
+                        <h1 className="text-6xl font-headline font-bold text-primary mb-4">School Data Insights</h1>
+                        <p className="text-2xl text-foreground">AI-Powered School Management for the Modern Era.</p>
+                        <p className="text-muted-foreground mt-4">A Comprehensive, Data-Driven Solution for Fijian Schools</p>
+                    </div>
+                </Slide>
+                
+                <Slide>
+                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Core Features</h2>
+                     <p className="text-lg text-foreground mb-8 text-center max-w-3xl mx-auto">An integrated platform that provides tools for every role, from teachers to system administrators, ensuring efficient data management and insightful analytics.</p>
+                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
+                        <div className="flex items-start">
+                            <Wand2 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">AI-Powered Tools</p>
+                                <p className="text-muted-foreground text-sm">Leverage generative AI to summarize documents, forecast inventory needs, and generate complete, standards-aligned lesson plans, saving valuable time for educators and administrators.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Interactive Dashboards</p>
+                                <p className="text-muted-foreground text-sm">Visualize key metrics with role-based dashboards. Monitor academic performance, inventory levels, and KPI reports in an intuitive, easy-to-understand format for data-driven decision making.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Advanced Search & Filtering</p>
+                                <p className="text-muted-foreground text-sm">Quickly find the information you need with powerful search and filtering capabilities across all modules, including contacts, staff records, and inventory management.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <ShieldCheck className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Secure Access Control</p>
+                                <p className="text-muted-foreground text-sm">Implement a secure, role-based access control system to ensure only authorized users can access sensitive data like API keys, counselling notes, and staff records, maintaining privacy and security.</p>
+                            </div>
+                        </div>
                     </div>
                 </Slide>
 
@@ -64,7 +99,7 @@ export default function PresentationPage() {
                         <div className="flex items-start">
                             <ShieldAlert className="h-7 w-7 text-primary mr-4 mt-1 shrink-0" />
                             <div>
-                                <p className="font-semibold">Health &amp; Safety Reporting</p>
+                                <p className="font-semibold">Health & Safety Reporting</p>
                                 <p className="text-muted-foreground text-sm">Conduct and log daily classroom **Health Inspections** and report any **OHS Incidents** immediately using dedicated, easy-to-use forms. This proactive approach helps maintain a safe and healthy school environment for both students and staff.</p>
                             </div>
                         </div>
@@ -174,7 +209,7 @@ export default function PresentationPage() {
                             </div>
                         </div>
                         <div className="flex items-start">
-                            <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <Wand2 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">AI-Powered Forecasting</p>
                                 <p className="text-muted-foreground text-sm">Leverage the power of AI to analyze historical inventory data. The system can forecast future needs for consumables, provide intelligent reorder recommendations, and estimate potential cost savings from proactive management, helping to optimize purchasing and reduce waste.</p>
@@ -219,7 +254,7 @@ export default function PresentationPage() {
                 </Slide>
 
                 <Slide>
-                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Data Management &amp; Reporting</h2>
+                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Data Management & Reporting</h2>
                     <p className="text-lg text-foreground mb-8 text-center">Robust, standardized tools for data handling, printing, and exporting are integrated across all modules to ensure your data is always accessible and usable.</p>
                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
