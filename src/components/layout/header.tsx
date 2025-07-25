@@ -47,51 +47,47 @@ import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
 
-const managementLinks = [
-  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee all school-level tasks.', roles: ['head-teacher', 'system-admin', 'assistant-head-teacher', 'primary-admin'] },
-  { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire school platform.', roles: ['primary-admin', 'system-admin'] },
-  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Quick access to all teacher modules.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
+const dashboardLinks = [
+  { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage all school operations.', roles: ['primary-admin', 'system-admin'] },
+  { href: '/dashboard/head-teacher', icon: Briefcase, label: 'Head Teacher', description: 'Oversee teacher submissions and reports.', roles: ['head-teacher', 'assistant-head-teacher', 'system-admin'] },
+  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Teacher Panel', description: 'Access all essential teaching modules.', roles: ['teacher', 'kindergarten'] },
 ];
+
 const academicLinks = [
-  { href: '/dashboard/summarization', icon: FileText, label: 'Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-  { href: '/dashboard/teacher-panel', icon: GraduationCap, label: 'Academics', description: 'Manage lesson plans & inventory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
+  { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics Hub', description: 'Manage lesson plans & inventory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'AI Workbook Plan', description: 'Generate lesson plans with AI.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/lesson-planner', icon: BookOpen, label: 'Lesson Planner', description: 'Manually create detailed lesson plans.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/academics/exam-summary', icon: BarChart2, label: 'Exam Summary', description: 'View aggregated exam performance.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-  { href: '/dashboard/academics/classroom-inventory', icon: Warehouse, label: 'Classroom Inventory', description: 'Manage classroom-level stock.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
-  { href: '/dashboard/academics/inventory-summary', icon: BarChart2, label: 'Classroom Inventory Summary', description: 'Aggregated view of classroom stock.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
 ];
+
 const studentServicesLinks = [
     { href: '/dashboard/counselling', icon: HeartHandshake, label: 'Counselling', description: 'Manage confidential records.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
     { href: '/dashboard/disciplinary', icon: Gavel, label: 'Disciplinary', description: 'Manage disciplinary records.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] }
 ];
+
 const operationsLinks = [
   { href: '/dashboard/inventory', icon: Warehouse, label: 'Primary Inventory', description: 'Track and forecast school assets.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-  { href: '/dashboard/inventory/summary', icon: BarChart2, label: 'Primary Inventory Summary', description: 'View aggregated asset value.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { href: '/dashboard/academics/classroom-inventory', icon: Warehouse, label: 'Classroom Inventory', description: 'Manage classroom-level stock.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/staff', icon: Users, label: 'Staff Records', description: 'Manage all staff information.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
   { href: '/dashboard/library', icon: Library, label: 'Library Service', description: 'Manage book loans and returns.', roles: ['librarian', 'head-teacher', 'system-admin', 'teacher', 'primary-admin', 'assistant-head-teacher', 'kindergarten'] },
   { href: '/dashboard/health-safety', icon: ShieldCheck, label: 'Health & Safety', description: 'Manage safety protocols.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/contacts', icon: Contact, label: 'Contacts', description: 'View staff directory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-  { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
   { href: '/dashboard/document-vault', icon: FolderArchive, label: 'Document Vault', description: 'Access your saved documents.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten']},
 ];
 
 const platformLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage the entire platform.', roles: ['system-admin'] },
-    { href: '/dashboard/invite-teachers', icon: UserPlus, label: 'User Management', description: 'Invite users and manage roles.', roles: ['system-admin'] },
-    { href: '/dashboard/platform-management/school-management', icon: Building, label: 'School Management', description: 'View and manage schools.', roles: ['system-admin'] },
-    { href: '/dashboard/platform-management/firebase-config', icon: Database, label: 'Firebase Config', description: 'View Firebase status and manage data.', roles: ['system-admin'] },
-    { href: '/dashboard/platform-management/app-settings', icon: Settings, label: 'App Settings', description: 'Configure system-wide settings.', roles: ['system-admin'] },
+    { href: '/dashboard/summarization', icon: FileText, label: 'AI Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/upload-data', icon: UploadCloud, label: 'Upload Data', description: 'Upload Excel/ZIP files for processing.', roles: ['primary-admin', 'system-admin'] },
+    { href: '/dashboard/platform-management', icon: UserCog, label: 'Platform Management', description: 'Manage schools, users, and settings.', roles: ['system-admin'] },
     { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
-    { href: '/dashboard/history', icon: History, label: 'Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
-    { href: '/dashboard/settings', icon: Settings, label: 'Settings', description: 'View application settings.', roles: ['system-admin'] },
+    { href: '/dashboard/history', icon: History, label: 'My Rating History', description: 'Review your submitted ratings.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
 ];
 
 const allLinks = [
     {category: "Dashboard", href: "/dashboard", icon: LayoutGrid, label: "Dashboard", roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten']},
-    ...managementLinks.map(l => ({...l, category: "Management"})),
+    ...dashboardLinks.map(l => ({...l, category: "Dashboards"})),
     ...academicLinks.map(l => ({...l, category: "Academics"})),
     ...studentServicesLinks.map(l => ({...l, category: "Student Services"})),
     ...operationsLinks.map(l => ({...l, category: "Operations"})),
@@ -99,7 +95,7 @@ const allLinks = [
 ];
 
 const navMenuConfig = [
-  { name: 'Management', links: managementLinks, roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+  { name: 'Dashboards', links: dashboardLinks, roles: ['primary-admin', 'system-admin', 'head-teacher', 'assistant-head-teacher', 'teacher', 'kindergarten'] },
   { name: 'Academics', links: academicLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Student Services', links: studentServicesLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { name: 'Operations', links: operationsLinks, roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'librarian', 'kindergarten'] },
@@ -154,7 +150,7 @@ export function Header() {
             <NavigationMenuItem>
                <NavigationMenuLink asChild active={pathname === '/dashboard'} className={navigationMenuTriggerStyle()}>
                  <Link href="/dashboard">
-                    Dashboard
+                    Main Dashboard
                  </Link>
                </NavigationMenuLink>
             </NavigationMenuItem>
