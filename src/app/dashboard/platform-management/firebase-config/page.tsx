@@ -49,6 +49,27 @@ export default function FirebaseConfigPage() {
         });
     }, []);
 
+    const handleSeedDatabase = async () => {
+        setIsSeeding(true);
+        toast({ title: 'Seeding Database...', description: "Please wait. This may take a moment." });
+
+        const result = await seedDatabaseAction();
+
+        if (result.success) {
+            toast({
+                title: "Database Seeding Complete!",
+                description: result.message,
+            });
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Seeding Failed",
+                description: result.message,
+            });
+        }
+        setIsSeeding(false);
+    };
+
     const handleTestConnection = async () => {
         if (!isFirebaseConfigured || !db) {
             toast({
@@ -85,41 +106,7 @@ export default function FirebaseConfigPage() {
             setIsTestingConnection(false);
         }
     };
-
-    const handleSeedDatabase = async () => {
-        if (!isFirebaseConfigured) {
-            toast({
-                variant: "destructive",
-                title: "Firebase Not Configured",
-                description: "Cannot seed database. Please configure your .env file.",
-            });
-            return;
-        }
-
-        if (!window.confirm("This will overwrite existing data with the same IDs. This is useful for resetting the demo data. Continue?")) {
-            return;
-        }
-
-        setIsSeeding(true);
-        toast({ title: "Seeding Database...", description: "This may take a moment. Please wait." });
-        
-        try {
-            const result = await seedDatabaseAction();
-
-            if (result.success) {
-                toast({ title: "Database Seeded Successfully", description: result.message });
-            } else {
-                 throw new Error(result.message || 'An unknown error occurred during seeding.');
-            }
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-            toast({ variant: "destructive", title: "Seeding Failed", description: errorMessage });
-        } finally {
-            setIsSeeding(false);
-        }
-    };
     
-
     const copyToClipboard = (text: string) => {
         if(!text || text === 'Not Set' || text.includes('Hidden')) return;
         navigator.clipboard.writeText(text);
@@ -176,6 +163,26 @@ export default function FirebaseConfigPage() {
                         </CardFooter>
                     </Card>
 
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2 font-headline">
+                                <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
+                            </CardTitle>
+                            <Alert>
+                                <AlertTitle>Seeding the Database</AlertTitle>
+                                <AlertDescription>
+                                To populate your database with sample data, you must run a command from the terminal. This is a secure, server-side operation. First, ensure you have set up a service account by saving your service account key as <code className="font-mono text-xs">serviceAccountKey.json</code> in the project root. Then, run the command: <code className="font-mono text-xs">npm run db:seed</code>.
+                                </AlertDescription>
+                            </Alert>
+                        </CardHeader>
+                         <CardFooter>
+                            <Button onClick={handleSeedDatabase} disabled={isSeeding} className="w-full">
+                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                Seed Database (via Server Action)
+                            </Button>
+                        </CardFooter>
+                    </Card>
+
                     <Alert variant="destructive">
                         <AlertTriangle className="h-4 w-4" />
                         <AlertTitle>Important: One-Time Setup Required</AlertTitle>
@@ -190,30 +197,9 @@ export default function FirebaseConfigPage() {
                             <br />
                             4. Choose a location (e.g., us-central1) and click "Enable".
                             <br />
-                            After the database is created, you can use the "Seed Database" button below.
+                            After the database is created, you can use the "Seed Database" button above.
                         </AlertDescription>
                     </Alert>
-
-                    <Card>
-                        <CardHeader>
-                            <CardTitle className="flex items-center gap-2 font-headline">
-                                <DatabaseZap className="w-5 h-5 text-primary" /> Data Management
-                            </CardTitle>
-                            <Alert>
-                                <AlertTriangle className="h-4 w-4" />
-                                <AlertTitle>Seeding Command (for Local Dev)</AlertTitle>
-                                <AlertDescription>
-                                To seed the database from your local terminal, you must first set up a service account. Download your service account key, save it as <code className="font-mono text-xs">serviceAccountKey.json</code> in the root, and set the <code className="font-mono text-xs">GOOGLE_APPLICATION_CREDENTIALS</code> environment variable to its path. Then run <code className="font-mono text-xs">npm run db:seed</code>.
-                                </AlertDescription>
-                            </Alert>
-                        </CardHeader>
-                        <CardContent className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                            <Button className="w-full" onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
-                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                {isSeeding ? "Seeding..." : "Seed Database"}
-                            </Button>
-                        </CardContent>
-                    </Card>
                 </TabsContent>
                 
                 <TabsContent value="keys" className="mt-6">
