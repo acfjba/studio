@@ -9,20 +9,8 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
-import * as z from 'zod';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth } from '@/lib/firebase/config';
-
-const SchoolLoginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
-  schoolId: z.string().min(1, { message: "School ID is required." }),
-});
-
-const AdminLoginSchema = z.object({
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  password: z.string().min(1, { message: "Password is required." }),
-});
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -32,59 +20,46 @@ export function LoginForm() {
   const [activeTab, setActiveTab] = useState('school');
   const { toast } = useToast();
   const router = useRouter();
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const validate = (schema: z.ZodSchema<any>, data: any) => {
-    const result = schema.safeParse(data);
-    if (!result.success) {
-      const fieldErrors: { [key: string]: string } = {};
-      result.error.errors.forEach(err => {
-        if (err.path[0]) {
-          fieldErrors[err.path[0]] = err.message;
-        }
-      });
-      setErrors(fieldErrors);
-      return false;
-    }
-    setErrors({});
-    return true;
-  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     const isSchoolLogin = activeTab === 'school';
-    const schema = isSchoolLogin ? SchoolLoginSchema : AdminLoginSchema;
-    const data = isSchoolLogin ? { email, password, schoolId } : { email, password };
-    
-    if (!validate(schema, data)) {
+
+    if (isSchoolLogin && !schoolId) {
+      toast({ variant: "destructive", title: "Login Failed", description: "School ID is required for School Login." });
       setIsLoading(false);
       return;
     }
 
     try {
+      // Use the standard Firebase Auth method as you provided
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
+      
+      // After successful login, get custom claims to determine role and school
       const idTokenResult = await userCredential.user.getIdTokenResult();
       const claims = idTokenResult.claims;
       
       const userRole = claims.role as string;
       const userSchoolId = claims.schoolId as string | null;
 
+      // Validate credentials based on the selected tab
       if (isSchoolLogin) {
           if (!userSchoolId || userSchoolId !== schoolId) {
               toast({ variant: "destructive", title: "Login Failed", description: "The School ID does not match this user account." });
               setIsLoading(false);
               return;
           }
-      } else {
+      } else { // Admin Login
           if (userRole !== 'system-admin') {
-              toast({ variant: "destructive", title: "Access Denied", description: "This account does not have System Admin privileges. Please use the School Login tab." });
+              toast({ variant: "destructive", title: "Access Denied", description: "This account does not have System Admin privileges." });
               setIsLoading(false);
               return;
           }
       }
       
+      // Store role and school ID for the session
       localStorage.setItem('userRole', userRole);
       if(userSchoolId) {
         localStorage.setItem('schoolId', userSchoolId);
@@ -94,6 +69,7 @@ export function LoginForm() {
       
       toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
 
+      // Redirect based on role
       switch (userRole) {
           case 'system-admin':
               router.push('/dashboard/platform-management');
@@ -110,7 +86,7 @@ export function LoginForm() {
               router.push('/dashboard/teacher-panel');
               break;
           default:
-              router.push('/dashboard/profile');
+              router.push('/dashboard');
               break;
       }
 
@@ -160,18 +136,15 @@ export function LoginForm() {
             <div>
               <Label htmlFor="schoolId">School ID</Label>
               <Input id="schoolId" value={schoolId} onChange={(e) => setSchoolId(e.target.value)} placeholder="Enter School ID" />
-              {errors.schoolId && <p className="text-sm text-destructive mt-1">{errors.schoolId}</p>}
             </div>
           )}
           <div>
             <Label htmlFor="email">Email</Label>
             <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" />
-            {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-            {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
