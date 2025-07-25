@@ -3,6 +3,14 @@ import * as z from 'zod';
 
 export const userRoles = ["teacher", "head-teacher", "assistant-head-teacher", "primary-admin", "system-admin", "librarian", "kindergarten"] as const;
 
+export const UserSchema = z.object({
+  id: z.string(),
+  displayName: z.string(),
+  email: z.string().email(),
+  role: z.enum(userRoles),
+  schoolId: z.string().nullable(),
+});
+
 export const SingleUserFormSchema = z.object({
   name: z.string().min(2, "Name is required."),
   email: z.string().email("Invalid email address."),
@@ -21,11 +29,10 @@ export const SingleUserFormSchema = z.object({
 });
 
 
+export type User = z.infer<typeof UserSchema>;
 export type UserFormData = z.infer<typeof SingleUserFormSchema>;
 
 export type UserWithPassword = UserFormData & {
   id: string;
   displayName: string;
 };
-
-    

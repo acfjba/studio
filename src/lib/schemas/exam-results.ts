@@ -1,3 +1,4 @@
+
 import * as z from 'zod';
 
 export const examTypes = [
@@ -6,6 +7,8 @@ export const examTypes = [
   "Final",
   "Standardized Test",
   "Practical Exam",
+  "LANA",
+  "Trial",
   "Other"
 ] as const;
 
@@ -16,9 +19,9 @@ export const ExamResultFormInputSchema = z.object({
   examType: z.enum(examTypes, { required_error: "Please select an exam type." }),
   otherExamTypeName: z.string().optional(),
   subject: z.string().min(2, "Subject is required."),
-  score: z.string().optional(),
+  score: z.string().refine(val => val === '' || !isNaN(parseFloat(val)), { message: "Score must be a number or empty." }).optional(),
   grade: z.string().optional(),
-  examDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid exam date is required." }),
+  examDate: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid exam date is required." }),
   term: z.string().min(1, "Term is required."),
   year: z.string().min(4, "Academic year is required."),
   comments: z.string().optional(),
@@ -39,10 +42,11 @@ export const ExamResultFormInputSchema = z.object({
 
 export type ExamResultFormData = z.infer<typeof ExamResultFormInputSchema>;
 
-export type ExamResult = ExamResultFormData & {
+export type ExamResult = Omit<ExamResultFormData, 'score'> & {
   id: string;
+  score?: number; // Store score as number
   recordedByUserId: string;
-  schoolId?: string;
+  schoolId: string;
   createdAt: string;
   updatedAt: string;
 };

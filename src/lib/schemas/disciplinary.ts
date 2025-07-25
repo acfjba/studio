@@ -4,10 +4,10 @@ import * as z from 'zod';
 export const issueTypes = ['Absent', 'Drug', 'Bullying', 'Vandalism', 'Disrespect', 'Other'] as const;
 
 export const DisciplinaryRecordSchema = z.object({
-  incidentDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid incident date is required." }),
+  incidentDate: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid incident date is required." }),
   studentName: z.string().min(2, { message: "Student name is required." }),
   studentId: z.string().min(1, { message: "Student ID is required." }),
-  studentDob: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid date of birth is required." }),
+  studentDob: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid date of birth is required." }),
   studentYear: z.string().min(1, { message: "Student year level is required." }),
   issues: z.array(z.enum(issueTypes)).min(1, { message: "At least one issue must be selected." }),
   drugType: z.string().optional(),
@@ -38,8 +38,8 @@ export type DisciplinaryRecordFormData = z.infer<typeof DisciplinaryRecordSchema
 
 export type DisciplinaryRecord = DisciplinaryRecordFormData & {
   id: string;
-  schoolId?: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
+  schoolId: string;
+  userId: string; // User who created the record
+  createdAt: string; // ISO Date String
+  updatedAt: string; // ISO Date String
 };

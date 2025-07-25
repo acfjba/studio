@@ -1,3 +1,4 @@
+
 import * as z from 'zod';
 
 export const BookFormSchema = z.object({
@@ -5,16 +6,17 @@ export const BookFormSchema = z.object({
   author: z.string().min(3, "Author must be at least 3 characters."),
   category: z.string().min(2, "Category is required."),
   isbn: z.string().optional(),
-  totalCopies: z.coerce.number().min(1, "Total copies must be at least 1."),
+  totalCopies: z.coerce.number().int().min(1, "Total copies must be at least 1."),
 });
 
 export type BookFormData = z.infer<typeof BookFormSchema>;
 
 export type Book = BookFormData & {
   id: string;
+  schoolId: string;
   availableCopies: number;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: string; // ISO Date String
+  updatedAt: string; // ISO Date String
 };
 
 export const LibraryTransactionFormSchema = z.object({
@@ -24,16 +26,17 @@ export const LibraryTransactionFormSchema = z.object({
   memberRole: z.enum(["Student", "Teacher"], { required_error: "Member role is required." }),
   schoolYear: z.string().min(1, "School year/class is required."),
   bookId: z.string().min(1, "A book must be selected."),
-  dueAt: z.string().refine(val => !isNaN(Date.parse(val)), { message: "A valid due date is required." }),
+  dueAt: z.string().refine(val => val && !isNaN(Date.parse(val)), { message: "A valid due date is required." }),
 });
 
 export type LibraryTransactionFormData = z.infer<typeof LibraryTransactionFormSchema>;
 
 export type LibraryTransaction = LibraryTransactionFormData & {
   id: string;
+  schoolId: string;
   bookTitle: string;
-  issuedBy: string;
-  issuedAt: string;
-  createdAt: string;
-  updatedAt: string;
+  issuedBy: string; // User ID
+  issuedAt: string; // ISO Date String
+  createdAt: string; // ISO Date String
+  updatedAt: string; // ISO Date String
 };

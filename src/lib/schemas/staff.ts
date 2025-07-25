@@ -1,3 +1,4 @@
+
 import * as z from 'zod';
 
 export const StaffMemberFormDataSchema = z.object({
@@ -5,9 +6,12 @@ export const StaffMemberFormDataSchema = z.object({
   name: z.string().min(2, 'Name is required.'),
   role: z.string().min(2, 'Role is required.'),
   position: z.string().min(2, 'Position is required.'),
+  department: z.string().min(2, 'Department is required.'),
   status: z.string().min(1, 'Status is required.'),
   email: z.string().email('Invalid email address.'),
   phone: z.string().optional(),
+  // Foreign key to the user ID in the top-level /users collection
+  userId: z.string().optional(), 
 });
 
 export const StaffMemberSchema = StaffMemberFormDataSchema.extend({

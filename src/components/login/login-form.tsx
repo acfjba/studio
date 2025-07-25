@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import * as z from 'zod';
-import { usersSeedData } from '@/lib/data';
+import usersSeedData from '@/data/users.json';
 import { getAuth, signInWithEmailAndPassword } from "firebase/auth";
 import { isFirebaseConfigured } from '@/lib/firebase/config';
 
@@ -134,41 +134,55 @@ export function LoginForm() {
 
   return (
     <Card className="w-full max-w-md shadow-2xl">
-      <Tabs defaultValue="school" onValueChange={setActiveTab} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="school">School Login</TabsTrigger>
-          <TabsTrigger value="admin">Admin Login</TabsTrigger>
-        </TabsList>
-        <form onSubmit={handleLogin}>
-          <CardHeader>
-            <CardTitle>{activeTab === 'school' ? 'School Login' : 'Admin Login'}</CardTitle>
-            <CardDescription>Enter your credentials to access the platform.</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            {activeTab === 'school' && (
-              <div>
-                <Label htmlFor="schoolId">School ID</Label>
-                <Input id="schoolId" value={schoolId} onChange={(e) => setSchoolId(e.target.value)} placeholder="Enter School ID" />
-                {errors.schoolId && <p className="text-sm text-destructive mt-1">{errors.schoolId}</p>}
-              </div>
-            )}
+      <div className="p-4">
+        <div className="flex w-full">
+          <button
+            onClick={() => setActiveTab('school')}
+            className={`w-1/2 p-2 text-center rounded-l-md transition-colors ${
+              activeTab === 'school' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+            }`}
+          >
+            School Login
+          </button>
+          <button
+            onClick={() => setActiveTab('admin')}
+            className={`w-1/2 p-2 text-center rounded-r-md transition-colors ${
+              activeTab === 'admin' ? 'bg-primary text-primary-foreground' : 'bg-muted'
+            }`}
+          >
+            Admin Login
+          </button>
+        </div>
+      </div>
+      <form onSubmit={handleLogin}>
+        <CardHeader>
+          <CardTitle>{activeTab === 'school' ? 'School Login' : 'Admin Login'}</CardTitle>
+          <CardDescription>Enter your credentials to access the platform.</CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {activeTab === 'school' && (
             <div>
-              <Label htmlFor="email">Email</Label>
-              <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" />
-              {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+              <Label htmlFor="schoolId">School ID</Label>
+              <Input id="schoolId" value={schoolId} onChange={(e) => setSchoolId(e.target.value)} placeholder="Enter School ID" />
+              {errors.schoolId && <p className="text-sm text-destructive mt-1">{errors.schoolId}</p>}
             </div>
-            <div>
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
-              {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
-            </div>
-            <Button type="submit" className="w-full" disabled={isLoading}>
-              {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {isLoading ? 'Signing In...' : 'Sign In'}
-            </Button>
-          </CardContent>
-        </form>
-      </Tabs>
+          )}
+          <div>
+            <Label htmlFor="email">Email</Label>
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" />
+            {errors.email && <p className="text-sm text-destructive mt-1">{errors.email}</p>}
+          </div>
+          <div>
+            <Label htmlFor="password">Password</Label>
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            {errors.password && <p className="text-sm text-destructive mt-1">{errors.password}</p>}
+          </div>
+          <Button type="submit" className="w-full" disabled={isLoading}>
+            {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isLoading ? 'Signing In...' : 'Sign In'}
+          </Button>
+        </CardContent>
+      </form>
     </Card>
   );
 }

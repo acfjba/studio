@@ -13,10 +13,10 @@ export const counsellingTypes = [
 ] as const;
 
 export const CounsellingRecordFormInputSchema = z.object({
-  sessionDate: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid session date is required." }),
+  sessionDate: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid session date is required." }),
   studentName: z.string().min(2, { message: "Student name is required." }),
   studentId: z.string().min(1, { message: "Student ID is required." }),
-  studentDob: z.string().refine((val) => !isNaN(Date.parse(val)), { message: "A valid date of birth is required." }),
+  studentDob: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid date of birth is required." }),
   studentYear: z.string().min(1, { message: "Student year level is required." }),
   counsellingType: z.enum(counsellingTypes, { required_error: "Please select a counselling type." }),
   otherCounsellingType: z.string().optional(),
@@ -38,8 +38,8 @@ export type CounsellingRecordFormData = z.infer<typeof CounsellingRecordFormInpu
 
 export type CounsellingRecord = CounsellingRecordFormData & {
   id: string;
-  schoolId?: string;
-  userId: string;
-  createdAt: string;
-  updatedAt: string;
+  schoolId: string;
+  userId: string; // User ID of the counsellor who created the record
+  createdAt: string; // ISO Date String
+  updatedAt: string; // ISO Date String
 };
