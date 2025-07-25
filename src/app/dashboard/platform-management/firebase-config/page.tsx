@@ -50,6 +50,9 @@ export default function FirebaseConfigPage() {
     }, []);
 
     const handleSeedDatabase = async () => {
+        if (!window.confirm("Are you sure you want to seed the database? This may overwrite existing data with the same IDs.")) {
+            return;
+        }
         setIsSeeding(true);
         toast({ title: 'Seeding Database...', description: "Please wait. This may take a moment." });
 
@@ -171,20 +174,19 @@ export default function FirebaseConfigPage() {
                             <Alert>
                                 <AlertTitle>Seeding the Database</AlertTitle>
                                 <AlertDescription>
-                                To populate your database with sample data, you must run a command from the terminal. This is a secure, server-side operation. First, ensure you have set up a service account by saving your service account key as <code className="font-mono text-xs">serviceAccountKey.json</code> in the project root. Then, run the command: <code className="font-mono text-xs">npm run db:seed</code>.
+                                    Use the button below to populate your database with sample data. This is a secure, server-side operation.
                                 </AlertDescription>
                             </Alert>
                         </CardHeader>
                          <CardFooter>
-                            <Button onClick={handleSeedDatabase} disabled={isSeeding} className="w-full">
+                            <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured} className="w-full">
                                 {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                Seed Database (via Server Action)
+                                Seed Database
                             </Button>
                         </CardFooter>
                     </Card>
 
                     <Alert variant="destructive">
-                        <AlertTriangle className="h-4 w-4" />
                         <AlertTitle>Important: One-Time Setup Required</AlertTitle>
                         <AlertDescription>
                             Before you can seed data, you must create a Firestore database in your Firebase project. This is a one-time setup step.

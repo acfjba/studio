@@ -19,12 +19,13 @@ async function runSeed() {
   // Check for necessary environment variables to connect to Firebase Admin
   if (!process.env.GOOGLE_APPLICATION_CREDENTIALS && (!process.env.GCLOUD_PROJECT && !process.env.FUNCTIONS_EMULATOR)) {
       console.error('\nERROR: Firebase Admin credentials not found.');
-      console.error('For local seeding, please ensure you have the GOOGLE_APPLICATION_CREDENTIALS environment variable set.');
+      console.error('For local seeding, please ensure you have the GOOGLE_APPLICATION_CREDENTIALS environment variable set by pointing it to your serviceAccountKey.json file.');
       console.log('Refer to Firebase documentation on setting up a service account for local development.');
       process.exit(1);
   }
   
   try {
+    // Correctly call the main seedDatabase function
     await seedDatabase();
     console.log('\n--- Database Seeding Completed Successfully! ---');
     process.exit(0);
