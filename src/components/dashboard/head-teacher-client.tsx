@@ -20,8 +20,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getAuth, signOut } from 'firebase/auth';
-import { isFirebaseConfigured, db } from '@/lib/firebase/config';
+import { signOut } from 'firebase/auth';
+import { db, auth } from '@/lib/firebase/config';
 import { collection, getDocs, query, where } from 'firebase/firestore';
 
 
@@ -327,10 +327,7 @@ export function HeadTeacherClient() {
 
 
   const handleLogout = () => {
-    if(isFirebaseConfigured) {
-        const auth = getAuth();
-        signOut(auth);
-    }
+    signOut(auth);
     localStorage.removeItem('userRole');
     localStorage.removeItem('schoolId');
     router.push('/');

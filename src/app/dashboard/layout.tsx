@@ -5,8 +5,8 @@ import { Header } from "@/components/layout/header";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
-import { getAuth, onAuthStateChanged } from "firebase/auth";
-import { isFirebaseConfigured } from "@/lib/firebase/config";
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "@/lib/firebase/config";
 
 export default function DashboardLayout({
   children,
@@ -17,32 +17,17 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    // Only run this check if Firebase is configured.
-    if (!isFirebaseConfigured) {
-      // If not configured, we might be in a dev/demo mode.
-      // We can check local storage as a fallback for the demo.
-      const role = localStorage.getItem('userRole');
-      if (!role) {
-        router.push('/');
-      } else {
-        setIsAuthLoaded(true);
-      }
-      return;
-    }
-
-    const auth = getAuth();
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
         // User is signed in and authenticated.
         setIsAuthLoaded(true);
       } else {
         // User is signed out.
-        // Also check localStorage as a fallback for the demo login system.
+        // Fallback check for demo purposes, but main logic relies on auth state.
         const role = localStorage.getItem('userRole');
         if (!role) {
             router.push('/');
         } else {
-            // This allows the demo login to work without real Firebase Auth sign-in
             setIsAuthLoaded(true);
         }
       }
