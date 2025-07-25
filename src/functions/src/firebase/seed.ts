@@ -1,127 +1,78 @@
 
-
-/**
- * @fileOverview Firestore Seeding Script for School Users from CSV.
- *
- * This script reads a CSV file containing user data and seeds Firebase
- * Authentication and Firestore. It's designed to be idempotent, meaning
- * it can be run multiple times without creating duplicate users.
- */
-import fs from "fs";
-import csvParser from "csv-parser";
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { getAuth } from 'firebase-admin/auth';
+// functions/src/firebase/seed.ts
+import { doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
+import { usersSeedData } from '../data';
 
 /**
- * Reads and parses a CSV file into an array of objects.
- * @param path - The absolute path to the CSV file.
- * @returns A promise that resolves to an array of row objects.
+ * Seeds the database with essential user data from users.json.
+ * This function is idempotent: it will update existing users or create
+ * them if they don't exist, ensuring Auth and Firestore are in sync.
  */
-function readCsv(path: string): Promise<any[]> {
-  const rows: any[] = [];
-  return new Promise((resolve, reject) => {
-    fs.createReadStream(path)
-      .pipe(csvParser())
-      .on("data", row => rows.push(row))
-      .on("end", () => resolve(rows))
-      .on("error", reject);
-  });
-}
+export async function seedDatabase() {
+  console.log("Starting database seed process...");
 
-/**
- * Normalizes a row from the CSV file, trimming whitespace and setting defaults.
- * @param r - The raw row object from the CSV parser.
- * @returns A normalized row object.
- */
-function normalizeRow(r: any) {
-  return {
-    email:     (r.email     || "").trim().toLowerCase(),
-    name:      (r.name      || "").trim(),
-    role:      (r.role      || "teacher").trim().toLowerCase().replace(/\s+/g, "-"),
-    schoolId:  (r.schoolId  || "").trim(),
-    password:  (r.password  || "Welcome123!").trim()
-  };
-}
-
-/**
- * Main seeding routine.
- * Iterates through CSV rows and seeds users into Firebase.
- * @param csvPath - The absolute path to the CSV file.
- */
-export async function seedUsersFromCsv(csvPath: string): Promise<void> {
-  console.log(`\n📥 Reading ${csvPath} …`);
-  if (!fs.existsSync(csvPath)) {
-    throw new Error(`CSV file not found at path: ${csvPath}`);
+  if (!usersSeedData || usersSeedData.length === 0) {
+    console.log("No users found in src/data/users.json. Skipping user seeding.");
+    return;
   }
-  const rawRows = await readCsv(csvPath);
-  const rows = rawRows.map(normalizeRow).filter(r => r.email && r.schoolId);
-  console.log(`   → Found ${rows.length} valid rows to process\n`);
 
-  for (const r of rows) {
-    let user;
+  console.log(`Processing ${usersSeedData.length} user(s)...`);
+
+  for (const u of usersSeedData) {
     try {
-      // 1. Check if user exists in Auth, if so update, otherwise create.
+      const { id, email, password, displayName, role, schoolId } = u;
+
+      if (!id || !email || !password || !displayName || !role) {
+        console.error(`Skipping invalid user entry: ${JSON.stringify(u)}`);
+        continue; // Skip to the next user
+      }
+      
+      // 1. Create or Update user in Firebase Authentication
+      let userRecord;
       try {
-        user = await adminAuth.getUserByEmail(r.email);
-        await adminAuth.updateUser(user.uid, {
-          displayName: r.name,
-          password:     r.password
+        userRecord = await adminAuth.getUser(id);
+        await adminAuth.updateUser(userRecord.uid, {
+          email: email,
+          password: password,
+          displayName: displayName,
         });
-        console.log(`📝 Updated Auth user  ${r.email}  (uid=${user.uid})`);
-      } catch (e: any) {
-        if (e.code === "auth/user-not-found") {
-          user = await adminAuth.createUser({
-            email:        r.email,
-            password:     r.password,
-            displayName:  r.name
+        console.log(`✅ Updated Auth user: ${email} (UID: ${userRecord.uid})`);
+      } catch (error: any) {
+        if (error.code === 'auth/user-not-found') {
+          userRecord = await adminAuth.createUser({ 
+            uid: id,
+            email: email, 
+            password: password,
+            displayName: displayName,
           });
-          console.log(`➕ Created Auth user  ${r.email}  (uid=${user.uid})`);
+          console.log(`✅ Created Auth user: ${email} (UID: ${userRecord.uid})`);
         } else {
-          throw e; // Rethrow other auth errors
+          throw error; // Rethrow other auth errors
         }
       }
 
-      // 2. Set Custom Claims for Firebase Rules (CRITICAL STEP)
-      // This must run every time to ensure claims are consistent with the CSV.
-      await adminAuth.setCustomUserClaims(user.uid, { role: r.role, schoolId: r.schoolId });
+      // 2. Set Custom Claims for Role-Based Access Control
+      const claims = { role, schoolId: schoolId ?? null };
+      await adminAuth.setCustomUserClaims(userRecord.uid, claims);
+      console.log(`   - Set custom claims for ${email}:`, claims);
       
-      // 3. Slim top-level profile (optional but handy for rule checks)
-      await adminDb.collection("users").doc(user.uid).set(
-        {
-          email: r.email,
-          role:  r.role,
-          schoolId: r.schoolId
-        },
-        { merge: true }
-      );
+      // 3. Set the user document in the top-level 'users' collection
+      const userDocRef = doc(adminDb, 'users', id);
+      const userDocPayload = {
+        email: email,
+        displayName: displayName,
+        role: role,
+        schoolId: schoolId ?? null,
+      };
+      
+      await adminDb.collection("users").doc(id).set(userDocPayload);
+      console.log(`   - Set Firestore document in /users/${id}`);
 
-      // 4. Full profile under the school path
-      await adminDb.collection("schools").doc(r.schoolId)
-        .collection("users").doc(user.uid)
-        .set(
-          {
-            email:        r.email,
-            displayName:  r.name,
-            name: r.name, // Add name for consistency
-            role:         r.role,
-            schoolId:     r.schoolId,
-            status: 'active',
-            position: r.role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()),
-            tpfNumber: `TPF-${user.uid}`,
-            createdAt:    FieldValue.serverTimestamp(),
-            updatedAt:    FieldValue.serverTimestamp()
-          },
-          { merge: true }
-        );
-
-      console.log(`   🔹 Seeded /schools/${r.schoolId}/users/${user.uid}`);
-
-    } catch (err: any) {
-      console.error(`⚠️  Failed to process row for ${r.email}:`, err.message);
-      continue; // Continue to next row on error
+    } catch (error) {
+      console.error(`❌ Error processing user ${u.email}:`, error);
     }
   }
 
-  console.log("\n✅ All school users from CSV seeded.\n");
+  console.log('\nUser seeding process complete!');
 }
