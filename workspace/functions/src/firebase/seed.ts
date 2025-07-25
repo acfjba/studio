@@ -55,15 +55,15 @@ export async function seedDatabase() {
       await adminAuth.setCustomUserClaims(userRecord.uid, claims);
       console.log(`Set custom claims for ${email}:`, claims);
       
-      // Set user document in Firestore
+      // Set user document in Firestore with the CORRECT field names
       const userDocRef = doc(adminDb, 'users', id);
       const userDocPayload = {
         email: email,
-        displayName: displayName,
-        role: role,
+        displayName: displayName, // Correct field
+        role: role,             // Correct field
         schoolId: schoolId ?? null,
       };
-      // Use a batch or individual set for simplicity here
+      
       await adminDb.collection("users").doc(id).set(userDocPayload);
       console.log(`Set Firestore document for user: ${id} in collection 'users'`);
 
