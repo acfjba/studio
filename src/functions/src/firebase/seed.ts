@@ -1,78 +1,120 @@
-
 // functions/src/firebase/seed.ts
 import { doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
-import { usersSeedData } from '../data';
+import { 
+  usersSeedData, 
+  schoolData, 
+  staffData, 
+  inventoryData,
+  sampleExamResultsData,
+  libraryBooksData,
+  disciplinaryRecordsData,
+  counsellingRecordsData,
+  ohsRecordsData
+} from '../data';
+
+interface SeedReport {
+    users: string[];
+    schools: string[];
+    staff: string[];
+    inventory: string[];
+    examResults: string[];
+    libraryBooks: string[];
+    disciplinaryRecords: string[];
+    counsellingRecords: string[];
+    ohsRecords: string[];
+}
 
 /**
- * Seeds the database with essential user data from users.json.
- * This function is idempotent: it will update existing users or create
- * them if they don't exist, ensuring Auth and Firestore are in sync.
+ * Seeds the database with essential data from JSON files.
+ * This function is idempotent: it will update existing entries or create
+ * them if they don't exist.
+ * @returns A report of all actions taken.
  */
-export async function seedDatabase() {
+export async function seedDatabase(): Promise<SeedReport> {
   console.log("Starting database seed process...");
 
+  const report: SeedReport = {
+    users: [],
+    schools: [],
+    staff: [],
+    inventory: [],
+    examResults: [],
+    libraryBooks: [],
+    disciplinaryRecords: [],
+    counsellingRecords: [],
+    ohsRecords: []
+  };
+
+  // --- Users + Auth Claims ---
   if (!usersSeedData || usersSeedData.length === 0) {
     console.log("No users found in src/data/users.json. Skipping user seeding.");
-    return;
-  }
-
-  console.log(`Processing ${usersSeedData.length} user(s)...`);
-
-  for (const u of usersSeedData) {
-    try {
-      const { id, email, password, displayName, role, schoolId } = u;
-
-      if (!id || !email || !password || !displayName || !role) {
-        console.error(`Skipping invalid user entry: ${JSON.stringify(u)}`);
-        continue; // Skip to the next user
-      }
-      
-      // 1. Create or Update user in Firebase Authentication
-      let userRecord;
+  } else {
+    console.log(`Processing ${usersSeedData.length} user(s)...`);
+    for (const u of usersSeedData) {
       try {
-        userRecord = await adminAuth.getUser(id);
-        await adminAuth.updateUser(userRecord.uid, {
-          email: email,
-          password: password,
-          displayName: displayName,
-        });
-        console.log(`✅ Updated Auth user: ${email} (UID: ${userRecord.uid})`);
-      } catch (error: any) {
-        if (error.code === 'auth/user-not-found') {
-          userRecord = await adminAuth.createUser({ 
-            uid: id,
-            email: email, 
-            password: password,
-            displayName: displayName,
-          });
-          console.log(`✅ Created Auth user: ${email} (UID: ${userRecord.uid})`);
-        } else {
-          throw error; // Rethrow other auth errors
+        const { id, email, password, displayName, role, schoolId } = u;
+
+        if (!id || !email || !password || !displayName || !role) {
+          console.error(`Skipping invalid user entry: ${JSON.stringify(u)}`);
+          continue;
         }
+        
+        let userRecord;
+        try {
+          userRecord = await adminAuth.getUser(id);
+          await adminAuth.updateUser(userRecord.uid, { email, password, displayName });
+          report.users.push(`Updated Auth user: ${email}`);
+        } catch (error: any) {
+          if (error.code === 'auth/user-not-found') {
+            userRecord = await adminAuth.createUser({ uid: id, email, password, displayName });
+            report.users.push(`Created Auth user: ${email}`);
+          } else {
+            throw error;
+          }
+        }
+
+        const claims = { role, schoolId: schoolId ?? null };
+        await adminAuth.setCustomUserClaims(userRecord.uid, claims);
+        
+        await adminDb.collection("users").doc(id).set({ email, displayName, role, schoolId: schoolId ?? null });
+        report.users.push(`Set Firestore document for ${email}`);
+        
+      } catch (error) {
+        console.error(`❌ Error processing user ${u.email}:`, error);
       }
-
-      // 2. Set Custom Claims for Role-Based Access Control
-      const claims = { role, schoolId: schoolId ?? null };
-      await adminAuth.setCustomUserClaims(userRecord.uid, claims);
-      console.log(`   - Set custom claims for ${email}:`, claims);
-      
-      // 3. Set the user document in the top-level 'users' collection
-      const userDocRef = doc(adminDb, 'users', id);
-      const userDocPayload = {
-        email: email,
-        displayName: displayName,
-        role: role,
-        schoolId: schoolId ?? null,
-      };
-      
-      await adminDb.collection("users").doc(id).set(userDocPayload);
-      console.log(`   - Set Firestore document in /users/${id}`);
-
-    } catch (error) {
-      console.error(`❌ Error processing user ${u.email}:`, error);
     }
   }
 
-  console.log('\nUser seeding process complete!');
+  // --- Other Collections ---
+  const collectionsToSeed = [
+    { name: 'schools', data: schoolData, reportKey: 'schools' as keyof SeedReport },
+    { name: 'staff', data: staffData, reportKey: 'staff' as keyof SeedReport },
+    { name: 'inventory', data: inventoryData, reportKey: 'inventory' as keyof SeedReport },
+    { name: 'examResults', data: sampleExamResultsData, reportKey: 'examResults' as keyof SeedReport },
+    { name: 'libraryBooks', data: libraryBooksData, reportKey: 'libraryBooks' as keyof SeedReport },
+    { name: 'disciplinaryRecords', data: disciplinaryRecordsData, reportKey: 'disciplinaryRecords' as keyof SeedReport },
+    { name: 'counsellingRecords', data: counsellingRecordsData, reportKey: 'counsellingRecords' as keyof SeedReport },
+    { name: 'ohsRecords', data: ohsRecordsData, reportKey: 'ohsRecords' as keyof SeedReport }
+  ];
+
+  for (const collection of collectionsToSeed) {
+    if (collection.data.length > 0) {
+      const batch = adminDb.batch();
+      collection.data.forEach((item: any) => {
+        if(item.id) { // Ensure items have an ID to be seeded
+            const docRef = adminDb.collection(collection.name).doc(item.id);
+            batch.set(docRef, item);
+            (report[collection.reportKey] as string[]).push(`Seeded ${item.id} into ${collection.name}`);
+        }
+      });
+      await batch.commit();
+      console.log(`✅ Seeded ${collection.data.length} documents into ${collection.name}.`);
+    } else {
+      console.log(`No data for ${collection.name}. Skipping.`);
+    }
+  }
+
+  console.log('\nFull database seeding process complete!');
+  return report;
 }
