@@ -2,108 +2,76 @@
 // functions/src/firebase/seed.ts
 import { writeBatch, doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
-import { 
-    schoolData, 
-    staffData, 
-    usersSeedData,
-    libraryBooksData,
-    sampleExamResultsData,
-    disciplinaryRecordsData,
-    counsellingRecordsData,
-    ohsRecordsData
-} from '../data';
+import { usersSeedData } from '../data';
 
 export async function seedDatabase() {
-  console.log("Seeding database with data from functions/src/data.ts");
+  console.log("Starting database seed process...");
 
-  const batch = writeBatch(adminDb);
-
-  // ---------- Schools ----------
-  console.log("Seeding schools...");
-  schoolData.forEach((sch) => {
-    batch.set(doc(adminDb, 'schools', sch.id), sch);
-  });
-
-  // ---------- Staff ----------
-  console.log("Seeding staff...");
-  staffData.forEach((st) => {
-    const { id, ...rest } = st;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'staff', id), data);
-  });
-  
-  // ---------- Library Books ----------
-  console.log("Seeding library books...");
-  libraryBooksData.forEach((bk) => {
-    const { id, ...rest } = bk;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'books', id), data);
-  });
-
-  // ---------- Exam Results ----------
-  console.log("Seeding exam results...");
-  sampleExamResultsData.forEach((ex) => {
-    const { id, ...rest } = ex;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'examResults', id), data);
-  });
-
-  // ---------- Disciplinary Records ----------
-  console.log("Seeding disciplinary records...");
-  disciplinaryRecordsData.forEach((dr) => {
-    const { id, ...rest } = dr;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'disciplinary', id), data);
-  });
-
-  // ---------- Counselling Records ----------
-  console.log("Seeding counselling records...");
-  counsellingRecordsData.forEach((cr) => {
-    const { id, ...rest } = cr;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'counselling', cr.id), data);
-  });
-
-  // ---------- OHS Records ----------
-  console.log("Seeding OHS records...");
-  ohsRecordsData.forEach((or) => {
-    const { id, ...rest } = or;
-    const data = { ...rest, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
-    batch.set(doc(adminDb, 'ohs', id), data);
-  });
-  
   // ---------- Users + Auth Claims ----------
-  console.log("Processing Auth users and Firestore user documents...");
-  for (const u of usersSeedData) {
-    batch.set(doc(adminDb, 'users', u.id), {
-      email: u.email,
-      displayName: u.displayName,
-      role: u.role,
-      schoolId: u.schoolId ?? null,
-    });
+  console.log("Processing essential users...");
 
-    try {
-        let userRecord = await adminAuth.getUserByEmail(u.email).catch(() => null);
-        if (!userRecord) {
-            userRecord = await adminAuth.createUser({ 
-                uid: u.id, 
-                email: u.email, 
-                displayName: u.displayName,
-                password: u.password,
-            });
-            console.log(`Created Auth user: ${u.email}`);
-        } else {
-             console.log(`Auth user already exists: ${u.email}`);
-        }
-        // Set custom claims which are essential for security rules
-        await adminAuth.setCustomUserClaims(userRecord.uid, { role: u.role, schoolId: u.schoolId ?? null });
-        console.log(`Set custom claims for ${u.email}: role=${u.role}, schoolId=${u.schoolId ?? null}`);
-    } catch (error) {
-        console.error(`Error processing Auth user ${u.email}:`, error);
-    }
+  if (!usersSeedData || usersSeedData.length === 0) {
+    console.log("No users found in users.json. Skipping user seeding.");
+    return;
   }
 
-  console.log("Committing all data to Firestore...");
-  await batch.commit();
-  console.log('Firestore data seeding complete!');
+  const userProcessingPromises = usersSeedData.map(async (u) => {
+    try {
+      const { id, email, password, displayName, role, schoolId } = u;
+
+      if (!id || !email || !password || !displayName || !role) {
+        console.error(`Skipping invalid user entry: ${JSON.stringify(u)}`);
+        return;
+      }
+      
+      let userRecord;
+      try {
+        userRecord = await adminAuth.getUserByEmail(email);
+        // User exists, update them
+        await adminAuth.updateUser(userRecord.uid, {
+          email: email,
+          password: password,
+          displayName: displayName,
+        });
+        console.log(`Updated Auth user: ${email}`);
+      } catch (error: any) {
+        if (error.code === 'auth/user-not-found') {
+          // User does not exist, create them
+          userRecord = await adminAuth.createUser({ 
+            uid: id,
+            email: email, 
+            displayName: displayName,
+            password: password,
+          });
+          console.log(`Created new Auth user: ${email}`);
+        } else {
+          // Re-throw other errors
+          throw error;
+        }
+      }
+
+      // Set custom claims for role-based access
+      const claims = { role, schoolId: schoolId ?? null };
+      await adminAuth.setCustomUserClaims(userRecord.uid, claims);
+      console.log(`Set custom claims for ${email}:`, claims);
+      
+      // Set user document in Firestore
+      const userDocRef = doc(adminDb, 'users', id);
+      const userDocPayload = {
+        email: email,
+        displayName: displayName,
+        role: role,
+        schoolId: schoolId ?? null,
+      };
+      // Use a batch or individual set for simplicity here
+      await adminDb.collection("users").doc(id).set(userDocPayload);
+      console.log(`Set Firestore document for user: ${id}`);
+
+    } catch (error) {
+      console.error(`Error processing user ${u.email}:`, error);
+    }
+  });
+
+  await Promise.all(userProcessingPromises);
+  console.log('User seeding process complete!');
 }
