@@ -19,25 +19,54 @@ import { Separator } from '@/components/ui/separator';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { PageHeader } from '@/components/layout/page-header';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, setDoc, doc } from 'firebase/firestore';
 
 
-// --- Simulated Backend Functions ---
+// --- Backend Functions ---
 async function addSingleUserToBackend(userData: UserFormData): Promise<{ success: boolean; message: string }> {
     console.log("Adding single user to backend:", userData);
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    // In a real app, this would call a Firebase Function to create a user in Auth and a document in Firestore.
-    return { success: true, message: `User ${userData.name} created successfully.` };
+    if (!db) throw new Error("Firestore not configured.");
+
+    // This would typically be handled by a secure backend Cloud Function
+    // For this demo, we are writing to a public 'invites' collection
+    // A backend trigger would then create the Auth user and send the email.
+    const inviteRef = doc(collection(db, 'invites'));
+    await setDoc(inviteRef, {
+        email: userData.email,
+        role: userData.role,
+        schoolId: userData.schoolId || null,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+    });
+
+    return { success: true, message: `Invite sent to ${userData.email}.` };
 }
 
 async function addMultipleUsersToBackend(users: UserFormData[]): Promise<{ success: boolean; message: string; report: { success: UserFormData[]; failed: { data: string; reason: string }[] } }> {
     console.log("Adding multiple users to backend:", users);
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    // Real app: Loop, call function for each, gather results.
+    if (!db) throw new Error("Firestore not configured.");
+
+    const failed: { data: string; reason: string }[] = [];
+    // In a real app, you'd use a batch write here.
+    for (const user of users) {
+        try {
+            const inviteRef = doc(collection(db, 'invites'));
+            await setDoc(inviteRef, {
+                email: user.email,
+                role: user.role,
+                schoolId: user.schoolId || null,
+                status: 'pending',
+                createdAt: new Date().toISOString(),
+            });
+        } catch (error) {
+            failed.push({ data: user.email, reason: "Firestore write failed" });
+        }
+    }
+    
     return { 
         success: true, 
         message: `Processed ${users.length} users.`,
-        report: { success: users, failed: [] }
+        report: { success: users, failed }
     };
 }
 
@@ -66,7 +95,7 @@ export default function UserManagementPage() {
                 title: 'Access Denied',
                 description: 'You do not have permission to view this page.',
             });
-            router.push('/dashboard');
+            router.push('/profile'); // Redirect to a safe page
             setHasAccess(false);
         } else {
             setHasAccess(true);
@@ -112,11 +141,9 @@ export default function UserManagementPage() {
         
         if (file) {
             toast({
-                title: "File Uploaded",
-                description: `In a real application, '${file.name}' would be uploaded and processed on the server.`,
+                title: "File Upload Not Implemented",
+                description: `This is a placeholder for server-side file processing.`,
             });
-            setMultipleUsersData('');
-            setFile(null);
             return;
         }
 
@@ -156,7 +183,7 @@ export default function UserManagementPage() {
             setUsers(prevUsers => [...addedUsers, ...prevUsers]);
             toast({
                 title: "Batch Processed",
-                description: `Successfully added ${result.report.success.length} users. Failed to add ${failedEntries.length + result.report.failed.length} users.`,
+                description: `Successfully sent invites for ${result.report.success.length} users. Failed to process ${failedEntries.length + result.report.failed.length} users.`,
             });
             setMultipleUsersData('');
         } else {
@@ -186,7 +213,7 @@ export default function UserManagementPage() {
     return (
         <div className="flex flex-col gap-8">
             <PageHeader
-                title="User Management"
+                title="Invite & Manage Users"
                 description="Add new users to the platform individually or in bulk."
             />
             <div className="space-y-8">
@@ -194,8 +221,8 @@ export default function UserManagementPage() {
                     <CardContent className="pt-6">
                         <Tabs defaultValue="single" className="w-full">
                             <TabsList className="grid w-full grid-cols-2">
-                                <TabsTrigger value="single">Add Single User</TabsTrigger>
-                                <TabsTrigger value="multiple">Add Multiple Users</TabsTrigger>
+                                <TabsTrigger value="single">Invite Single User</TabsTrigger>
+                                <TabsTrigger value="multiple">Invite Multiple Users</TabsTrigger>
                             </TabsList>
                             
                             {/* Single User Tab */}
@@ -213,7 +240,7 @@ export default function UserManagementPage() {
                                             {singleUserForm.formState.errors.email && <p className="text-destructive text-xs mt-1">{singleUserForm.formState.errors.email.message}</p>}
                                         </div>
                                         <div>
-                                            <Label htmlFor="phone">Phone Number</Label>
+                                            <Label htmlFor="phone">Phone Number (Optional)</Label>
                                             <Input id="phone" type="tel" {...singleUserForm.register("phone")} />
                                             {singleUserForm.formState.errors.phone && <p className="text-destructive text-xs mt-1">{singleUserForm.formState.errors.phone.message}</p>}
                                         </div>
@@ -251,14 +278,14 @@ export default function UserManagementPage() {
                                             {singleUserForm.formState.errors.schoolId && <p className="text-destructive text-xs mt-1">{singleUserForm.formState.errors.schoolId.message}</p>}
                                         </div>
                                         <div>
-                                            <Label htmlFor="password">Password</Label>
-                                            <Input id="password" type="password" {...singleUserForm.register("password")} />
+                                            <Label htmlFor="password">Temporary Password</Label>
+                                            <Input id="password" type="password" {...singleUserForm.register("password")} placeholder="User will be prompted to change"/>
                                             {singleUserForm.formState.errors.password && <p className="text-destructive text-xs mt-1">{singleUserForm.formState.errors.password.message}</p>}
                                         </div>
                                     </div>
                                     <Button type="submit" className="w-full" disabled={singleUserForm.formState.isSubmitting}>
                                         {singleUserForm.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UserPlus className="mr-2 h-5 w-5" />}
-                                        {singleUserForm.formState.isSubmitting ? 'Creating User...' : 'Create User'}
+                                        {singleUserForm.formState.isSubmitting ? 'Sending Invite...' : 'Send Invite'}
                                     </Button>
                                 </form>
                             </TabsContent>
@@ -327,7 +354,7 @@ export default function UserManagementPage() {
 
                                     <Button type="submit" className="w-full" disabled={singleUserForm.formState.isSubmitting}>
                                         {singleUserForm.formState.isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Users className="mr-2 h-5 w-5" />}
-                                        {singleUserForm.formState.isSubmitting ? 'Processing...' : 'Process & Add Users'}
+                                        {singleUserForm.formState.isSubmitting ? 'Processing...' : 'Process & Invite Users'}
                                     </Button>
                                 </form>
                             </TabsContent>
@@ -337,8 +364,8 @@ export default function UserManagementPage() {
 
                 <Card className="shadow-xl rounded-lg max-w-4xl mx-auto">
                     <CardHeader>
-                        <CardTitle className="font-headline text-xl text-primary">Recently Added Users</CardTitle>
-                        <CardDescription>This table shows users added during this session.</CardDescription>
+                        <CardTitle className="font-headline text-xl text-primary">Recently Invited Users</CardTitle>
+                        <CardDescription>This table shows users invited during this session.</CardDescription>
                     </CardHeader>
                     <CardContent>
                         <div className="overflow-x-auto rounded-md border">
@@ -361,7 +388,7 @@ export default function UserManagementPage() {
                                         </TableRow>
                                     )) : (
                                         <TableRow>
-                                            <TableCell colSpan={4} className="text-center text-muted-foreground">No users added yet.</TableCell>
+                                            <TableCell colSpan={4} className="text-center text-muted-foreground">No users invited yet.</TableCell>
                                         </TableRow>
                                     )}
                                 </TableBody>
