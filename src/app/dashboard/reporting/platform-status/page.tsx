@@ -8,12 +8,18 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, Responsive
 import { CheckCircle, AlertCircle, Wifi, Server, DatabaseZap } from "lucide-react";
 import { PageHeader } from '@/components/layout/page-header';
 import { useToast } from "@/hooks/use-toast";
-import { schoolData } from '@/lib/data';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { db, isFirebaseConfigured } from '@/lib/firebase/config';
+import { collection, getDocs } from 'firebase/firestore';
 
 // --- MOCK DATA & SIMULATION ---
+
+interface School {
+    id: string;
+    name: string;
+}
 
 interface SchoolStatus {
     id: string;
@@ -24,12 +30,24 @@ interface SchoolStatus {
     dataOutput: number;
 }
 
+async function fetchSchoolsFromFirestore(): Promise<School[]> {
+    if (!db || !isFirebaseConfigured) {
+        return [];
+    }
+    const schoolsSnapshot = await getDocs(collection(db, "schools"));
+    return schoolsSnapshot.docs.map(doc => ({
+        id: doc.id,
+        name: doc.data().name,
+    }));
+}
+
+
 // Simulate fetching and dynamically updating school status
-async function fetchSchoolStatuses(): Promise<SchoolStatus[]> {
+async function fetchSchoolStatuses(schools: School[]): Promise<SchoolStatus[]> {
     console.log("Simulating fetch of school statuses...");
     await new Promise(resolve => setTimeout(resolve, 800));
 
-    return schoolData.map(school => {
+    return schools.map(school => {
         const random = Math.random();
         let status: SchoolStatus['status'] = 'Connected';
         let latency = Math.floor(Math.random() * 80) + 20; // 20-100ms
@@ -62,8 +80,13 @@ export default function PlatformStatusPage() {
         const loadData = async () => {
             setIsLoading(true);
             try {
-                const data = await fetchSchoolStatuses();
-                setSchoolStatuses(data);
+                const schools = await fetchSchoolsFromFirestore();
+                if (schools.length > 0) {
+                    const data = await fetchSchoolStatuses(schools);
+                    setSchoolStatuses(data);
+                } else {
+                    setSchoolStatuses([]);
+                }
             } catch (error) {
                 toast({
                     variant: "destructive",
