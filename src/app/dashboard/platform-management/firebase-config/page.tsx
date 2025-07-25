@@ -11,7 +11,7 @@ import {
 import { PageHeader } from "@/components/layout/page-header";
 import { Alert, AlertTitle, AlertDescription } from "@/components/ui/alert";
 import Link from 'next/link';
-import { isFirebaseConfigured, db, firebaseConfig } from '@/lib/firebase/config';
+import { isFirebaseConfigured, db } from '@/lib/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
@@ -37,16 +37,15 @@ export default function FirebaseConfigPage() {
     });
 
     useEffect(() => {
-        const geminiKey = process.env.GEMINI_API_KEY; 
         setConnectionKeys({
-            apiKey: firebaseConfig.apiKey || 'Not Set',
-            authDomain: firebaseConfig.authDomain || 'Not Set',
-            projectId: firebaseConfig.projectId || 'Not Set',
-            storageBucket: firebaseConfig.storageBucket || 'Not Set',
-            messagingSenderId: firebaseConfig.messagingSenderId || 'Not Set',
-            appId: firebaseConfig.appId || 'Not Set',
+            apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY || 'Not Set',
+            authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN || 'Not Set',
+            projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || 'Not Set',
+            storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET || 'Not Set',
+            messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID || 'Not Set',
+            appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID || 'Not Set',
             databaseId: process.env.NEXT_PUBLIC_FIREBASE_DATABASE_ID || '(default)',
-            geminiApiKey: geminiKey ? `${geminiKey.substring(0, 4)}...${geminiKey.slice(-4)}` : 'Not Set',
+            geminiApiKey: process.env.GEMINI_API_KEY ? `${process.env.GEMINI_API_KEY.substring(0, 4)}...${process.env.GEMINI_API_KEY.slice(-4)}` : 'Not Set',
         });
     }, []);
 
@@ -97,7 +96,7 @@ export default function FirebaseConfigPage() {
             return;
         }
 
-        if (!window.confirm("Are you sure you want to seed the database? This may overwrite existing data with the same IDs.")) {
+        if (!window.confirm("This will create or update the system admin user. It's safe to run multiple times. Continue?")) {
             return;
         }
 
