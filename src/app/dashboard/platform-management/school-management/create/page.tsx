@@ -12,10 +12,11 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft, Loader2, PlusCircle } from 'lucide-react';
+import { ArrowLeft, Loader2, PlusCircle, AlertTriangle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
 import { doc, setDoc } from 'firebase/firestore';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 const CreateSchoolSchema = z.object({
   id: z.string().min(3, 'School ID must be at least 3 characters.'),
@@ -27,7 +28,7 @@ const CreateSchoolSchema = z.object({
 type CreateSchoolFormData = z.infer<typeof CreateSchoolSchema>;
 
 async function createSchoolInBackend(data: CreateSchoolFormData): Promise<{ success: boolean }> {
-    if (!db || !isFirebaseConfigured) {
+    if (!db) { // This check is redundant now but good for safety
         throw new Error("Firebase is not configured.");
     }
     const schoolRef = doc(db, 'schools', data.id);
@@ -53,6 +54,15 @@ export default function CreateSchoolPage() {
     });
 
     const onSubmit: SubmitHandler<CreateSchoolFormData> = async (data) => {
+        if (!isFirebaseConfigured) {
+            toast({
+                variant: 'destructive',
+                title: 'Creation Failed',
+                description: 'Firebase is not configured. Please check your .env file.',
+            });
+            return;
+        }
+
         try {
             await createSchoolInBackend(data);
             toast({
@@ -80,6 +90,16 @@ export default function CreateSchoolPage() {
                 <Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Back to List</Button>
               </Link>
             </PageHeader>
+
+            {!isFirebaseConfigured && (
+                <Alert variant="destructive">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Firebase Not Configured</AlertTitle>
+                    <AlertDescription>
+                        The application cannot connect to Firebase. The form is in read-only mode and new schools cannot be created.
+                    </AlertDescription>
+                </Alert>
+            )}
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Card className="max-w-2xl mx-auto">
@@ -110,7 +130,7 @@ export default function CreateSchoolPage() {
                         </div>
                     </CardContent>
                     <CardFooter>
-                        <Button type="submit" disabled={isSubmitting} className="w-full">
+                        <Button type="submit" disabled={isSubmitting || !isFirebaseConfigured} className="w-full">
                             {isSubmitting ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <PlusCircle className="mr-2 h-4 w-4"/>}
                             {isSubmitting ? 'Creating...' : 'Create School'}
                         </Button>
