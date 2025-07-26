@@ -4,9 +4,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
 import { 
-    BarChart2, UserCog, Users, Building, Database, Settings, Bot, ArrowRight, Wifi
+    BarChart2, UserCog, Users, Building, Database, Settings, Bot, ArrowRight, Wifi, History, DatabaseZap
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 
@@ -25,6 +24,12 @@ const adminLinks: AdminLink[] = [
         description: "Generate and view reports."
     },
     {
+        href: "/dashboard/platform-management",
+        icon: UserCog,
+        title: "Platform Management",
+        description: "Manage the entire platform."
+    },
+    {
         href: "/dashboard/user-management",
         icon: Users,
         title: "User Management",
@@ -38,15 +43,9 @@ const adminLinks: AdminLink[] = [
     },
     {
         href: "/dashboard/platform-management/firebase-config",
-        icon: Database,
-        title: "Firebase Dashboard",
+        icon: DatabaseZap,
+        title: "Firebase Config",
         description: "View Firebase status and manage data."
-    },
-     {
-        href: "/dashboard/platform-management/platform-status",
-        icon: Wifi,
-        title: "Platform Status",
-        description: "Monitor school connectivity and health."
     },
     {
         href: "/dashboard/platform-management/app-settings",
@@ -60,33 +59,31 @@ const adminLinks: AdminLink[] = [
         title: "AI Assistant",
         description: "Develop the app with AI."
     },
+    {
+        href: "/dashboard/history",
+        icon: History,
+        title: "Rating History",
+        description: "Review your submitted ratings."
+    },
+    {
+        href: "/dashboard/settings",
+        icon: Settings,
+        title: "Settings",
+        description: "View application settings."
+    },
 ];
 
-const AdminCard = ({ link }: { link: AdminLink }) => {
+const AdminLinkItem = ({ link }: { link: AdminLink }) => {
   const Icon = link.icon;
 
   return (
-    <Card className="shadow-md hover:shadow-lg transition-shadow flex flex-col">
-      <CardHeader>
-        <div className="flex items-start gap-4">
-            <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1" />
-            <div>
-                <CardTitle className="font-headline text-lg">{link.title}</CardTitle>
-            </div>
+    <Link href={link.href} className="flex items-start gap-4 p-4 rounded-lg hover:bg-muted/50 transition-colors group">
+        <Icon className="h-6 w-6 text-primary flex-shrink-0 mt-1 group-hover:scale-110 transition-transform" />
+        <div className="flex-grow">
+            <p className="font-semibold text-foreground group-hover:text-primary transition-colors">{link.title}</p>
+            <p className="text-sm text-muted-foreground">{link.description}</p>
         </div>
-      </CardHeader>
-      <CardContent className="flex-grow">
-         <p className="text-sm text-muted-foreground">{link.description}</p>
-      </CardContent>
-      <CardContent>
-        <Link href={link.href}>
-        <Button variant="outline" className="w-full">
-            Go to {link.title}
-            <ArrowRight className="ml-2 h-4 w-4" />
-        </Button>
-        </Link>
-      </CardContent>
-    </Card>
+    </Link>
   );
 };
 
@@ -97,11 +94,15 @@ export function PlatformManagementClient() {
             title="Platform Management"
             description="Manage the entire platform, from schools and users to system settings and data."
         />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {adminLinks.map(link => (
-                <AdminCard key={link.href} link={link} />
-            ))}
-        </div>
+        <Card className="shadow-lg">
+            <CardContent className="p-6">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+                    {adminLinks.map(link => (
+                        <AdminLinkItem key={link.href} link={link} />
+                    ))}
+                </div>
+            </CardContent>
+        </Card>
     </div>
   );
 }
