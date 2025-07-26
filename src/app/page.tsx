@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2, School } from 'lucide-react';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, isFirebaseConfigured } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
@@ -28,11 +28,11 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         toast({
             variant: "destructive",
             title: "Firebase Not Configured",
-            description: "The Firebase connection is not available. Please check the configuration.",
+            description: "The Firebase connection is not available. Please check the environment variables.",
         });
         setIsLoading(false);
         return;
@@ -85,8 +85,8 @@ export default function LoginPage() {
         // Handle Errors here.
         console.error("Login failed:", error.message);
         let errorMessage = "An unknown error occurred.";
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
-            errorMessage = "The email or password you entered is incorrect.";
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-api-key') {
+            errorMessage = "The email, password, or API key is incorrect.";
         } else if (error.code === 'auth/invalid-email') {
             errorMessage = "Please enter a valid email address.";
         }
@@ -136,16 +136,7 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access the platform.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
-          {!isFirebaseConfigured && (
-            <Alert variant="destructive">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle>Firebase Not Configured</AlertTitle>
-                <AlertDescription>
-                    The app is in offline mode. Login is disabled.
-                </AlertDescription>
-            </Alert>
-          )}
-
+          
           {activeTab === 'school' && (
             <div>
               <Label htmlFor="schoolId">School ID</Label>
@@ -160,7 +151,7 @@ export default function LoginPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required/>
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured}>
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>
