@@ -100,8 +100,9 @@ export function Header() {
 
   const hasAccess = (allowedRoles?: string[]) => {
     if (!userRole) return false;
-    if (userRole === 'system-admin') return true;
-    if (!allowedRoles) return true;
+    // System Admins should see everything, always.
+    if (userRole === 'system-admin') return true; 
+    if (!allowedRoles) return true; // If no roles are specified, assume public
     return allowedRoles.includes(userRole);
   };
   
@@ -111,12 +112,15 @@ export function Header() {
     );
   }
 
-  const accessibleNavMenus = navMenuConfig
-    .map(menu => ({
-      ...menu,
-      links: menu.links.filter(link => hasAccess(link.roles)),
-    }))
-    .filter(menu => menu.links.length > 0);
+  // If the user is a system admin, show all links. Otherwise, filter by role.
+  const accessibleNavMenus = userRole === 'system-admin'
+    ? navMenuConfig
+    : navMenuConfig
+        .map(menu => ({
+          ...menu,
+          links: menu.links.filter(link => hasAccess(link.roles)),
+        }))
+        .filter(menu => menu.links.length > 0);
 
   const allAccessibleLinks = accessibleNavMenus.flatMap(menu => menu.links);
 
