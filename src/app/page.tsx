@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2, School } from 'lucide-react';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '@/lib/firebase/config';
+import { auth, isFirebaseConfigured } from '@/lib/firebase/config';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
@@ -28,7 +28,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!auth) {
+    if (!isFirebaseConfigured) {
         toast({
             variant: "destructive",
             title: "Firebase Not Configured",
@@ -151,10 +151,19 @@ export default function LoginPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required/>
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>
+           {!isFirebaseConfigured && (
+              <Alert variant="destructive">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle>Firebase Not Configured</AlertTitle>
+                  <AlertDescription>
+                      The application cannot connect to Firebase. The form is disabled.
+                  </AlertDescription>
+              </Alert>
+           )}
         </CardContent>
       </form>
     </Card>
