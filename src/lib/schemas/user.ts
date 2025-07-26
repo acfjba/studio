@@ -31,8 +31,4 @@ export const SingleUserFormSchema = z.object({
 
 export type User = z.infer<typeof UserSchema>;
 export type UserFormData = z.infer<typeof SingleUserFormSchema>;
-
-export type UserWithPassword = UserFormData & {
-  id: string;
-  displayName: string;
-};
+export type Role = (typeof userRoles)[number];

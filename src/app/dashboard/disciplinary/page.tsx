@@ -88,12 +88,6 @@ export default function DisciplinaryPage() {
   const [isFormModalOpen, setIsFormModalOpen] = useState(false);
   const [schoolId, setSchoolId] = useState<string | null>(null);
 
-  const [searchName, setSearchName] = useState('');
-  const [searchDob, setSearchDob] = useState('');
-  const [searchResults, setSearchResults] = useState<DisciplinaryRecord[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
     if (id) {
@@ -110,22 +104,13 @@ export default function DisciplinaryPage() {
     try {
       const fetchedRecords = await fetchDisciplinaryRecordsFromFirestore(schoolId);
       setRecords(fetchedRecords);
-       if (hasSearched) {
-          const results = fetchedRecords.filter(record =>
-              (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
-              (!searchDob || record.studentDob === searchDob)
-          );
-          setSearchResults(results);
-      } else {
-          setSearchResults(fetchedRecords);
-      }
     } catch (err) {
       setFetchError(err instanceof Error ? err.message : "An unknown error occurred.");
       setRecords([]);
     } finally {
       setIsLoading(false);
     }
-  }, [schoolId, hasSearched, searchName, searchDob]);
+  }, [schoolId]);
 
   useEffect(() => {
     loadRecords();
@@ -226,26 +211,6 @@ export default function DisciplinaryPage() {
         toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete record."});
     }
   };
-
-  const handleSearchRecords = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setIsSearching(true);
-    setHasSearched(true); 
-    
-    setTimeout(() => {
-        const results = records.filter(record =>
-            (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
-            (!searchDob || record.studentDob === searchDob)
-        );
-        setSearchResults(results);
-        if (results.length === 0) {
-            toast({ title: "No Results", description: "No records matched your current search criteria from available data.", variant: "default" });
-        } else {
-            toast({ title: "Search Applied", description: `Found ${results.length} record(s) in current data.` });
-        }
-        setIsSearching(false);
-    }, 300);
-  };
   
   const handlePrint = () => {
     toast({
@@ -261,10 +226,6 @@ export default function DisciplinaryPage() {
       description: "An email would be sent to the relevant parties.",
     });
   };
-
-  const displayedRecords = useMemo(() => {
-    return hasSearched ? searchResults : records;
-  }, [hasSearched, searchResults, records]);
 
   const yearOptions = useMemo(() => generateYearOptions(), []);
 
@@ -445,10 +406,10 @@ export default function DisciplinaryPage() {
           </Dialog>
 
           <div className="printable-area">
-            {!isLoading && displayedRecords.length > 0 && (
+            {!isLoading && records.length > 0 && (
                 <Card id="preview-section" className="p-4 mt-8">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-headline">All Disciplinary Records ({displayedRecords.length})</CardTitle>
+                    <CardTitle className="text-2xl font-headline">All Disciplinary Records ({records.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-x-auto">
@@ -464,7 +425,7 @@ export default function DisciplinaryPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {displayedRecords.map(record => (
+                            {records.map(record => (
                             <TableRow key={record.id}>
                                 <TableCell>{record.incidentDate}</TableCell>
                                 <TableCell>{record.studentName}</TableCell>
@@ -494,7 +455,7 @@ export default function DisciplinaryPage() {
                 </CardContent>
                 </Card>
             )}
-            {!isLoading && !fetchError && displayedRecords.length === 0 && (
+            {!isLoading && !fetchError && records.length === 0 && (
               <Card className="mt-6 bg-muted/30 print:hidden">
                 <CardHeader><CardTitle className="text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />No Disciplinary Records</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-foreground">No disciplinary records found for this school. Add one to get started.</p></CardContent>

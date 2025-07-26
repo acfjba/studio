@@ -95,13 +95,6 @@ export default function CounsellingPage() {
   const [schoolId, setSchoolId] = useState<string | null>(null);
   const [displayRecordId, setDisplayRecordId] = useState('');
 
-  // Search state
-  const [searchName, setSearchName] = useState('');
-  const [searchDob, setSearchDob] = useState('');
-  const [searchResults, setSearchResults] = useState<CounsellingRecord[]>([]);
-  const [hasSearched, setHasSearched] = useState(false);
-  const [isSearching, setIsSearching] = useState(false);
-
   useEffect(() => {
     const id = localStorage.getItem('schoolId');
     if (id) {
@@ -118,7 +111,6 @@ export default function CounsellingPage() {
     try {
       const fetchedRecords = await fetchCounsellingRecordsFromFirestore(schoolId);
       setRecords(fetchedRecords);
-      setSearchResults(fetchedRecords); // Initially show all
     } catch (err) {
       const msg = err instanceof Error ? err.message : "An unknown error occurred.";
       setFetchError(msg);
@@ -160,35 +152,6 @@ export default function CounsellingPage() {
 
   const watchedCounsellingType = watch("counsellingType");
   const showOtherCounsellingType = watchedCounsellingType === 'Other';
-  
-  const handleSearchRecords = useCallback(async (event?: React.FormEvent<HTMLFormElement>) => {
-    event?.preventDefault();
-    if (!schoolId) {
-      toast({ title: "Cannot Search", description: "School ID not available." });
-      return;
-    }
-    setIsSearching(true);
-    setHasSearched(true);
-    
-    try {
-        const sourceData = await fetchCounsellingRecordsFromFirestore(schoolId);
-        const results = sourceData.filter(record =>
-            (!searchName || record.studentName.toLowerCase().includes(searchName.toLowerCase())) &&
-            (!searchDob || record.studentDob === searchDob)
-        );
-        setSearchResults(results);
-        setRecords(results);
-        if (results.length === 0) {
-            toast({ title: "No Results", description: "No records matched your current search criteria.", variant: "default" });
-        } else {
-            toast({ title: "Search Applied", description: `Found ${results.length} record(s).` });
-        }
-    } catch (err) {
-        toast({ variant: 'destructive', title: "Search Error", description: "Failed to fetch and filter records." });
-    } finally {
-        setIsSearching(false);
-    }
-  }, [searchName, searchDob, schoolId, toast]);
   
   useEffect(() => {
     if (editingRecordId && isFormModalOpen) {
@@ -262,14 +225,6 @@ export default function CounsellingPage() {
         toast({ variant: "destructive", title: "Delete Failed", description: "Could not delete record."});
     }
   };
-
-  const handleClearSearch = () => {
-    setSearchName('');
-    setSearchDob('');
-    setHasSearched(false);
-    loadRecords();
-    toast({ title: "Search Cleared", description: "Displaying all records." });
-  };
   
   const handlePrint = () => {
     toast({ title: "Printing...", description: "Use your browser's print dialog to save as PDF or print." });
@@ -291,10 +246,6 @@ export default function CounsellingPage() {
       description: "An email would be sent to the relevant parties.",
     });
   };
-  
-  const displayedRecords = useMemo(() => {
-    return hasSearched ? searchResults : records;
-  }, [hasSearched, searchResults, records]);
 
   const yearOptions = useMemo(() => generateYearOptions(), []);
 
@@ -467,10 +418,10 @@ export default function CounsellingPage() {
           </Dialog>
 
           <div className="printable-area">
-            {!isLoading && displayedRecords.length > 0 && (
+            {!isLoading && records.length > 0 && (
                 <Card id="preview-section" className="p-4 mt-8">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-headline">{`All Counselling Records (${displayedRecords.length})`}</CardTitle>
+                    <CardTitle className="text-2xl font-headline">{`All Counselling Records (${records.length})`}</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-x-auto">
@@ -486,7 +437,7 @@ export default function CounsellingPage() {
                             </TableRow>
                         </TableHeader>
                         <TableBody>
-                            {displayedRecords.map(record => (
+                            {records.map(record => (
                             <TableRow key={record.id}>
                                 <TableCell>{record.sessionDate}</TableCell>
                                 <TableCell>{record.studentName}</TableCell>
@@ -512,7 +463,7 @@ export default function CounsellingPage() {
                 </CardContent>
                 </Card>
             )}
-           {!isLoading && !fetchError && displayedRecords.length === 0 && (
+           {!isLoading && !fetchError && records.length === 0 && (
              <Card className="mt-6 bg-muted/30 print:hidden">
                 <CardHeader><CardTitle className="text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />No Counselling Records</CardTitle></CardHeader>
                 <CardContent><p className="text-sm text-foreground">No counselling records found for this school. Add a new record to get started.</p></CardContent>

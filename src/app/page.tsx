@@ -65,20 +65,24 @@ export default function LoginPage() {
         }
 
         const userData = userDocSnap.data();
-        
+        const userRole = userData.role;
+
         // Role and School ID validation
         if (loginType === 'school') {
+            if (userRole === 'system-admin') {
+                throw new Error("System Admin must use the admin login portal.");
+            }
             if (userData.schoolId !== schoolId) {
                 throw new Error("School ID does not match your user profile.");
             }
         } else { // Admin login
-            if (userData.role !== 'system-admin') {
+            if (userRole !== 'system-admin') {
                 throw new Error("You do not have System Admin privileges.");
             }
         }
         
-        localStorage.setItem('userRole', userData.role);
-        localStorage.setItem('schoolId', userData.schoolId);
+        localStorage.setItem('userRole', userRole);
+        localStorage.setItem('schoolId', userData.schoolId || 'global');
 
         toast({
             title: "Login Successful",
@@ -89,7 +93,7 @@ export default function LoginPage() {
     } catch (error: any) {
         let errorMessage = "An unknown error occurred.";
         if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
-            errorMessage = "Invalid email or password. Please try again.";
+            errorMessage = "Invalid credentials. Please try again.";
         } else {
             errorMessage = error.message;
         }

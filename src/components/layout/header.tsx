@@ -39,6 +39,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
+import type { Role } from '@/lib/schemas/user';
 
 const dashboardLinks = [
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage all school operations.', roles: ['primary-admin', 'system-admin'] },
@@ -86,14 +87,14 @@ const navMenuConfig = [
 ];
 
 export function Header() {
-  const [userRole, setUserRole] = useState<string | null>(null);
+  const [userRole, setUserRole] = useState<Role | null>(null);
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
     if (typeof window !== 'undefined') {
-      const role = localStorage.getItem('userRole');
+      const role = localStorage.getItem('userRole') as Role | null;
       setUserRole(role);
     }
   }, [pathname]); // Re-check on path change
@@ -113,9 +114,7 @@ export function Header() {
   }
 
   // If the user is a system admin, show all links. Otherwise, filter by role.
-  const accessibleNavMenus = userRole === 'system-admin'
-    ? navMenuConfig
-    : navMenuConfig
+  const accessibleNavMenus = navMenuConfig
         .map(menu => ({
           ...menu,
           links: menu.links.filter(link => hasAccess(link.roles)),

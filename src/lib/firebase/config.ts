@@ -42,7 +42,6 @@ if (typeof window !== "undefined" && isFirebaseConfigured) {
                 provider: new ReCaptchaV3Provider(recaptchaSiteKey),
                 isTokenAutoRefreshEnabled: true
             });
-            console.log("App Check initialized successfully.");
         } catch(e) {
             console.error("App Check initialization error", e);
         }
