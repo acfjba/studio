@@ -1,3 +1,4 @@
+
 // functions/src/firebase/seed.ts
 import { adminDb, adminAuth } from './admin';
 import { 
@@ -27,11 +28,16 @@ interface SeedReport {
 /**
  * Seeds the database with essential data from JSON files.
  * This function is idempotent: it will update existing entries or create
- * them if they don't exist.
+ * them if they don't exist. It NO LONGER sets claims, which should be
+ * handled by a separate script.
  * @returns A report of all actions taken.
  */
 export async function seedDatabase(): Promise<SeedReport> {
   console.log("Starting database seed process...");
+  
+  if (!adminAuth || !adminDb) {
+    throw new Error("Firebase Admin SDK not initialized. Cannot seed database.");
+  }
 
   const report: SeedReport = {
     users: [],
@@ -45,7 +51,7 @@ export async function seedDatabase(): Promise<SeedReport> {
     ohsRecords: []
   };
 
-  // --- Users + Auth Claims ---
+  // --- Users ---
   if (!usersSeedData || usersSeedData.length === 0) {
     console.log("No users found in src/data/users.json. Skipping user seeding.");
   } else {
@@ -59,26 +65,23 @@ export async function seedDatabase(): Promise<SeedReport> {
           continue;
         }
         
-        let userRecord;
         try {
-          userRecord = await adminAuth.getUser(id);
-          await adminAuth.updateUser(userRecord.uid, { email, password, displayName });
-          report.users.push(`Updated Auth user: ${email}`);
+          // Check if user exists before trying to create.
+          await adminAuth.getUser(id);
+          report.users.push(`Auth user already exists: ${email}`);
         } catch (error: any) {
           if (error.code === 'auth/user-not-found') {
-            userRecord = await adminAuth.createUser({ uid: id, email, password, displayName });
+            await adminAuth.createUser({ uid: id, email, password, displayName });
             report.users.push(`Created Auth user: ${email}`);
           } else {
+            // Re-throw other auth errors
             throw error;
           }
         }
-
-        const claims = { role, schoolId: schoolId || null };
-        await adminAuth.setCustomUserClaims(userRecord.uid, claims);
-        report.users.push(`Set custom claims for ${email}: role=${role}, schoolId=${schoolId || 'null'}`);
         
-        await adminDb.collection("users").doc(id).set({ email, displayName, role, schoolId: schoolId || null });
-        report.users.push(`Set Firestore document for ${email}`);
+        // Write/update user data in Firestore 'users' collection
+        await adminDb.collection("users").doc(id).set({ id, email, displayName, role, schoolId: schoolId || null });
+        report.users.push(`-> Set/updated Firestore document for ${email}`);
         
       } catch (error) {
         console.error(`❌ Error processing user ${u.email}:`, error);
