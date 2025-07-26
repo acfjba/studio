@@ -131,23 +131,10 @@ export default function DocumentVaultPage() {
             </Card>
             <Card>
                 <CardHeader>
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-                        <div className="relative">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                            <Input
-                                id="searchDocs"
-                                type="search"
-                                placeholder="Search by document name or type..."
-                                value={searchTerm}
-                                onChange={(e) => setSearchTerm(e.target.value)}
-                                className="pl-10 w-full sm:w-80"
-                            />
-                        </div>
-                        <Button onClick={handleDownloadIndex} disabled={isLoading || documents.length === 0}>
-                            <FileDown className="mr-2 h-4 w-4" />
-                            Download Index (CSV)
-                        </Button>
-                    </div>
+                    <Button onClick={handleDownloadIndex} disabled={isLoading || documents.length === 0}>
+                        <FileDown className="mr-2 h-4 w-4" />
+                        Download Index (CSV)
+                    </Button>
                 </CardHeader>
                 <CardContent>
                     {isLoading ? (

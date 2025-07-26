@@ -85,11 +85,7 @@ export default function CreateSchoolPage() {
             <PageHeader 
                 title="Create New School"
                 description="Add a new school to the platform by providing its details below."
-            >
-              <Link href="/dashboard/platform-management/school-management">
-                <Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Back to List</Button>
-              </Link>
-            </PageHeader>
+            />
 
             {!isFirebaseConfigured && (
                 <Alert variant="destructive">

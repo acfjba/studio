@@ -296,20 +296,6 @@ export default function StaffRecordsPage() {
 
         <Card className="shadow-xl rounded-lg">
           <CardContent className="pt-6">
-            <div className="mb-6">
-              <Label htmlFor="searchStaff" className="sr-only">Search Staff</Label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input
-                  id="searchStaff"
-                  type="search"
-                  placeholder="Search by name, ID, or role..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10 w-full"
-                />
-              </div>
-            </div>
             {isLoading ? (
               <div className="space-y-2">
                 {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}

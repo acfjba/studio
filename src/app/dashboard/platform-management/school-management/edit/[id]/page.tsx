@@ -106,11 +106,7 @@ export default function EditSchoolPage() {
             <PageHeader 
                 title="Edit School"
                 description={`Modify the details for school ID: ${schoolId}`}
-            >
-              <Link href="/dashboard/platform-management/school-management">
-                <Button variant="outline"><ArrowLeft className="mr-2 h-4 w-4"/>Back to List</Button>
-              </Link>
-            </PageHeader>
+            />
 
             <form onSubmit={handleSubmit(onSubmit)}>
                 <Card className="max-w-2xl mx-auto">

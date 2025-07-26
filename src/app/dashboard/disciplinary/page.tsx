@@ -444,49 +444,11 @@ export default function DisciplinaryPage() {
             </DialogContent>
           </Dialog>
 
-          <Card id="search-section" className="my-8 p-4 print:hidden">
-            <CardHeader>
-                <CardTitle className="text-2xl font-headline flex items-center"><SearchIcon className="mr-2 h-6 w-6"/>Search Records</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form onSubmit={handleSearchRecords} className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="search-name">Student Name</Label>
-                      <Input type="text" id="search-name" value={searchName} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchName(e.target.value)} placeholder="Enter full or partial name" />
-                    </div>
-                    <div>
-                      <Label htmlFor="search-dob">Date of Birth</Label>
-                      <Input type="date" id="search-dob" value={searchDob} onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchDob(e.target.value)} />
-                    </div>
-                  </div>
-                  <Button type="submit" className="w-full" disabled={isSearching}>
-                    {isSearching ? 'Searching...' : 'Search'}
-                  </Button>
-                </form>
-            </CardContent>
-          </Card>
-          
-          {isLoading && (
-             <div className="space-y-2 my-8 print:hidden">
-                <Skeleton className="h-10 w-1/2" />
-                <Skeleton className="h-20 w-full" />
-                <Skeleton className="h-20 w-full" />
-            </div>
-          )}
-
-          {!isLoading && fetchError && isFirebaseConfigured && (
-            <Card className="mt-6 bg-destructive/10 border-destructive print:hidden">
-                <CardHeader><CardTitle className="text-base text-destructive flex items-center"><AlertCircle className="mr-2 h-5 w-5" /> Error Loading Data</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-destructive">{fetchError}</p></CardContent>
-            </Card>
-          )}
-
           <div className="printable-area">
             {!isLoading && displayedRecords.length > 0 && (
-                <Card id="preview-section" className="p-4">
+                <Card id="preview-section" className="p-4 mt-8">
                 <CardHeader>
-                    <CardTitle className="text-2xl font-headline">{hasSearched ? `Search Results (${displayedRecords.length})` : `All Disciplinary Records (${displayedRecords.length})`}</CardTitle>
+                    <CardTitle className="text-2xl font-headline">All Disciplinary Records ({displayedRecords.length})</CardTitle>
                 </CardHeader>
                 <CardContent>
                     <div className="overflow-x-auto">
@@ -527,15 +489,15 @@ export default function DisciplinaryPage() {
                         </Table>
                     </div>
                     <Button onClick={handlePrint} className="w-full sm:w-auto mt-6 print:hidden">
-                        <Printer className="mr-2 h-5 w-5" /> Print {hasSearched ? 'Results' : 'Records'}
+                        <Printer className="mr-2 h-5 w-5" /> Print Records
                     </Button>
                 </CardContent>
                 </Card>
             )}
             {!isLoading && !fetchError && displayedRecords.length === 0 && (
               <Card className="mt-6 bg-muted/30 print:hidden">
-                <CardHeader><CardTitle className="text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />{hasSearched ? 'No Results Found' : 'No Disciplinary Records'}</CardTitle></CardHeader>
-                <CardContent><p className="text-sm text-foreground">{hasSearched ? 'No disciplinary records matched your search criteria.' : 'No disciplinary records found for this school. Add one to get started.'}</p></CardContent>
+                <CardHeader><CardTitle className="text-base flex items-center"><AlertCircle className="mr-2 h-5 w-5" />No Disciplinary Records</CardTitle></CardHeader>
+                <CardContent><p className="text-sm text-foreground">No disciplinary records found for this school. Add one to get started.</p></CardContent>
               </Card>
             )}
             </div>

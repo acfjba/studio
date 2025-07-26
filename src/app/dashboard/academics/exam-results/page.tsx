@@ -349,17 +349,6 @@ export default function ExamResultsManagementPage() {
       <Card>
         <CardContent className="pt-6">
           <div className="flex flex-col sm:flex-row gap-4 mb-6 print:hidden">
-            <div className="relative flex-grow">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input
-                id="searchExams"
-                type="search"
-                placeholder="Search by Student Name, ID, or Subject..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full"
-              />
-            </div>
             <div className="flex items-center gap-2">
               <Label htmlFor="year-filter" className="font-semibold whitespace-nowrap">Filter by Year:</Label>
               <Select value={yearFilter} onValueChange={setYearFilter}>

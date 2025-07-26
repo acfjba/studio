@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { 
-  LayoutGrid, UserCog, GraduationCap, Settings2, DatabaseZap, LogOut, Home,
+  LayoutGrid, UserCog, GraduationCap, Settings2, DatabaseZap, Home,
   Users, UserPlus, ClipboardList, ClipboardCheck, Gavel, HeartPulse, ShieldAlert, Library as LibraryIcon, LineChartIcon, FileText, HelpCircle, Building2, BookOpen
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -81,14 +81,6 @@ export function PrimaryAdminClient() {
   useEffect(() => {
     setCurrentLastBackup(new Date(mockAdminStats.lastBackup).toLocaleDateString());
   }, []);
-
-
-  const handleLogout = () => {
-    signOut(auth);
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('schoolId');
-    router.push('/');
-  };
 
   const NavItem = ({ label, section, icon: Icon }: AdminNavItem) => (
     <div
@@ -192,26 +184,6 @@ export function PrimaryAdminClient() {
                 <NavItem key={item.section} {...item} />
             ))}
             </nav>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Link href="/dashboard">
-                  <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:bg-accent/50 mb-2 p-3">
-                    <Home size={18} className="mr-2" />
-                    Return to Dashboard
-                  </Button>
-                </Link>
-              </TooltipTrigger>
-              <TooltipContent side="right">
-                <p>Go back to the main user dashboard.</p>
-              </TooltipContent>
-            </Tooltip>
-            <Button 
-                onClick={handleLogout} 
-                className="w-full mt-auto bg-destructive text-destructive-foreground hover:bg-destructive/90"
-            >
-            <LogOut size={18} className="mr-2"/>
-            Logout
-            </Button>
         </aside>
 
         <main className="flex-1 p-4 sm:p-6 md:p-8 md:ml-64">

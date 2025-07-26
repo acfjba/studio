@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 import { 
-  BarChart3, Bell, FileText, LogOutIcon, Home, Printer, Download, AlertCircle, Users, MailWarning, CheckCircle, Award, TimerOff, 
+  BarChart3, Bell, FileText, Home, Printer, Download, AlertCircle, Users, MailWarning, CheckCircle, Award, TimerOff, 
   CalendarClock, UserCheck, Save, HelpCircle, ShieldAlert, Gavel, Building2, UsersRound, MailPlus, HeartHandshake, ClipboardCheck, Boxes, Target, MailCheck as MailCheckIcon, BarChart2 as BarChart2Icon, ArrowLeft
 } from 'lucide-react';
 import { useToast } from "@/hooks/use-toast";
@@ -323,14 +323,6 @@ export function HeadTeacherClient() {
     link.click();
     document.body.removeChild(link);
     toast({ title: "Export to Excel (CSV)", description: "Report has been downloaded as a CSV file." });
-  };
-
-
-  const handleLogout = () => {
-    signOut(auth);
-    localStorage.removeItem('userRole');
-    localStorage.removeItem('schoolId');
-    router.push('/');
   };
 
   const handleNotesChange = (teacherId: string, value: string) => {
@@ -867,26 +859,6 @@ export function HeadTeacherClient() {
           <NavItem label="Reports" tabName="reports" icon={FileText} />
           <NavItem label="Teacher Assessment" tabName="assessment" icon={UserCheck} />
         </nav>
-        <Tooltip>
-          <TooltipTrigger asChild>
-            <Link href="/dashboard">
-              <Button variant="ghost" className="w-full justify-start text-muted-foreground hover:text-primary mb-2 p-3">
-                <Home size={18} className="mr-2" />
-                Return to Dashboard
-              </Button>
-            </Link>
-          </TooltipTrigger>
-          <TooltipContent side="right">
-            <p>Go back to the main user dashboard.</p>
-          </TooltipContent>
-        </Tooltip>
-        <Button 
-            onClick={handleLogout} 
-            className="w-full mt-auto bg-destructive text-destructive-foreground hover:bg-destructive/90 font-semibold py-2.5"
-        >
-          <LogOutIcon size={18} className="mr-2"/>
-          Logout
-        </Button>
       </aside>
 
       <main className="flex-1 p-4 sm:p-6 md:p-8 md:ml-64">
