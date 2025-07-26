@@ -1,4 +1,3 @@
-
 // functions/src/firebase/seed.ts
 import { doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
