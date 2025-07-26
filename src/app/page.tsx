@@ -10,14 +10,14 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2, School } from 'lucide-react';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth, isFirebaseConfigured } from '@/lib/firebase/config';
+import { auth } from '@/lib/firebase/config';
 import Link from 'next/link';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('systemadmin@system.com');
-  const [password, setPassword] = useState('password123');
+  const [password, setPassword] = useState('admin12345');
   const [schoolId, setSchoolId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [activeTab, setActiveTab] = useState('admin');
@@ -28,7 +28,7 @@ export default function LoginPage() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!isFirebaseConfigured) {
+    if (!auth) {
         toast({
             variant: "destructive",
             title: "Firebase Not Configured",
@@ -156,7 +156,7 @@ export default function LoginPage() {
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>
-           {!isFirebaseConfigured && (
+           {!auth && (
               <Alert variant="destructive">
                   <AlertTriangle className="h-4 w-4" />
                   <AlertTitle>Firebase Not Configured</AlertTitle>
