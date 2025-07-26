@@ -1,5 +1,4 @@
 // functions/src/firebase/seed.ts
-import { doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
 import { 
   usersSeedData, 
@@ -74,10 +73,11 @@ export async function seedDatabase(): Promise<SeedReport> {
           }
         }
 
-        const claims = { role, schoolId: schoolId ?? null };
+        const claims = { role, schoolId: schoolId || null };
         await adminAuth.setCustomUserClaims(userRecord.uid, claims);
+        report.users.push(`Set custom claims for ${email}: role=${role}, schoolId=${schoolId || 'null'}`);
         
-        await adminDb.collection("users").doc(id).set({ email, displayName, role, schoolId: schoolId ?? null });
+        await adminDb.collection("users").doc(id).set({ email, displayName, role, schoolId: schoolId || null });
         report.users.push(`Set Firestore document for ${email}`);
         
       } catch (error) {
