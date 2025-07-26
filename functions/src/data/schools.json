@@ -1,2 +1,9 @@
 
-[]
+[
+  {
+    "id": "SCH-100",
+    "name": "Navolau District School",
+    "address": "Navolau, Ba",
+    "type": "Primary School"
+  }
+]
