@@ -1,3 +1,4 @@
+
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import {
@@ -11,14 +12,12 @@ import {
 } from '@/components/ui/dropdown-menu';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
 
 export function UserNav() {
   const router = useRouter();
 
   const handleLogout = () => {
-    signOut(auth);
+    // In design bypass mode, just redirect to the root.
     localStorage.removeItem('userRole');
     localStorage.removeItem('schoolId');
     router.push('/');
@@ -37,8 +36,8 @@ export function UserNav() {
       <DropdownMenuContent className="w-56" align="end" forceMount>
         <DropdownMenuLabel className="font-normal">
           <div className="flex flex-col space-y-1">
-            <p className="text-sm font-medium leading-none">Admin</p>
-            <p className="text-xs leading-none text-muted-foreground">admin@school.edu</p>
+            <p className="text-sm font-medium leading-none">Design User</p>
+            <p className="text-xs leading-none text-muted-foreground">system.admin@design.com</p>
           </div>
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
