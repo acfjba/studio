@@ -51,7 +51,7 @@ export default function LoginPage() {
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         // Success. Now, get claims and redirect.
-        const idTokenResult = await userCredential.user.getIdTokenResult();
+        const idTokenResult = await userCredential.user.getIdTokenResult(true);
         const claims = idTokenResult.claims;
         const userRole = claims.role as string;
         const userSchoolId = claims.schoolId as string | null;
