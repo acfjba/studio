@@ -28,9 +28,9 @@ const majorExamsData = [
 ];
 const lanaSummary = { literacyPassRate: 85.2, numeracyPassRate: 88.9, totalCandidates: 150 };
 
-async function fetchExamResults(schoolId: string): Promise<ExamResult[]> {
+async function fetchAllExamResults(): Promise<ExamResult[]> {
   if (!db) throw new Error("Firestore is not configured.");
-  const q = query(collection(db, 'examResults'), where("schoolId", "==", schoolId));
+  const q = query(collection(db, 'examResults'));
   const snapshot = await getDocs(q);
   return snapshot.docs.map(doc => {
       const data = doc.data();
@@ -47,28 +47,17 @@ export default function ExamSummaryPage() {
     const [detailedResults, setDetailedResults] = useState<ExamResult[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [fetchError, setFetchError] = useState<string|null>(null);
-    const [schoolId, setSchoolId] = useState<string|null>(null);
     const [termFilter, setTermFilter] = useState('All');
     const [academicYearFilter, setAcademicYearFilter] = useState('All');
 
-    useEffect(() => {
-      const id = localStorage.getItem('schoolId');
-      setSchoolId(id);
-      if (!id) {
-          setIsLoading(false);
-      }
-    }, []);
-
     const loadData = useCallback(async () => {
-      if (!schoolId) {
-        if (isFirebaseConfigured) setFetchError("School ID not found.");
-        setIsLoading(false);
-        return;
-      }
       setIsLoading(true);
       setFetchError(null);
       try {
-        const results = await fetchExamResults(schoolId);
+        if (!isFirebaseConfigured) {
+          throw new Error("Firebase is not configured. Cannot load summary.");
+        }
+        const results = await fetchAllExamResults();
         setDetailedResults(results);
         if (results.length > 0) {
             const latestYear = Math.max(...results.map(r => parseInt(r.year, 10))).toString();
@@ -79,7 +68,7 @@ export default function ExamSummaryPage() {
       } finally {
         setIsLoading(false);
       }
-    }, [schoolId]);
+    }, []);
 
     useEffect(() => {
       loadData();

@@ -12,17 +12,22 @@ import type { ClassroomInventory } from '@/lib/schemas/classroom-inventory';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/layout/page-header';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
-import { collectionGroup, getDocs } from 'firebase/firestore';
+import { collectionGroup, getDocs, query, where } from 'firebase/firestore';
 
 
 async function fetchFullInventoryFromBackend(schoolId: string): Promise<ClassroomInventory[]> {
     if (!db) throw new Error("Firestore is not configured.");
     // This is an advanced query that gets all documents from any subcollection named 'classroomInventory'
-    // It requires a composite index in Firestore to work across all schools for a system-admin.
-    // For a school admin, we'd add a where() clause.
+    // It is filtered by the schoolId, which is stored on the parent document. This requires an index.
     const inventoryGroup = collectionGroup(db, 'classroomInventory');
+    const q = query(inventoryGroup, where('schoolId', '==', schoolId)); // This requires a composite index
     const snapshot = await getDocs(inventoryGroup);
-    return snapshot.docs.map(doc => doc.data() as ClassroomInventory);
+    
+    // Client-side filter as `where` on parent doc fields is not directly supported in collectionGroup queries
+    const schoolDocPath = `schools/${schoolId}`;
+    return snapshot.docs
+      .filter(doc => doc.ref.parent.parent?.path === schoolDocPath)
+      .map(doc => doc.data() as ClassroomInventory);
 }
 
 
@@ -90,8 +95,10 @@ export default function InventorySummaryPage() {
     }, []);
 
     useEffect(() => {
-        loadData();
-    }, [loadData]);
+        if(schoolId) {
+            loadData();
+        }
+    }, [schoolId, loadData]);
 
     const chartData = useMemo(() => {
         return aggregatedData.map(item => ({
