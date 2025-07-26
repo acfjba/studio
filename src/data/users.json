@@ -1,27 +1,2 @@
 
-[
-  {
-    "id": "user_sysadmin_global",
-    "email": "sysadmin@system.com",
-    "password": "password123",
-    "displayName": "System Admin",
-    "role": "system-admin",
-    "schoolId": null
-  },
-  {
-    "id": "user_head_teacher_1",
-    "email": "headteacher@school.com",
-    "password": "password123",
-    "displayName": "Head Teacher",
-    "role": "head-teacher",
-    "schoolId": "SCH-001"
-  },
-  {
-    "id": "user_teacher_1",
-    "email": "teacher@school.com",
-    "password": "password123",
-    "displayName": "Teacher",
-    "role": "teacher",
-    "schoolId": "SCH-001"
-  }
-]
+[]

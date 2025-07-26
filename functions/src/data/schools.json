@@ -1,21 +1,2 @@
 
-[
-    {
-        "id": "SCH-001",
-        "name": "Suva Grammar School",
-        "address": "123 Grammar Way, Suva",
-        "type": "Secondary"
-    },
-    {
-        "id": "SCH-002",
-        "name": "Nadi International School",
-        "address": "456 Airport Road, Nadi",
-        "type": "Primary & Secondary"
-    },
-    {
-        "id": "SCH-003",
-        "name": "Lautoka Central College",
-        "address": "789 Sugar Ave, Lautoka",
-        "type": "Secondary"
-    }
-]
+[]
