@@ -43,6 +43,7 @@ const adminSubNavs: Record<AdminSection, AdminSubNavItem[]> = {
   overview: [], 
   userManagement: [
     { label: "Staff Records", href: "/dashboard/staff", icon: Users },
+    { label: "Invite Teachers", href: "/dashboard/user-management", icon: UserPlus },
     { label: "Teacher List & Ratings", href: "/dashboard/teachers", icon: Users },
   ],
   academicRecords: [
