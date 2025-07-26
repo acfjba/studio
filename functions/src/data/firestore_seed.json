@@ -12,9 +12,9 @@
   },
   {
     "collection": "users",
-    "doc": "system_admin_user",
+    "doc": "systemadmin",
     "data": {
-      "id": "system_admin_user",
+      "id": "systemadmin",
       "email": "systemadmin@system.com",
       "displayName": "System Admin",
       "role": "system-admin",

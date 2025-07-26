@@ -1,51 +1,59 @@
 
 [
   {
-    "uid": "system_admin_user",
-    "email": "systemadmin@system.com",
-    "password": "admin12345",
-    "displayName": "System Admin"
-  },
-  {
     "uid": "primaryadmin_navolaudistrictschool",
     "email": "navolaudistrictschool@yahoo.com",
-    "password": "password123",
-    "displayName": "Navolau District School Admin"
-  },
-  {
-    "uid": "headteacher_rosabatina3",
-    "email": "rosabatina3@gmail.com",
-    "password": "password123",
-    "displayName": "Rosa Batina"
+    "password": "2009@nav",
+    "displayName": "Primaryadmin",
+    "disabled": false
   },
   {
     "uid": "teacher_lureqeleticia",
     "email": "lureqeleticia@gmail.com",
-    "password": "password123",
-    "displayName": "Lureqe Leticia"
+    "password": "82739@nav",
+    "displayName": "Teacher",
+    "disabled": false
   },
   {
     "uid": "teacher_eshitaprasad028",
     "email": "eshitaprasad028@gmail.com",
-    "password": "password123",
-    "displayName": "Eshita Prasad"
+    "password": "115498@nav",
+    "displayName": "Teacher",
+    "disabled": false
   },
   {
     "uid": "teacher_kolovanimeiwaga",
     "email": "kolovanimeiwaga@yahoo.com",
-    "password": "password123",
-    "displayName": "Kolovani Meiwaga"
+    "password": "85566@nav",
+    "displayName": "Teacher",
+    "disabled": false
+  },
+  {
+    "uid": "headteacher_rosabatina3",
+    "email": "rosabatina3@gmail.com",
+    "password": "65486@nav",
+    "displayName": "Headteacher",
+    "disabled": false
   },
   {
     "uid": "teacher_milielinatale6",
     "email": "milielinatale6@gmail.com",
-    "password": "password123",
-    "displayName": "Milieli Natale"
+    "password": "83378@nav",
+    "displayName": "Teacher",
+    "disabled": false
   },
   {
     "uid": "teacher_mwatabu",
     "email": "mwatabu@gmail.com",
-    "password": "password123",
-    "displayName": "M. Watabu"
+    "password": "84761@nav",
+    "displayName": "Teacher",
+    "disabled": false
+  },
+  {
+    "uid": "systemadmin",
+    "email": "systemadmin@system.com",
+    "password": "admin12345",
+    "displayName": "System Admin",
+    "disabled": false
   }
 ]
