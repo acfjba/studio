@@ -16,11 +16,11 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { AlertTriangle } from 'lucide-react';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState('systemadmin@system.com');
+  const [password, setPassword] = useState('password123');
   const [schoolId, setSchoolId] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('school');
+  const [activeTab, setActiveTab] = useState('admin');
   const { toast } = useToast();
   const router = useRouter();
 
@@ -152,7 +152,7 @@ export default function LoginPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required/>
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured}>
+          <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>

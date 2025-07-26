@@ -3,7 +3,7 @@
   {
     "id": "system_admin_user",
     "email": "systemadmin@system.com",
-    "password": "admin12345",
+    "password": "password123",
     "displayName": "System Admin",
     "role": "system-admin",
     "schoolId": null
