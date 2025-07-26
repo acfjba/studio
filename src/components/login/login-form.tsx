@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from '@/lib/firebase/config';
+import { auth, isFirebaseConfigured } from '@/lib/firebase/config';
 
 export function LoginForm() {
   const [email, setEmail] = useState('');
@@ -24,6 +24,16 @@ export function LoginForm() {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+
+    if (!isFirebaseConfigured) {
+        toast({
+            variant: "destructive",
+            title: "Firebase Not Configured",
+            description: "Please provide your Firebase credentials in the .env file to log in.",
+        });
+        setIsLoading(false);
+        return;
+    }
 
     if (!email || !password) {
         toast({
