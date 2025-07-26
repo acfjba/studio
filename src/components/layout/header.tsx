@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -33,6 +33,7 @@ import {
   Gavel,
   BookOpen,
   Wifi,
+  LogIn,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -85,6 +86,7 @@ const navMenuConfig = [
 export function Header() {
   const [userRole, setUserRole] = useState<string | null>(null);
   const [isClient, setIsClient] = useState(false);
+  const pathname = usePathname();
 
   useEffect(() => {
     setIsClient(true);
@@ -92,23 +94,18 @@ export function Header() {
       const role = localStorage.getItem('userRole');
       setUserRole(role);
     }
-  }, []);
+  }, [pathname]); // Re-check on path change
 
   const hasAccess = (allowedRoles?: string[]) => {
     if (!userRole) return false;
     if (userRole === 'system-admin') return true;
-    if (!allowedRoles) return true; // if no roles are specified, everyone has access
+    if (!allowedRoles) return true;
     return allowedRoles.includes(userRole);
   };
   
   if (!isClient) {
     return (
-      <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6">
-        <div className="flex items-center gap-2 text-lg font-semibold md:text-base">
-          <School className="h-6 w-6 text-primary" />
-          <span className="sr-only">School Data Insights</span>
-        </div>
-      </header>
+      <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6" />
     );
   }
 
@@ -124,28 +121,30 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 flex h-16 items-center gap-4 border-b bg-background px-4 md:px-6 print:hidden">
       <nav className="hidden flex-col gap-6 text-lg font-medium md:flex md:flex-row md:items-center md:gap-5 md:text-sm lg:gap-6">
-        <Link href="/dashboard/profile" className="flex items-center gap-2 text-lg font-semibold md:text-base">
+        <Link href={userRole ? "/dashboard/profile" : "/"} className="flex items-center gap-2 text-lg font-semibold md:text-base">
           <School className="h-6 w-6 text-primary" />
           <span className="sr-only">School Data Insights</span>
         </Link>
-        <NavigationMenu>
-          <NavigationMenuList>
-            {accessibleNavMenus.map(menu => (
-                <NavigationMenuItem key={menu.name}>
-                    <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                        <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
-                            {menu.links.map((component) => (
-                                <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
-                                    {component.description}
-                                </ListItem>
-                            ))}
-                        </ul>
-                    </NavigationMenuContent>
-                </NavigationMenuItem>
-            ))}
-          </NavigationMenuList>
-        </NavigationMenu>
+        {userRole && (
+          <NavigationMenu>
+            <NavigationMenuList>
+              {accessibleNavMenus.map(menu => (
+                  <NavigationMenuItem key={menu.name}>
+                      <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
+                      <NavigationMenuContent>
+                          <ul className="grid w-[400px] gap-3 p-4 md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+                              {menu.links.map((component) => (
+                                  <ListItem key={component.label} title={component.label} href={component.href} icon={component.icon}>
+                                      {component.description}
+                                  </ListItem>
+                              ))}
+                          </ul>
+                      </NavigationMenuContent>
+                  </NavigationMenuItem>
+              ))}
+            </NavigationMenuList>
+          </NavigationMenu>
+        )}
       </nav>
       <Sheet>
         <SheetTrigger asChild>
@@ -156,30 +155,48 @@ export function Header() {
         </SheetTrigger>
         <SheetContent side="left">
           <nav className="grid gap-6 text-lg font-medium">
-            <Link href="/dashboard/profile" className="flex items-center gap-2 text-lg font-semibold">
+            <Link href={userRole ? "/dashboard/profile" : "/"} className="flex items-center gap-2 text-lg font-semibold">
               <School className="h-6 w-6 text-primary" />
               <span className="font-bold">School Data Insights</span>
             </Link>
-            {allAccessibleLinks.map((item) => (
+            {userRole && allAccessibleLinks.map((item) => (
                  <Link key={item.label} href={item.href} className="text-muted-foreground hover:text-foreground">
                     {item.label}
                  </Link>
             ))}
+            {!userRole && (
+                 <Link href="/" className="text-muted-foreground hover:text-foreground">
+                    Login
+                 </Link>
+            )}
           </nav>
         </SheetContent>
       </Sheet>
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        <form className="ml-auto flex-1 sm:flex-initial">
-          <div className="relative">
-            <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search..."
-              className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-            />
+        {userRole && (
+          <form className="ml-auto flex-1 sm:flex-initial">
+            <div className="relative">
+              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder="Search..."
+                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
+              />
+            </div>
+          </form>
+        )}
+        {userRole ? (
+          <UserNav />
+        ) : (
+          <div className="ml-auto">
+             <Link href="/" passHref>
+                <Button>
+                    <LogIn className="mr-2 h-4 w-4"/>
+                    Login
+                </Button>
+            </Link>
           </div>
-        </form>
-        <UserNav />
+        )}
       </div>
     </header>
   );

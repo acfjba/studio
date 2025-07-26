@@ -2,22 +2,37 @@
 'use client';
 
 import { Header } from "@/components/layout/header";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const router = useRouter();
+
   useEffect(() => {
-    // Simulate a system-admin login for design purposes
-    // This removes the need for actual authentication.
-    if (typeof window !== 'undefined') {
-        localStorage.setItem('userRole', 'system-admin');
-        localStorage.setItem('schoolId', 'SCH-001'); // Provide a default schoolId for components that might need it
+    // This check replaces a real authentication provider for the prototype.
+    const userRole = localStorage.getItem('userRole');
+    if (userRole) {
+      setIsAuthenticated(true);
+    } else {
+      router.push('/'); // Redirect to login if no role is found
     }
-  }, []);
+  }, [router]);
   
+  if (!isAuthenticated) {
+    return (
+        <div className="flex h-screen w-full flex-col items-center justify-center bg-background dark:bg-zinc-900">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            <p className="mt-4 text-muted-foreground">Verifying authentication...</p>
+        </div>
+    );
+  }
+
   return (
     <div className="flex min-h-screen w-full flex-col bg-background dark:bg-zinc-900">
       <Header />
