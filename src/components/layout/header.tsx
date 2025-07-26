@@ -34,6 +34,7 @@ import {
   BookOpen,
   Wifi,
   LogIn,
+  Mail,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -71,6 +72,7 @@ const operationsLinks = [
 const platformLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/user-management', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/email', icon: Mail, label: 'Bulk Email', description: 'Send an email to all users.', roles: ['system-admin'] },
     { href: '/dashboard/summarization', icon: Bot, label: 'AI Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
 ];
@@ -173,18 +175,10 @@ export function Header() {
         </SheetContent>
       </Sheet>
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        {userRole && (
+        {userRole ? (
           <form className="ml-auto flex-1 sm:flex-initial">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-              <Input
-                type="search"
-                placeholder="Search..."
-                className="pl-8 sm:w-[300px] md:w-[200px] lg:w-[300px]"
-              />
-            </div>
           </form>
-        )}
+        ) : null}
         {userRole ? (
           <UserNav />
         ) : (

@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
     BarChart2, UserCog, Users, Building, DatabaseZap, Settings, Bot, History,
     GraduationCap, BookOpen, Warehouse, Library, ShieldCheck, Contact, FileText,
-    HeartHandshake, Gavel
+    HeartHandshake, Gavel, Mail
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Separator } from '@/components/ui/separator';
@@ -48,6 +48,12 @@ const platformAdminLinks: AdminLink[] = [
         icon: Bot,
         title: "AI Assistant",
         description: "Develop and manage the app with AI."
+    },
+    {
+        href: "/dashboard/email",
+        icon: Mail,
+        title: "Bulk Email",
+        description: "Send an email to all platform users."
     },
 ];
 
