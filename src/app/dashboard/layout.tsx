@@ -20,6 +20,7 @@ export default function DashboardLayout({
     if (!isFirebaseConfigured) {
         // If firebase is not set up, enter a demo mode.
         // Try to load from localStorage for demo, but default if not present.
+        // Check for the systemAdmin claim for demo purposes
         if (!localStorage.getItem('userRole')) {
             localStorage.setItem('userRole', 'system-admin');
         }
@@ -32,7 +33,9 @@ export default function DashboardLayout({
         try {
             const idTokenResult = await user.getIdTokenResult(true); // Force refresh
             const claims = idTokenResult.claims;
-            const userRole = claims.role as string;
+            
+            // Check for the new systemAdmin claim first
+            const userRole = claims.systemAdmin ? 'system-admin' : (claims.role as string);
             const userSchoolId = claims.schoolId as string | null;
 
             if (userRole) {

@@ -11,7 +11,8 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:seed": "ts-node --project tsconfig.node.json functions/src/firebase/seed-script.ts"
+    "db:seed": "ts-node --project tsconfig.node.json functions/src/firebase/seed-script.ts",
+    "db:set-claims": "node set-claims.js"
   },
   "dependencies": {
     "@genkit-ai/googleai": "^1.14.1",
