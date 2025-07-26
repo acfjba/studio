@@ -1,8 +1,8 @@
 
-import type {NextConfig} from 'next';
 import {config} from 'dotenv';
-
 config({path: '.env'});
+
+import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
   output: 'standalone',
