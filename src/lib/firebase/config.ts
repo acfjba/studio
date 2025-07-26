@@ -1,11 +1,10 @@
+
 // src/lib/firebase/config.ts
 import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
-import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
+import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
 
-// We will define the config object inside the initialization function
-// to ensure environment variables are loaded.
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
@@ -15,37 +14,35 @@ const firebaseConfig = {
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
+// This check is the key to preventing initialization errors.
+export const isFirebaseConfigured = !!firebaseConfig.apiKey && !!firebaseConfig.projectId;
+
 let app: FirebaseApp;
 let auth: Auth;
 let db: Firestore;
-
-// This check prevents the app from crashing on the server or if keys are missing.
-const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.projectId && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+let appCheck: AppCheck | undefined = undefined;
 
 if (isFirebaseConfigured) {
-    if (!getApps().length) {
-        try {
-            app = initializeApp(firebaseConfig);
-            auth = getAuth(app);
-            db = getFirestore(app);
+  // Initialize Firebase
+  app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+  auth = getAuth(app);
+  db = getFirestore(app);
 
-            // Initialize App Check only on the client side
-            if (typeof window !== 'undefined') {
-                initializeAppCheck(app, {
-                    provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
-                    isTokenAutoRefreshEnabled: true,
-                });
-            }
-        } catch (error) {
-            console.error("Firebase initialization error:", error);
-        }
+  // Initialize App Check only on the client side
+  if (typeof window !== "undefined") {
+    // Check if NEXT_PUBLIC_RECAPTCHA_SITE_KEY is set
+    if (process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+        appCheck = initializeAppCheck(app, {
+            provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+            isTokenAutoRefreshEnabled: true
+        });
     } else {
-        app = getApp();
-        auth = getAuth(app);
-        db = getFirestore(app);
+        console.warn("App Check not initialized. NEXT_PUBLIC_RECAPTCHA_SITE_KEY is missing.");
     }
+  }
+
 } else {
-    console.warn("Firebase configuration is missing or incomplete. Firebase services will not be available.");
+  console.warn("Firebase configuration is missing or incomplete. Firebase services will be unavailable.");
 }
 
-export { app, auth, db, isFirebaseConfigured };
+export { app, auth, db, appCheck };
