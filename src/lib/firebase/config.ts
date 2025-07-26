@@ -17,17 +17,24 @@ const firebaseConfig = {
 const isFirebaseConfigured = !!(firebaseConfig.apiKey && firebaseConfig.projectId);
 
 let app: FirebaseApp;
-if (!getApps().length) {
-    if (isFirebaseConfigured) {
-        app = initializeApp(firebaseConfig);
+if (typeof window !== 'undefined') { // Ensure this runs only on the client
+    if (!getApps().length) {
+        if (isFirebaseConfigured) {
+            app = initializeApp(firebaseConfig);
+        } else {
+            console.error("Firebase config is missing. App cannot be initialized.");
+            // Provide a dummy app object to prevent crashes on the server
+            app = {} as FirebaseApp;
+        }
     } else {
-        console.error("Firebase config is missing. App cannot be initialized.");
-        // Provide a dummy app object to prevent crashes on the server
-        app = {} as FirebaseApp;
+        app = getApp();
     }
 } else {
-    app = getApp();
+    // For server-side rendering, we might not need the client app.
+    // The admin SDK is used for server-side operations (like seeding).
+    app = getApps().length ? getApp() : ({} as FirebaseApp);
 }
+
 
 const auth: Auth = isFirebaseConfigured ? getAuth(app) : {} as Auth;
 const db: Firestore = isFirebaseConfigured ? getFirestore(app) : {} as Firestore;
