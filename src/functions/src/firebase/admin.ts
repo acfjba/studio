@@ -1,9 +1,10 @@
 // functions/src/firebase/admin.ts
 import admin from 'firebase-admin';
 import { config } from 'dotenv';
+import path from 'path';
 
 // Load environment variables from the root .env file
-config({ path: require('path').resolve(process.cwd(), '.env') });
+config({ path: path.resolve(process.cwd(), '.env') });
 
 // This file is for SERVER-SIDE use only.
 // It initializes the Firebase Admin SDK, which provides privileged access.
