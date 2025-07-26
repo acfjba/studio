@@ -25,83 +25,72 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    const isSchoolLogin = activeTab === 'school';
+    signInWithEmailAndPassword(auth, email, password)
+      .then(async (userCredential) => {
+        // Success. Now, get claims and redirect.
+        const idTokenResult = await userCredential.user.getIdTokenResult();
+        const claims = idTokenResult.claims;
+        const userRole = claims.role as string;
+        const userSchoolId = claims.schoolId as string | null;
 
-    if (isSchoolLogin && !schoolId) {
-      toast({ variant: "destructive", title: "Login Failed", description: "School ID is required for School Login." });
-      setIsLoading(false);
-      return;
-    }
+        // Post-login validation
+        if (activeTab === 'school' && (!userSchoolId || userSchoolId !== schoolId)) {
+            toast({ variant: "destructive", title: "Login Failed", description: "The School ID does not match this user account." });
+            setIsLoading(false);
+            return;
+        }
 
-    try {
-      // Use the standard Firebase Auth method as you provided
-      const userCredential = await signInWithEmailAndPassword(auth, email, password);
-      
-      // After successful login, get custom claims to determine role and school
-      const idTokenResult = await userCredential.user.getIdTokenResult();
-      const claims = idTokenResult.claims;
-      
-      const userRole = claims.role as string;
-      const userSchoolId = claims.schoolId as string | null;
+        if (activeTab === 'admin' && userRole !== 'system-admin') {
+            toast({ variant: "destructive", title: "Access Denied", description: "This account does not have System Admin privileges." });
+            setIsLoading(false);
+            return;
+        }
 
-      // Validate credentials based on the selected tab
-      if (isSchoolLogin) {
-          if (!userSchoolId || userSchoolId !== schoolId) {
-              toast({ variant: "destructive", title: "Login Failed", description: "The School ID does not match this user account." });
-              setIsLoading(false);
-              return;
-          }
-      } else { // Admin Login
-          if (userRole !== 'system-admin') {
-              toast({ variant: "destructive", title: "Access Denied", description: "This account does not have System Admin privileges." });
-              setIsLoading(false);
-              return;
-          }
-      }
-      
-      // Store role and school ID for the session
-      localStorage.setItem('userRole', userRole);
-      if(userSchoolId) {
-        localStorage.setItem('schoolId', userSchoolId);
-      } else {
-        localStorage.removeItem('schoolId');
-      }
-      
-      toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
+        // Store role and school ID for the session
+        localStorage.setItem('userRole', userRole);
+        if(userSchoolId) {
+          localStorage.setItem('schoolId', userSchoolId);
+        } else {
+          localStorage.removeItem('schoolId');
+        }
+        
+        toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
 
-      // Redirect based on role
-      switch (userRole) {
-          case 'system-admin':
-              router.push('/dashboard/platform-management');
-              break;
-          case 'primary-admin':
-              router.push('/dashboard/primary-admin');
-              break;
-          case 'head-teacher':
-          case 'assistant-head-teacher':
-              router.push('/dashboard/head-teacher');
-              break;
-          case 'teacher':
-          case 'kindergarten':
-              router.push('/dashboard/teacher-panel');
-              break;
-          default:
-              router.push('/dashboard');
-              break;
-      }
-
-    } catch (error: any) {
+        // Redirect based on role
+        switch (userRole) {
+            case 'system-admin':
+                router.push('/dashboard/platform-management');
+                break;
+            case 'primary-admin':
+                router.push('/dashboard/primary-admin');
+                break;
+            case 'head-teacher':
+            case 'assistant-head-teacher':
+                router.push('/dashboard/head-teacher');
+                break;
+            case 'teacher':
+            case 'kindergarten':
+                router.push('/dashboard/teacher-panel');
+                break;
+            default:
+                router.push('/dashboard');
+                break;
+        }
+      })
+      .catch((error) => {
+        // Handle Errors here.
         console.error("Login failed:", error.message);
-        let errorMessage = "Invalid credentials or user not found.";
-        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-password') {
+        let errorMessage = "An unknown error occurred.";
+        if (error.code === 'auth/invalid-credential' || error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password') {
             errorMessage = "The email or password you entered is incorrect.";
         } else if (error.code === 'auth/invalid-email') {
             errorMessage = "Please enter a valid email address.";
         }
         toast({ variant: "destructive", title: "Login Failed", description: errorMessage });
-    } finally {
+      })
+      .finally(() => {
         setIsLoading(false);
-    }
+      });
   };
 
   return (
