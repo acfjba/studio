@@ -262,7 +262,7 @@ export default function UserManagementPage() {
                                                     <Select onValueChange={field.onChange} value={field.value}>
                                                         <SelectTrigger id="role"><SelectValue placeholder="Select a role" /></SelectTrigger>
                                                         <SelectContent>
-                                                            {userRoles.map(role => <SelectItem key={role} value={role}>{role.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase())}</SelectItem>)}
+                                                            {userRoles.map(role => <SelectItem key={role} value={role}>{role.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}</SelectItem>)}
                                                         </SelectContent>
                                                     </Select>
                                                 )}
