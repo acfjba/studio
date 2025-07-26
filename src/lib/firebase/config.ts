@@ -20,7 +20,7 @@ let auth: Auth;
 let db: Firestore;
 
 // This check prevents the app from crashing on the server or if keys are missing.
-const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.projectId;
+const isFirebaseConfigured = firebaseConfig.apiKey && firebaseConfig.projectId && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
 
 if (isFirebaseConfigured) {
     if (!getApps().length) {
@@ -30,9 +30,9 @@ if (isFirebaseConfigured) {
             db = getFirestore(app);
 
             // Initialize App Check only on the client side
-            if (typeof window !== 'undefined' && process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY) {
+            if (typeof window !== 'undefined') {
                 initializeAppCheck(app, {
-                    provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY),
+                    provider: new ReCaptchaV3Provider(process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY!),
                     isTokenAutoRefreshEnabled: true,
                 });
             }
