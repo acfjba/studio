@@ -89,7 +89,8 @@ export default function PrimarySchoolInventoryPage() {
 
   const canEdit = useMemo(() => {
       if (!userRole) return false;
-      const editableRoles = ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'];
+      if (userRole === 'system-admin') return true;
+      const editableRoles = ['head-teacher', 'assistant-head-teacher', 'primary-admin'];
       return editableRoles.includes(userRole);
   }, [userRole]);
   

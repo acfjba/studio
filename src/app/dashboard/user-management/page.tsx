@@ -92,16 +92,16 @@ export default function UserManagementPage() {
 
     useEffect(() => {
         const role = typeof window !== 'undefined' ? localStorage.getItem('userRole') : null;
-        if (role !== 'system-admin' && role !== 'primary-admin' && role !== 'head-teacher') {
+        if (role === 'system-admin' || role === 'primary-admin' || role === 'head-teacher') {
+            setHasAccess(true);
+        } else {
             toast({
                 variant: 'destructive',
                 title: 'Access Denied',
                 description: 'You do not have permission to view this page.',
             });
-            router.push('/dashboard/profile'); // Redirect to a safe page
+            router.push('/dashboard'); // Redirect to a safe page
             setHasAccess(false);
-        } else {
-            setHasAccess(true);
         }
 
         const loadSchools = async () => {

@@ -151,7 +151,8 @@ export default function ExamResultsManagementPage() {
 
   const canManage = useMemo(() => {
       if (!userRole) return false;
-      const editableRoles = ['teacher', 'head-teacher', 'primary-admin', 'system-admin', 'kindergarten'];
+      if (userRole === 'system-admin') return true;
+      const editableRoles = ['teacher', 'head-teacher', 'primary-admin', 'kindergarten'];
       return editableRoles.includes(userRole);
   }, [userRole]);
 
