@@ -25,6 +25,16 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
 
+    if (!email || !password) {
+        toast({
+            variant: "destructive",
+            title: "Login Failed",
+            description: "Email and password cannot be empty.",
+        });
+        setIsLoading(false);
+        return;
+    }
+
     signInWithEmailAndPassword(auth, email, password)
       .then(async (userCredential) => {
         // Success. Now, get claims and redirect.
@@ -34,7 +44,7 @@ export function LoginForm() {
         const userSchoolId = claims.schoolId as string | null;
 
         // Post-login validation
-        if (activeTab === 'school' && (!userSchoolId || userSchoolId !== schoolId)) {
+        if (activeTab === 'school' && userRole !== 'system-admin' && (!userSchoolId || userSchoolId !== schoolId)) {
             toast({ variant: "destructive", title: "Login Failed", description: "The School ID does not match this user account." });
             setIsLoading(false);
             return;
@@ -129,11 +139,11 @@ export function LoginForm() {
           )}
           <div>
             <Label htmlFor="email">Email</Label>
-            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" />
+            <Input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="your.email@example.com" required/>
           </div>
           <div>
             <Label htmlFor="password">Password</Label>
-            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" />
+            <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required/>
           </div>
           <Button type="submit" className="w-full" disabled={isLoading}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
