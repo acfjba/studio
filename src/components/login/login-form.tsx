@@ -25,7 +25,7 @@ export function LoginForm() {
     e.preventDefault();
     setIsLoading(true);
 
-    if (!isFirebaseConfigured) {
+    if (!isFirebaseConfigured || !auth) {
         toast({
             variant: "destructive",
             title: "Firebase Not Configured",

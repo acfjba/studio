@@ -4,12 +4,9 @@ import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider } from "firebase/app-check";
-import { config } from 'dotenv';
-
-// Force load environment variables from .env file.
-config({ path: '.env' });
 
 // Your web app's Firebase configuration.
+// Next.js automatically handles loading environment variables prefixed with NEXT_PUBLIC_
 const firebaseConfig = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
   authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
