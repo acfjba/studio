@@ -1,4 +1,5 @@
 
+// seed.js
 // Node.js script to seed Firebase Authentication and Firestore
 
 const admin = require("firebase-admin");
@@ -15,19 +16,27 @@ async function seedAuth() {
   console.log("Seeding Firebase Authentication...");
   for (const user of authUsers) {
     try {
-      await admin.auth().createUser({
-        uid: user.uid,
-        email: user.email,
-        password: user.password,
-        displayName: user.displayName,
-        disabled: user.disabled
-      });
-      console.log(`✔ Auth user created: ${user.email}`);
+      // Check if user exists by UID
+      await admin.auth().getUser(user.uid);
+      console.log(`~ Auth user ${user.email} already exists. Skipping creation.`);
     } catch (err) {
-      if (err.code === 'auth/uid-already-exists' || err.code === 'auth/email-already-exists') {
-          console.log(`~ Auth user ${user.email} already exists. Skipping.`);
+      if (err.code === 'auth/user-not-found') {
+        // User doesn't exist, so create them
+        try {
+          await admin.auth().createUser({
+            uid: user.uid,
+            email: user.email,
+            password: user.password,
+            displayName: user.displayName,
+            disabled: user.disabled
+          });
+          console.log(`✔ Auth user created: ${user.email}`);
+        } catch (createErr) {
+          console.error(`✘ Failed to create auth user ${user.email}: ${createErr.message}`);
+        }
       } else {
-          console.error(`✘ Failed to create auth user ${user.email}: ${err.message}`);
+        // Another error occurred
+        console.error(`✘ Error checking auth user ${user.email}: ${err.message}`);
       }
     }
   }
