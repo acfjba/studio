@@ -57,6 +57,7 @@ export default function LoginPage() {
         const userSchoolId = claims.schoolId as string | null;
 
         // Post-login validation
+        // A system admin should not need to provide a school ID
         if (activeTab === 'school' && userRole !== 'system-admin' && (!userSchoolId || userSchoolId !== schoolId)) {
             toast({ variant: "destructive", title: "Login Failed", description: "The School ID does not match this user account." });
             setIsLoading(false);
