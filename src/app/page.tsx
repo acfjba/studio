@@ -12,6 +12,8 @@ import { Loader2, School } from 'lucide-react';
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { auth, isFirebaseConfigured } from '@/lib/firebase/config';
 import Link from 'next/link';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { AlertTriangle } from 'lucide-react';
 
 export default function LoginPage() {
   const [email, setEmail] = useState('');
@@ -77,26 +79,7 @@ export default function LoginPage() {
         
         toast({ title: "Login Successful", description: "Redirecting to your dashboard..." });
 
-        // Redirect based on role
-        switch (userRole) {
-            case 'system-admin':
-                router.push('/dashboard/platform-management');
-                break;
-            case 'primary-admin':
-                router.push('/dashboard/primary-admin');
-                break;
-            case 'head-teacher':
-            case 'assistant-head-teacher':
-                router.push('/dashboard/head-teacher');
-                break;
-            case 'teacher':
-            case 'kindergarten':
-                router.push('/dashboard/teacher-panel');
-                break;
-            default:
-                router.push('/dashboard');
-                break;
-        }
+        router.push('/dashboard');
       })
       .catch((error) => {
         // Handle Errors here.
@@ -153,6 +136,16 @@ export default function LoginPage() {
           <CardDescription>Enter your credentials to access the platform.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
+          {!isFirebaseConfigured && (
+            <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Firebase Not Configured</AlertTitle>
+                <AlertDescription>
+                    The app is in offline mode. Login is disabled.
+                </AlertDescription>
+            </Alert>
+          )}
+
           {activeTab === 'school' && (
             <div>
               <Label htmlFor="schoolId">School ID</Label>
@@ -167,7 +160,7 @@ export default function LoginPage() {
             <Label htmlFor="password">Password</Label>
             <Input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} placeholder="••••••••" required/>
           </div>
-          <Button type="submit" className="w-full" disabled={isLoading}>
+          <Button type="submit" className="w-full" disabled={isLoading || !isFirebaseConfigured}>
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             {isLoading ? 'Signing In...' : 'Sign In'}
           </Button>

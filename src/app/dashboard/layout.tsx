@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { onAuthStateChanged } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
+import { auth, isFirebaseConfigured } from "@/lib/firebase/config";
 
 export default function DashboardLayout({
   children,
@@ -17,19 +17,46 @@ export default function DashboardLayout({
   const router = useRouter();
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in and authenticated.
+    if (!isFirebaseConfigured) {
+        // If firebase is not set up, enter a demo mode.
+        // Try to load from localStorage for demo, but default if not present.
+        if (!localStorage.getItem('userRole')) {
+            localStorage.setItem('userRole', 'system-admin');
+        }
         setIsAuthLoaded(true);
+        return;
+    }
+
+    const unsubscribe = onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        try {
+            const idTokenResult = await user.getIdTokenResult(true); // Force refresh
+            const claims = idTokenResult.claims;
+            const userRole = claims.role as string;
+            const userSchoolId = claims.schoolId as string | null;
+
+            if (userRole) {
+                localStorage.setItem('userRole', userRole);
+            } else {
+                localStorage.removeItem('userRole');
+            }
+
+            if (userSchoolId) {
+                localStorage.setItem('schoolId', userSchoolId);
+            } else {
+                localStorage.removeItem('schoolId');
+            }
+            
+            setIsAuthLoaded(true);
+
+        } catch (error) {
+            console.error("Error getting user claims:", error);
+            // Handle error, maybe sign out user and redirect
+            router.push('/');
+        }
       } else {
         // User is signed out.
-        // Fallback check for demo purposes, but main logic relies on auth state.
-        const role = localStorage.getItem('userRole');
-        if (!role) {
-            router.push('/');
-        } else {
-            setIsAuthLoaded(true);
-        }
+        router.push('/');
       }
     });
 

@@ -1,11 +1,27 @@
 
 [
   {
+    "id": "system_admin_user",
+    "email": "sysadmin@system.com",
+    "password": "password123",
+    "displayName": "System Admin",
+    "role": "system-admin",
+    "schoolId": null
+  },
+  {
     "id": "primaryadmin_navolaudistrictschool",
     "email": "navolaudistrictschool@yahoo.com",
     "password": "password123",
     "displayName": "Navolau District School Admin",
     "role": "primary-admin",
+    "schoolId": "2009"
+  },
+  {
+    "id": "headteacher_rosabatina3",
+    "email": "rosabatina3@gmail.com",
+    "password": "password123",
+    "displayName": "Rosa Batina",
+    "role": "head-teacher",
     "schoolId": "2009"
   },
   {
@@ -33,14 +49,6 @@
     "schoolId": "2009"
   },
   {
-    "id": "headteacher_rosabatina3",
-    "email": "rosabatina3@gmail.com",
-    "password": "password123",
-    "displayName": "Rosa Batina",
-    "role": "head-teacher",
-    "schoolId": "2009"
-  },
-  {
     "id": "teacher_milielinatale6",
     "email": "milielinatale6@gmail.com",
     "password": "password123",
@@ -55,13 +63,5 @@
     "displayName": "M. Watabu",
     "role": "teacher",
     "schoolId": "2009"
-  },
-  {
-    "id": "systemadmin",
-    "email": "systemadmin@system.com",
-    "password": "password123",
-    "displayName": "System Admin",
-    "role": "system-admin",
-    "schoolId": null
   }
 ]

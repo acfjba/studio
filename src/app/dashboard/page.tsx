@@ -15,78 +15,67 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
+    // We can assume localStorage is populated by the time this page loads
+    // because of the check in DashboardLayout.
     const role = localStorage.getItem('userRole');
     if (role) {
       setUserRole(role);
+      
+      // Auto-redirect to role-specific dashboard if it's not a generic role
+      const roleSpecificPaths: { [key: string]: string } = {
+        'system-admin': '/dashboard/platform-management',
+        'primary-admin': '/dashboard/primary-admin',
+        'head-teacher': '/dashboard/head-teacher',
+        'assistant-head-teacher': '/dashboard/head-teacher',
+        'teacher': '/dashboard/teacher-panel',
+        'kindergarten': '/dashboard/teacher-panel',
+        'librarian': '/dashboard/library',
+      };
+      
+      if (roleSpecificPaths[role]) {
+        router.replace(roleSpecificPaths[role]);
+      } else {
+        setIsLoading(false);
+      }
+    } else {
+      // If for some reason role is not found, stay on this page to show a message
+      setIsLoading(false);
     }
-    setIsLoading(false);
-  }, []);
-
-  const handleNavigation = (path: string) => {
-    router.push(path);
-  };
+  }, [router]);
   
   if (isLoading) {
     return (
       <div className="flex items-center justify-center h-full">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <p className="ml-4 text-muted-foreground">Loading dashboard...</p>
+        <p className="ml-4 text-muted-foreground">Redirecting to your dashboard...</p>
       </div>
     );
   }
-
-  const roleBasedLinks = {
-    'system-admin': [
-        { path: '/dashboard/platform-management', title: 'Platform Management', description: 'Oversee the entire platform, schools, and users.' },
-    ],
-    'primary-admin': [
-        { path: '/dashboard/primary-admin', title: 'Primary Admin Dashboard', description: 'Manage all school operations and academic records.' },
-    ],
-    'head-teacher': [
-        { path: '/dashboard/head-teacher', title: 'Head Teacher Dashboard', description: 'Review teacher submissions and manage school tasks.' },
-    ],
-    'assistant-head-teacher': [
-        { path: '/dashboard/head-teacher', title: 'Head Teacher Dashboard', description: 'Review teacher submissions and manage school tasks.' },
-    ],
-    'teacher': [
-        { path: '/dashboard/teacher-panel', title: 'Teacher Panel', description: 'Access your planning, records, and reporting tools.' },
-    ],
-    'kindergarten': [
-        { path: '/dashboard/teacher-panel', title: 'Teacher Panel', description: 'Access your planning, records, and reporting tools.' },
-    ],
-    'librarian': [
-        { path: '/dashboard/library', title: 'Library Service', description: 'Manage the book catalogue, loans, and returns.' },
-    ]
-  };
-
-  const availableLinks = userRole ? roleBasedLinks[userRole as keyof typeof roleBasedLinks] : [];
 
   return (
     <div className="flex flex-col gap-8">
       <PageHeader
         title="Welcome to your Dashboard"
-        description="Select an option below to get started."
+        description="Select an option below to get started or use the navigation menu."
       />
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-        {availableLinks && availableLinks.length > 0 ? (
-          availableLinks.map(link => (
-            <Card key={link.path}>
-                <CardHeader>
-                    <CardTitle>{link.title}</CardTitle>
-                    <CardDescription>{link.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                    <Button onClick={() => handleNavigation(link.path)} className="w-full">
-                        Go to {link.title}
-                    </Button>
-                </CardContent>
-            </Card>
-          ))
-        ) : (
+        {!userRole ? (
            <Card className="col-span-full">
                 <CardHeader>
                     <CardTitle>No Dashboard Available</CardTitle>
-                    <CardDescription>Your user role does not have a specific dashboard assigned. You can access features from the top navigation menu.</CardDescription>
+                    <CardDescription>Your user role could not be determined. You can access features from the top navigation menu or go to your profile.</CardDescription>
+                </CardHeader>
+                 <CardContent>
+                   <Link href="/dashboard/profile">
+                    <Button variant="outline">View My Profile</Button>
+                   </Link>
+                </CardContent>
+            </Card>
+        ) : (
+            <Card className="col-span-full">
+                <CardHeader>
+                    <CardTitle>Redirecting...</CardTitle>
+                    <CardDescription>If you are not redirected, please use the navigation menu above or go to your profile.</CardDescription>
                 </CardHeader>
                  <CardContent>
                    <Link href="/dashboard/profile">
