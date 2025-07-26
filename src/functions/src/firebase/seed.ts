@@ -1,5 +1,4 @@
 // functions/src/firebase/seed.ts
-import { doc } from 'firebase/firestore';
 import { adminDb, adminAuth } from './admin';
 import { 
   usersSeedData, 
@@ -33,6 +32,10 @@ interface SeedReport {
  */
 export async function seedDatabase(): Promise<SeedReport> {
   console.log("Starting database seed process...");
+  
+  if (!adminAuth || !adminDb) {
+    throw new Error("Firebase Admin SDK not initialized. Cannot seed database.");
+  }
 
   const report: SeedReport = {
     users: [],
@@ -74,11 +77,12 @@ export async function seedDatabase(): Promise<SeedReport> {
           }
         }
 
-        const claims = { role, schoolId: schoolId ?? null };
+        const claims = { role, schoolId: schoolId || null };
         await adminAuth.setCustomUserClaims(userRecord.uid, claims);
+        report.users.push(`-> Set custom claims for ${email}: role=${role}, schoolId=${schoolId || 'null'}`);
         
-        await adminDb.collection("users").doc(id).set({ email, displayName, role, schoolId: schoolId ?? null });
-        report.users.push(`Set Firestore document for ${email}`);
+        await adminDb.collection("users").doc(id).set({ email, displayName, role, schoolId: schoolId || null });
+        report.users.push(`-> Set Firestore document for ${email}`);
         
       } catch (error) {
         console.error(`❌ Error processing user ${u.email}:`, error);
