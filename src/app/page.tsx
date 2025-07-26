@@ -72,7 +72,7 @@ export default function LoginPage() {
                 throw new Error("School ID does not match your user profile.");
             }
         } else { // Admin login
-            if (userData.role !== 'System Admin') {
+            if (userData.role !== 'system-admin') {
                 throw new Error("You do not have System Admin privileges.");
             }
         }

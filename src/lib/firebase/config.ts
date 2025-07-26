@@ -6,20 +6,32 @@ import { getAuth, type Auth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
 
 const firebaseConfig = {
-  apiKey: "AIzaSyD-L2Zx9FSDysCO6OypaaswfsQX4F4q73s",
-  authDomain: "school-platform-kc9uh.firebaseapp.com",
-  projectId: "school-platform-kc9uh",
-  storageBucket: "school-platform-kc9uh.appspot.com",
-  messagingSenderId: "840322255670",
-  appId: "1:840322255670:web:98e2f0f3ef1774a850c197",
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
-const app: FirebaseApp = getApps().length ? getApp() : initializeApp(firebaseConfig);
-const auth: Auth = getAuth(app);
-const db: Firestore = getFirestore(app);
-let appCheck: AppCheck | undefined = undefined;
-
 const isFirebaseConfigured = !!(firebaseConfig.apiKey && firebaseConfig.projectId);
+
+let app: FirebaseApp;
+if (!getApps().length) {
+    if (isFirebaseConfigured) {
+        app = initializeApp(firebaseConfig);
+    } else {
+        console.error("Firebase config is missing. App cannot be initialized.");
+        // Provide a dummy app object to prevent crashes on the server
+        app = {} as FirebaseApp;
+    }
+} else {
+    app = getApp();
+}
+
+const auth: Auth = isFirebaseConfigured ? getAuth(app) : {} as Auth;
+const db: Firestore = isFirebaseConfigured ? getFirestore(app) : {} as Firestore;
+let appCheck: AppCheck | undefined = undefined;
 
 // Initialize App Check only on the client side
 if (typeof window !== "undefined" && isFirebaseConfigured) {
