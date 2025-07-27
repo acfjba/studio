@@ -25,7 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as z from 'zod';
 import { StaffMemberSchema, type StaffMember, StaffMemberFormDataSchema } from "@/lib/schemas/staff";
 import { db, isFirebaseConfigured } from '@/lib/firebase/config';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, serverTimestamp, Timestamp, query, where, setDoc } from 'firebase/firestore';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { userRoles } from '@/lib/schemas/user';
@@ -85,10 +85,20 @@ const InviteFormSchema = z.object({
 });
 type InviteFormData = z.infer<typeof InviteFormSchema>;
 
-async function sendInviteToBackend(data: InviteFormData, schoolId: string) {
-    console.log("Simulating sending invite:", { ...data, schoolId });
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    return { success: true };
+async function sendInviteToBackend(data: InviteFormData, schoolId: string): Promise<{ success: boolean; message: string }> {
+    console.log("Creating invite record for:", { ...data, schoolId });
+    if (!db) throw new Error("Firestore not configured.");
+
+    const inviteRef = doc(collection(db, 'invites'));
+    await setDoc(inviteRef, {
+        email: data.email,
+        role: data.role,
+        schoolId: schoolId,
+        status: 'pending',
+        createdAt: new Date().toISOString(),
+    });
+
+    return { success: true, message: `Invite record created for ${data.email}.` };
 }
 
 
@@ -153,16 +163,25 @@ export default function StaffRecordsPage() {
   );
   
   const handleInviteSubmit: SubmitHandler<InviteFormData> = async (data) => {
+      if (!isFirebaseConfigured) {
+          toast({ variant: 'destructive', title: 'Action Disabled', description: 'Cannot send invite because Firebase is not configured.' });
+          return;
+      }
       if (!schoolId) {
           toast({ variant: 'destructive', title: 'Error', description: 'Your school ID is not set. Cannot send invite.' });
           return;
       }
-      const result = await sendInviteToBackend(data, schoolId);
-      if(result.success) {
-          toast({ title: 'Invite Sent (Simulated)', description: `An invitation has been sent to ${data.email}.`});
-          inviteForm.reset();
-      } else {
-          toast({ variant: 'destructive', title: 'Failed to Send Invite'});
+      try {
+        const result = await sendInviteToBackend(data, schoolId);
+        if(result.success) {
+            toast({ title: 'Invite Record Created', description: `An invitation record for ${data.email} has been created.`});
+            inviteForm.reset();
+        } else {
+            toast({ variant: 'destructive', title: 'Failed to Send Invite'});
+        }
+      } catch (error) {
+          const msg = error instanceof Error ? error.message : "An unknown error occurred.";
+          toast({ variant: 'destructive', title: 'Failed to Send Invite', description: msg });
       }
   };
 
@@ -218,7 +237,7 @@ export default function StaffRecordsPage() {
                         <DialogHeader>
                             <DialogTitle>Invite New Staff Member</DialogTitle>
                             <DialogDescription>
-                                An invitation link will be sent to the email address you provide.
+                                This will create an invitation record in the database. A backend process would then send an email.
                             </DialogDescription>
                         </DialogHeader>
                         <form id="invite-form" onSubmit={inviteForm.handleSubmit(handleInviteSubmit)} className="space-y-4">
@@ -351,3 +370,5 @@ export default function StaffRecordsPage() {
       </div>
   );
 }
+
+    
