@@ -5,7 +5,8 @@ import React from 'react';
 import Link from 'next/link';
 import { 
     BarChart2, UserCog, Users, Building, DatabaseZap, Settings, Bot, Mail,
-    GraduationCap, Warehouse, ShieldCheck, Contact, FileText, BookOpen, Boxes, Library
+    GraduationCap, Warehouse, ShieldCheck, Contact, FileText, BookOpen, Boxes, Library,
+    UsersRound, MailPlus, ClipboardCheck, Gavel, HeartHandshake, BarChart3, Star, History
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -22,6 +23,7 @@ const platformAdminLinks: AdminLink[] = [
     { href: "/dashboard/platform-management/ai-assistant", icon: Bot, title: "AI Assistant", description: "Develop the app with AI." },
     { href: "/dashboard/platform-management/app-settings", icon: Settings, title: "App Settings", description: "Configure system-wide settings." },
     { href: "/dashboard/platform-management/firebase-config", icon: DatabaseZap, title: "Firebase Status", description: "View Firebase status and manage data." },
+    { href: "/dashboard/platform-management/platform-status", icon: Wifi, title: "Platform Status", description: "Monitor school connectivity." },
     { href: "/dashboard/email", icon: Mail, title: "Bulk Email", description: "Send an email to all users." },
     { href: "/dashboard/upload-data", icon: DatabaseZap, title: "Upload Data", description: "Bulk upload data from files." },
     { href: "/dashboard/document-vault", icon: FileText, title: "Document Vault", description: "Access all saved documents." },
@@ -30,8 +32,9 @@ const platformAdminLinks: AdminLink[] = [
 const schoolUserLinks: AdminLink[] = [
     { href: "/dashboard/platform-management/school-management", icon: Building, title: "School Management", description: "View, create, and manage all schools." },
     { href: "/dashboard/user-management", icon: UserCog, title: "User Management", description: "Invite users and manage roles." },
-    { href: "/dashboard/staff", icon: Users, title: "Staff Records", description: "Manage staff information." },
-    { href: "/dashboard/teachers", icon: Users, title: "Teacher Directory", description: "View and rate teachers." },
+    { href: "/dashboard/staff", icon: UsersRound, title: "Staff Records", description: "Manage staff information." },
+    { href: "/dashboard/teachers", icon: Star, title: "Teacher Directory", description: "View and rate teachers." },
+    { href: "/dashboard/history", icon: History, title: "My Rating History", description: "Review your submitted ratings."},
     { href: "/dashboard/contacts", icon: Contact, title: "Contacts Directory", description: "View all school contacts." },
 ];
 
@@ -44,20 +47,21 @@ const academicsLinks: AdminLink[] = [
 ];
 
 const recordsLinks: AdminLink[] = [
-    { href: "/dashboard/academics/exam-results", icon: FileText, title: "Exam Results", description: "Manage student exam results." },
+    { href: "/dashboard/academics/exam-results", icon: ClipboardCheck, title: "Exam Results", description: "Manage student exam results." },
     { href: "/dashboard/academics/student-records", icon: Users, title: "Student Records", description: "View student profiles." },
-    { href: "/dashboard/disciplinary", icon: ShieldCheck, title: "Disciplinary Records", description: "Log and track incidents." },
-    { href: "/dashboard/counselling", icon: ShieldCheck, title: "Counselling Records", description: "Maintain confidential notes." },
+    { href: "/dashboard/disciplinary", icon: Gavel, title: "Disciplinary Records", description: "Log and track incidents." },
+    { href: "/dashboard/counselling", icon: HeartHandshake, title: "Counselling Records", description: "Maintain confidential notes." },
 ];
 
 const operationsLinks: AdminLink[] = [
     { href: "/dashboard/inventory", icon: Warehouse, title: "Primary Inventory", description: "Track fixed school assets." },
-    { href: "/dashboard/inventory/summary", icon: BarChart2, title: "Primary Inventory Summary", description: "View asset value reports." },
+    { href: "/dashboard/inventory/summary", icon: BarChart3, title: "Primary Inventory Summary", description: "View asset value reports." },
     { href: "/dashboard/academics/classroom-inventory", icon: Boxes, title: "Classroom Inventory", description: "Manage classroom supplies." },
-    { href: "/dashboard/academics/inventory-summary", icon: BarChart2, title: "Classroom Inventory Summary", description: "View classroom stock reports." },
+    { href: "/dashboard/academics/inventory-summary", icon: BarChart3, title: "Classroom Inventory Summary", description: "View classroom stock reports." },
     { href: "/dashboard/library", icon: Library, title: "Library Service", description: "Manage book loans and returns." },
     { href: "/dashboard/health-safety", icon: ShieldCheck, title: "Health & Safety", description: "Manage safety protocols and incidents." },
     { href: "/dashboard/reporting", icon: BarChart2, title: "Reporting Hub", description: "Generate all system reports." },
+    { href: "/dashboard/summarization", icon: Bot, title: "AI Summarization", description: "Use AI to summarize documents." },
 ];
 
 
