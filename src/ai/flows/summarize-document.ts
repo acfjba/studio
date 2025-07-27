@@ -28,25 +28,30 @@ const SummarizeDocumentOutputSchema = z.object({
 });
 export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
-const decideInformationToIncludeTool = ai.defineTool({
-  name: 'decideInformationToInclude',
-  description: 'Decides what information to include in the summary.',
-  inputSchema: z.object({
-    documentContent: z
+const decideInformationToIncludeTool = ai.defineTool(
+  'decideInformationToIncludeTool',
+  {
+    name: 'decideInformationToInclude',
+    description: 'Decides what information to include in the summary.',
+    inputSchema: z.object({
+      documentContent: z
+        .string()
+        .describe('The content of the document to be summarized.'),
+      documentType: z
+        .string()
+        .describe(
+          'The type of document, such as counselling session notes or staff records.'
+        ),
+    }),
+    outputSchema: z
       .string()
-      .describe('The content of the document to be summarized.'),
-    documentType: z
-      .string()
-      .describe(
-        'The type of document, such as counselling session notes or staff records.'
-      ),
-  }),
-  outputSchema: z.string().describe('A list of specific key information to include'),
-  async execute(input) {
-    // Placeholder: Replace with actual implementation to decide what information to include.
-    return `List of key information based on document type ${input.documentType} and content: ${input.documentContent}`;
-  },
-});
+      .describe('A list of specific key information to include'),
+    async execute(input) {
+      // Placeholder: Replace with actual implementation to decide what information to include.
+      return `List of key information based on document type ${input.documentType} and content: ${input.documentContent}`;
+    },
+  }
+);
 
 const summarizeDocumentPrompt = ai.definePrompt({
   name: 'summarizeDocumentPrompt',

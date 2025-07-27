@@ -42,21 +42,30 @@ export async function forecastInventoryNeeds(input: ForecastInventoryNeedsInput)
   return forecastInventoryNeedsFlow(input);
 }
 
-const analyzeInventoryDataTool = ai.defineTool({
-  name: 'analyzeInventoryData',
-  description: 'Analyzes inventory data to identify trends and predict future needs.',
-  inputSchema: z.object({
-    inventoryData: InventoryDataSchema,
-    forecastMonths: z.number().describe('The number of months to forecast for.'),
-    desiredConfidenceLevel: z.number().describe('The desired confidence level for the forecast (0-1).'),
-  }),
-  outputSchema: z.string().describe('A detailed analysis of the inventory data including projected needs, reorder recommendations, and potential cost savings.'),
-},
-async (input) => {
-  // Placeholder implementation for inventory analysis
-  // In a real application, this would involve more sophisticated calculations
-  return `Detailed analysis of inventory data for ${input.forecastMonths} months with a confidence level of ${input.desiredConfidenceLevel}.`;
-}
+const analyzeInventoryDataTool = ai.defineTool(
+  'analyzeInventoryDataTool',
+  {
+    name: 'analyzeInventoryData',
+    description:
+      'Analyzes inventory data to identify trends and predict future needs.',
+    inputSchema: z.object({
+      inventoryData: InventoryDataSchema,
+      forecastMonths: z.number().describe('The number of months to forecast for.'),
+      desiredConfidenceLevel: z
+        .number()
+        .describe('The desired confidence level for the forecast (0-1).'),
+    }),
+    outputSchema: z
+      .string()
+      .describe(
+        'A detailed analysis of the inventory data including projected needs, reorder recommendations, and potential cost savings.'
+      ),
+    async execute(input) {
+      // Placeholder implementation for inventory analysis
+      // In a real application, this would involve more sophisticated calculations
+      return `Detailed analysis of inventory data for ${input.forecastMonths} months with a confidence level of ${input.desiredConfidenceLevel}.`;
+    },
+  }
 );
 
 const prompt = ai.definePrompt({
