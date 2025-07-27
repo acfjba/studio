@@ -71,8 +71,8 @@ const operationsLinks = [
 ];
 
 const platformLinks = [
-    { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/user-management', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/user-management', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/email', icon: Mail, label: 'Bulk Email', description: 'Send an email to all users.', roles: ['system-admin'] },
     { href: '/dashboard/summarization', icon: Bot, label: 'AI Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },

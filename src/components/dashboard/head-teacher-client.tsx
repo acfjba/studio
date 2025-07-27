@@ -96,7 +96,7 @@ async function saveTeacherAssessmentToBackend(teacherId: string, data: TeacherAs
 async function fetchTeachersForSchoolFromFirestore(schoolId: string): Promise<Teacher[]> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollection = collection(db, 'staff');
-    const q = query(staffCollection, where("schoolId", "==", schoolId), where("role", "in", ["teacher", "assistant-head-teacher"]));
+    const q = query(staffCollection, where("schoolId", "==", schoolId), where("role", "in", ["teacher", "assistant-head-teacher", "head-teacher"]));
     const snapshot = await getDocs(q);
     return snapshot.docs.map(doc => {
       const staff = doc.data();
@@ -147,7 +147,7 @@ export function HeadTeacherClient() {
 
       const initialAssessments: Record<string, TeacherAssessmentData> = {};
       teachersForSchool.forEach(teacher => {
-          const hasSubmittedWorkbook = teachersWhoSubmittedWorkbook.has(teacher.name.toLowerCase());
+          const hasSubmittedWorkbook = teachersWhoSubmittedWorkbook.has(teacher.name?.toLowerCase());
           initialAssessments[teacher.id] = {
               iwpDone: Math.random() > 0.3, // Simulate 70% completion
               counsellingDone: Math.random() > 0.6, // Simulate 40% completion
@@ -168,7 +168,7 @@ export function HeadTeacherClient() {
     } finally {
       setIsLoading(false);
     }
-  }, [schoolId, toast]);
+  }, [schoolId]);
 
   useEffect(() => {
     loadData();
@@ -210,7 +210,7 @@ export function HeadTeacherClient() {
     );
     const submittedCount = teachersWhoSubmitted.size;
     const notSubmittedTeachers = allTeachers.filter(
-      teacher => !teachersWhoSubmitted.has(teacher.name.toLowerCase())
+      teacher => !teachersWhoSubmitted.has(teacher.name?.toLowerCase())
     );
     // Simulate reminders sent for those who haven't submitted
     const remindersSent = notSubmittedTeachers.length;
