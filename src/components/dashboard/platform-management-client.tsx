@@ -23,6 +23,8 @@ const platformAdminLinks: AdminLink[] = [
     { href: "/dashboard/platform-management/app-settings", icon: Settings, title: "App Settings", description: "Configure system-wide settings." },
     { href: "/dashboard/platform-management/firebase-config", icon: DatabaseZap, title: "Firebase Status", description: "View Firebase status and manage data." },
     { href: "/dashboard/email", icon: Mail, title: "Bulk Email", description: "Send an email to all users." },
+    { href: "/dashboard/teachers", icon: Users, title: "Rating History", description: "Review your submitted ratings." },
+    { href: "/dashboard/settings", icon: Settings2, title: "Settings", description: "View application settings." },
 ];
 
 const schoolUserLinks: AdminLink[] = [
