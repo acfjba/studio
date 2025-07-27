@@ -4,14 +4,17 @@ import { initializeApp, getApp, getApps, type FirebaseApp } from "firebase/app";
 import { getFirestore, type Firestore } from "firebase/firestore";
 import { getAuth, type Auth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
+import getConfig from 'next/config';
+
+const { publicRuntimeConfig } = getConfig() || {};
 
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+  apiKey: publicRuntimeConfig?.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: publicRuntimeConfig?.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: publicRuntimeConfig?.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: publicRuntimeConfig?.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: publicRuntimeConfig?.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: publicRuntimeConfig?.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 const isFirebaseConfigured = !!(firebaseConfig.apiKey && firebaseConfig.projectId);
@@ -23,7 +26,7 @@ if (typeof window !== 'undefined') { // Ensure this runs only on the client
             app = initializeApp(firebaseConfig);
         } else {
             console.error("Firebase config is missing. App cannot be initialized.");
-            // Provide a dummy app object to prevent crashes on the server
+            // Provide a dummy app object to prevent crashes
             app = {} as FirebaseApp;
         }
     } else {
@@ -42,7 +45,7 @@ let appCheck: AppCheck | undefined = undefined;
 
 // Initialize App Check only on the client side
 if (typeof window !== "undefined" && isFirebaseConfigured) {
-    const recaptchaSiteKey = process.env.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
+    const recaptchaSiteKey = publicRuntimeConfig?.NEXT_PUBLIC_RECAPTCHA_SITE_KEY;
     if (recaptchaSiteKey) {
         try {
             appCheck = initializeAppCheck(app, {
