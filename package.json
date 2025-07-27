@@ -10,7 +10,8 @@
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
     "db:seed": "ts-node --project tsconfig.node.json functions/src/firebase/seed-script.ts",
-    "db:set-claims": "node set-claims.js"
+    "db:set-claims": "node set-claims.js",
+    "fetch:users": "node fetch-users.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^4.1.3",
