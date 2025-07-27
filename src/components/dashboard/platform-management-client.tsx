@@ -4,8 +4,8 @@
 import React from 'react';
 import Link from 'next/link';
 import { 
-    BarChart2, UserCog, Users, Building, DatabaseZap, Settings, Bot, History, Settings2,
-    GraduationCap, Warehouse, ShieldCheck, Contact, FileText, Mail, BookOpen
+    BarChart2, UserCog, Users, Building, DatabaseZap, Settings, Bot, Mail,
+    GraduationCap, Warehouse, ShieldCheck, Contact, FileText, BookOpen, Boxes, Library
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,32 +23,43 @@ const platformAdminLinks: AdminLink[] = [
     { href: "/dashboard/platform-management/app-settings", icon: Settings, title: "App Settings", description: "Configure system-wide settings." },
     { href: "/dashboard/platform-management/firebase-config", icon: DatabaseZap, title: "Firebase Status", description: "View Firebase status and manage data." },
     { href: "/dashboard/email", icon: Mail, title: "Bulk Email", description: "Send an email to all users." },
-    { href: "/dashboard/teachers", icon: Users, title: "Rating History", description: "Review your submitted ratings." },
-    { href: "/dashboard/settings", icon: Settings2, title: "Settings", description: "View application settings." },
-];
-
-const schoolUserLinks: AdminLink[] = [
-    { href: "/dashboard/platform-management/school-management", icon: Building, title: "School Management", description: "View and manage all schools." },
-    { href: "/dashboard/user-management", icon: Users, title: "User Management", description: "Invite users and manage roles." },
-    { href: "/dashboard/staff", icon: UserCog, title: "Staff Records", description: "Manage staff information." },
-];
-
-const dataReportingLinks: AdminLink[] = [
-    { href: "/dashboard/reporting", icon: BarChart2, title: "Reporting Hub", description: "Generate all system reports." },
     { href: "/dashboard/upload-data", icon: DatabaseZap, title: "Upload Data", description: "Bulk upload data from files." },
     { href: "/dashboard/document-vault", icon: FileText, title: "Document Vault", description: "Access all saved documents." },
 ];
 
-const operationsLinks: AdminLink[] = [
-    { href: "/dashboard/inventory", icon: Warehouse, title: "Inventory Management", description: "Track and forecast school assets." },
-    { href: "/dashboard/health-safety", icon: ShieldCheck, title: "Health & Safety", description: "Manage safety protocols." },
+const schoolUserLinks: AdminLink[] = [
+    { href: "/dashboard/platform-management/school-management", icon: Building, title: "School Management", description: "View, create, and manage all schools." },
+    { href: "/dashboard/user-management", icon: UserCog, title: "User Management", description: "Invite users and manage roles." },
+    { href: "/dashboard/staff", icon: Users, title: "Staff Records", description: "Manage staff information." },
+    { href: "/dashboard/teachers", icon: Users, title: "Teacher Directory", description: "View and rate teachers." },
     { href: "/dashboard/contacts", icon: Contact, title: "Contacts Directory", description: "View all school contacts." },
 ];
 
 const academicsLinks: AdminLink[] = [
      { href: "/dashboard/academics", icon: GraduationCap, title: "Academics Hub", description: "Central point for academic management." },
-     { href: "/dashboard/workbook-plan", icon: BookOpen, title: "Workbook Plans", description: "Review and manage workbook plans." },
+     { href: "/dashboard/lesson-planner", icon: BookOpen, title: "Lesson Planner", description: "Create detailed lesson plans." },
+     { href: "/dashboard/workbook-plan", icon: BookOpen, title: "AI Workbook Plan", description: "Generate workbook plans with AI." },
+     { href: "/dashboard/iwp", icon: FileText, title: "Individual Work Plan", description: "Manage teacher IWPs." },
+     { href: "/dashboard/head-teacher", icon: GraduationCap, title: "Head Teacher Panel", description: "Oversee teacher submissions." },
 ];
+
+const recordsLinks: AdminLink[] = [
+    { href: "/dashboard/academics/exam-results", icon: FileText, title: "Exam Results", description: "Manage student exam results." },
+    { href: "/dashboard/academics/student-records", icon: Users, title: "Student Records", description: "View student profiles." },
+    { href: "/dashboard/disciplinary", icon: ShieldCheck, title: "Disciplinary Records", description: "Log and track incidents." },
+    { href: "/dashboard/counselling", icon: ShieldCheck, title: "Counselling Records", description: "Maintain confidential notes." },
+];
+
+const operationsLinks: AdminLink[] = [
+    { href: "/dashboard/inventory", icon: Warehouse, title: "Primary Inventory", description: "Track fixed school assets." },
+    { href: "/dashboard/inventory/summary", icon: BarChart2, title: "Primary Inventory Summary", description: "View asset value reports." },
+    { href: "/dashboard/academics/classroom-inventory", icon: Boxes, title: "Classroom Inventory", description: "Manage classroom supplies." },
+    { href: "/dashboard/academics/inventory-summary", icon: BarChart2, title: "Classroom Inventory Summary", description: "View classroom stock reports." },
+    { href: "/dashboard/library", icon: Library, title: "Library Service", description: "Manage book loans and returns." },
+    { href: "/dashboard/health-safety", icon: ShieldCheck, title: "Health & Safety", description: "Manage safety protocols and incidents." },
+    { href: "/dashboard/reporting", icon: BarChart2, title: "Reporting Hub", description: "Generate all system reports." },
+];
+
 
 const AdminLinkItem = ({ link }: { link: AdminLink }) => {
   const Icon = link.icon;
@@ -86,15 +97,15 @@ export function PlatformManagementClient() {
         />
         <Card className="shadow-lg">
             <CardContent className="p-6 space-y-8">
-                <Section title="Platform Administration" links={platformAdminLinks} />
+                <Section title="Platform & AI" links={platformAdminLinks} />
                 <Separator />
                 <Section title="School & User Management" links={schoolUserLinks} />
                 <Separator />
-                <Section title="Data & Reporting" links={dataReportingLinks} />
+                <Section title="Academics & Planning" links={academicsLinks} />
                 <Separator />
-                <Section title="School Operations" links={operationsLinks} />
-                 <Separator />
-                <Section title="Academics" links={academicsLinks} />
+                <Section title="Student & Staff Records" links={recordsLinks} />
+                <Separator />
+                <Section title="Operations, Safety & Reporting" links={operationsLinks} />
             </CardContent>
         </Card>
     </div>
