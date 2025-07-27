@@ -19,7 +19,6 @@ export const ExamResultFormInputSchema = z.object({
   examType: z.enum(examTypes, { required_error: "Please select an exam type." }),
   otherExamTypeName: z.string().optional(),
   subject: z.string().min(2, "Subject is required."),
-  // Score is now a number and optional
   score: z.coerce.number().optional(),
   grade: z.string().optional(),
   examDate: z.string().refine((val) => val && !isNaN(Date.parse(val)), { message: "A valid exam date is required." }),

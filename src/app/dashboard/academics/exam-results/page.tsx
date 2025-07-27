@@ -172,7 +172,7 @@ export default function ExamResultsManagementPage() {
       examType: undefined,
       otherExamTypeName: '',
       subject: '',
-      score: '', 
+      score: undefined, 
       grade: '',
       examDate: '',
       term: '',
@@ -195,7 +195,7 @@ export default function ExamResultsManagementPage() {
               examType: resultToEdit.examType,
               otherExamTypeName: resultToEdit.otherExamTypeName || '',
               subject: resultToEdit.subject,
-              score: resultToEdit.score !== undefined ? String(resultToEdit.score) : "",
+              score: resultToEdit.score,
               grade: resultToEdit.grade || '',
               examDate: resultToEdit.examDate,
               term: resultToEdit.term,
@@ -217,6 +217,7 @@ export default function ExamResultsManagementPage() {
     
     const resultToSave: Omit<ExamResult, 'id' | 'createdAt' | 'updatedAt'> = {
         ...data,
+        score: data.score === undefined || isNaN(data.score) ? undefined : data.score,
         recordedByUserId: currentUserId,
         ...(schoolId && { schoolId: schoolId }), 
     };
@@ -426,7 +427,7 @@ export default function ExamResultsManagementPage() {
             {watchedExamType === "Other" && (<div><Label htmlFor="otherExamTypeNameForm">Specify Other Exam Type</Label><Input id="otherExamTypeNameForm" {...register("otherExamTypeName")} placeholder="e.g., Mid-Term Assessment" />{errors.otherExamTypeName && <p className="text-destructive text-xs mt-1">{errors.otherExamTypeName.message}</p>}</div>)}
             <div><Label htmlFor="subjectForm">Subject</Label><Input id="subjectForm" {...register("subject")} />{errors.subject && <p className="text-destructive text-xs mt-1">{errors.subject.message}</p>}</div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div><Label htmlFor="scoreForm">Score</Label><Input id="scoreForm" type="text" {...register("score")} placeholder="e.g., 75 or leave blank" />{errors.score && <p className="text-destructive text-xs mt-1">{errors.score.message}</p>}</div>
+              <div><Label htmlFor="scoreForm">Score</Label><Input id="scoreForm" type="number" {...register("score")} placeholder="e.g., 75 or leave blank" />{errors.score && <p className="text-destructive text-xs mt-1">{errors.score.message}</p>}</div>
               <div><Label htmlFor="gradeForm">Grade</Label><Input id="gradeForm" {...register("grade")} placeholder="e.g., A, Pass or leave blank" />{errors.grade && <p className="text-destructive text-xs mt-1">{errors.grade.message}</p>}</div>
             </div>
              {(errors as any).root?.message && <p className="text-destructive text-xs mt-1 col-span-full">{(errors as any).root.message}</p>}
