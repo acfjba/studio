@@ -20,7 +20,6 @@ interface AdminLink {
 }
 
 const platformAdminLinks: AdminLink[] = [
-    { href: "/dashboard/platform-management/ai-assistant", icon: Bot, title: "AI Assistant", description: "Develop the app with AI." },
     { href: "/dashboard/platform-management/app-settings", icon: Settings, title: "App Settings", description: "Configure system-wide settings." },
     { href: "/dashboard/platform-management/firebase-config", icon: DatabaseZap, title: "Firebase Status", description: "View Firebase status and manage data." },
     { href: "/dashboard/platform-management/platform-status", icon: Wifi, title: "Platform Status", description: "Monitor school connectivity." },
@@ -41,7 +40,6 @@ const schoolUserLinks: AdminLink[] = [
 const academicsLinks: AdminLink[] = [
      { href: "/dashboard/academics", icon: GraduationCap, title: "Academics Hub", description: "Central point for academic management." },
      { href: "/dashboard/lesson-planner", icon: BookOpen, title: "Lesson Planner", description: "Create detailed lesson plans." },
-     { href: "/dashboard/workbook-plan", icon: BookOpen, title: "AI Workbook Plan", description: "Generate workbook plans with AI." },
      { href: "/dashboard/iwp", icon: FileText, title: "Individual Work Plan", description: "Manage teacher IWPs." },
      { href: "/dashboard/head-teacher", icon: GraduationCap, title: "Head Teacher Panel", description: "Oversee teacher submissions." },
 ];
@@ -61,7 +59,6 @@ const operationsLinks: AdminLink[] = [
     { href: "/dashboard/library", icon: Library, title: "Library Service", description: "Manage book loans and returns." },
     { href: "/dashboard/health-safety", icon: ShieldCheck, title: "Health & Safety", description: "Manage safety protocols and incidents." },
     { href: "/dashboard/reporting", icon: BarChart2, title: "Reporting Hub", description: "Generate all system reports." },
-    { href: "/dashboard/summarization", icon: Bot, title: "AI Summarization", description: "Use AI to summarize documents." },
 ];
 
 
@@ -101,7 +98,7 @@ export function PlatformManagementClient() {
         />
         <Card className="shadow-lg">
             <CardContent className="p-6 space-y-8">
-                <Section title="Platform & AI" links={platformAdminLinks} />
+                <Section title="Platform" links={platformAdminLinks} />
                 <Separator />
                 <Section title="School & User Management" links={schoolUserLinks} />
                 <Separator />

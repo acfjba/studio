@@ -5,8 +5,6 @@
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack -p 9002",
-    "genkit:dev": "tsx --env-file=.env src/ai/dev.ts",
-    "genkit:watch": "tsx --watch --env-file=.env src/ai/dev.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
@@ -15,10 +13,6 @@
     "db:set-claims": "node set-claims.js"
   },
   "dependencies": {
-    "@genkit-ai/core": "^1.15.5",
-    "@genkit-ai/firebase": "^1.15.5",
-    "@genkit-ai/googleai": "^1.15.5",
-    "@genkit-ai/next": "^1.15.5",
     "@hookform/resolvers": "^4.1.3",
     "@opentelemetry/exporter-jaeger": "^1.25.1",
     "@radix-ui/react-accordion": "^1.2.3",
@@ -50,7 +44,6 @@
     "embla-carousel-react": "^8.6.0",
     "firebase": "^12.0.0",
     "firebase-admin": "^12.1.1",
-    "genkit": "^1.15.5",
     "lucide-react": "^0.475.0",
     "next": "15.3.3",
     "next-themes": "^0.3.0",
@@ -70,12 +63,9 @@
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
-    "genkit-cli": "^1.15.5",
     "postcss": "^8",
     "tailwindcss": "^3.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5"
   }
 }
-
-    

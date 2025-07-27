@@ -49,7 +49,6 @@ const dashboardLinks = [
 
 const academicLinks = [
   { href: '/dashboard/academics', icon: GraduationCap, label: 'Academics Hub', description: 'Manage lesson plans & inventory.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
-  { href: '/dashboard/workbook-plan', icon: ClipboardList, label: 'AI Workbook Plan', description: 'Generate lesson plans with AI.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/lesson-planner', icon: BookOpen, label: 'Lesson Planner', description: 'Manually create detailed lesson plans.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/academics/exam-results', icon: ClipboardList, label: 'Exam Results', description: 'Record and manage student exam results.', roles: ['teacher', 'head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin', 'kindergarten'] },
   { href: '/dashboard/academics/exam-summary', icon: BarChart2, label: 'Exam Summary', description: 'View aggregated exam performance.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
@@ -74,8 +73,6 @@ const platformLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/user-management', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/email', icon: Mail, label: 'Bulk Email', description: 'Send an email to all users.', roles: ['system-admin'] },
-    { href: '/dashboard/summarization', icon: Bot, label: 'AI Summarization', description: 'Use AI to summarize documents.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/platform-management/ai-assistant', icon: Bot, label: 'AI Assistant', description: 'Develop the app with AI.', roles: ['system-admin'] },
 ];
 
 const navMenuConfig = [

@@ -15,12 +15,12 @@ export default function AcademicsPage() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         <Card>
           <CardHeader>
-            <CardTitle className="flex items-center gap-2 font-headline"><BookOpen className="w-5 h-5 text-primary" /> AI Workbook Plan</CardTitle>
-            <CardDescription>Generate, view, and manage lesson plans for your classes using AI.</CardDescription>
+            <CardTitle className="flex items-center gap-2 font-headline"><BookOpen className="w-5 h-5 text-primary" /> Lesson Planner</CardTitle>
+            <CardDescription>Create, view, and manage lesson plans for your classes.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/workbook-plan">
-              <Button>Generate with AI</Button>
+            <Link href="/dashboard/lesson-planner">
+              <Button>Go to Lesson Planner</Button>
             </Link>
           </CardContent>
         </Card>
