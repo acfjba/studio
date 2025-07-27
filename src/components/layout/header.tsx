@@ -42,7 +42,6 @@ import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
 import { cn } from '@/lib/utils';
 import type { Role } from '@/lib/schemas/user';
-import { cva } from 'class-variance-authority';
 
 const dashboardLinks = [
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage all school operations.', roles: ['primary-admin', 'system-admin'] },
@@ -134,11 +133,11 @@ export function Header() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                  <Link href="/" legacyBehavior passHref>
-                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
-                          <Home className="h-4 w-4 mr-2"/> Home
-                      </NavigationMenuLink>
-                  </Link>
+                  <NavigationMenuLink asChild>
+                    <Link href="/" className={navigationMenuTriggerStyle()}>
+                      <Home className="h-4 w-4 mr-2"/> Home
+                    </Link>
+                  </NavigationMenuLink>
               </NavigationMenuItem>
               {accessibleNavMenus.map(menu => (
                   <NavigationMenuItem key={menu.name}>
