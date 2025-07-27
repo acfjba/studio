@@ -1,8 +1,9 @@
 
+
 "use client";
 
 import React, { useState, type ChangeEvent, useEffect, useCallback } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,12 +82,10 @@ async function fetchSchools(): Promise<{id: string, name: string}[]> {
 export default function UserManagementPage() {
     const { toast } = useToast();
     const router = useRouter();
-    const searchParams = useSearchParams();
     const [file, setFile] = useState<File | null>(null);
     const [users, setUsers] = useState<UserFormData[]>([]);
     const [hasAccess, setHasAccess] = useState<boolean | null>(null);
     const [schools, setSchools] = useState<{id: string, name: string}[]>([]);
-    const preselectedSchoolId = searchParams.get('schoolId');
 
 
     useEffect(() => {
@@ -117,16 +116,10 @@ export default function UserManagementPage() {
             email: '',
             phone: '',
             role: 'teacher',
-            schoolId: preselectedSchoolId || 'none',
+            schoolId: 'none',
             password: '',
         }
     });
-
-    useEffect(() => {
-        if (preselectedSchoolId) {
-            singleUserForm.setValue('schoolId', preselectedSchoolId);
-        }
-    }, [preselectedSchoolId, singleUserForm]);
 
     const [multipleUsersData, setMultipleUsersData] = useState('');
 

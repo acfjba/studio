@@ -75,7 +75,11 @@ export default function ExamSummaryPage() {
     }, [loadData]);
 
 
-    const { uniqueTerms, uniqueAcademicYears, aggregatedClassData } = useMemo(() => {
+    const { uniqueTerms, uniqueAcademicYears, aggregatedClassData }: {
+        uniqueTerms: string[];
+        uniqueAcademicYears: string[];
+        aggregatedClassData: any[];
+    } = useMemo(() => {
         const terms = ['All', ...Array.from(new Set(detailedResults.map(r => r.term)))].sort();
         const academicYears = ['All', ...Array.from(new Set(detailedResults.map(r => r.year)))].sort().reverse();
         
@@ -110,7 +114,7 @@ export default function ExamSummaryPage() {
             };
         }).filter(Boolean) as any[];
 
-        return { uniqueTerms, uniqueAcademicYears, aggregatedClassData };
+        return { uniqueTerms: terms, uniqueAcademicYears: academicYears, aggregatedClassData };
     }, [detailedResults, termFilter, academicYearFilter]);
 
   return (
