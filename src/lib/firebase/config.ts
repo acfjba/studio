@@ -5,20 +5,20 @@ import { getAuth, type Auth } from "firebase/auth";
 import { initializeAppCheck, ReCaptchaV3Provider, AppCheck } from "firebase/app-check";
 
 const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
-  authDomain: "YOUR_PROJECT.firebaseapp.com",
-  projectId: "YOUR_PROJECT_ID",
-  storageBucket: "YOUR_PROJECT.appspot.com",
-  messagingSenderId: "SENDER_ID",
-  appId: "YOUR_APP_ID"
+  apiKey: "AIzaSyD-L2Zx9FSDysCO6OypaaswfsQX4F4q73s",
+  authDomain: "school-platform-kc9uh.firebaseapp.com",
+  projectId: "school-platform-kc9uh",
+  storageBucket: "school-platform-kc9uh.appspot.com",
+  messagingSenderId: "840322255670",
+  appId: "1:840322255670:web:98e2f0f3ef1774a850c197"
 };
 
 // A simple check to see if the placeholder values have been replaced.
 const isFirebaseConfigured = !!(
     firebaseConfig.apiKey && 
     firebaseConfig.projectId &&
-    firebaseConfig.apiKey !== "YOUR_API_KEY" &&
-    firebaseConfig.projectId !== "YOUR_PROJECT_ID"
+    !firebaseConfig.apiKey.startsWith("YOUR_") &&
+    !firebaseConfig.projectId.startsWith("YOUR_")
 );
 
 let app: FirebaseApp;
