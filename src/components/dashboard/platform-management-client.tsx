@@ -1,3 +1,4 @@
+
 "use client";
 
 import React from 'react';
@@ -24,6 +25,8 @@ const managementLinks: AdminLink[] = [
     { href: "/dashboard/platform-management/firebase-config", icon: DatabaseZap, title: "Firebase Config", description: "View Firebase status and manage data." },
     { href: "/dashboard/history", icon: History, title: "Rating History", description: "Review your submitted ratings." },
     { href: "/dashboard/settings", icon: Settings, title: "Settings", description: "View application settings." },
+    { href: "/dashboard/platform-management/platform-status", icon: Wifi, title: "Platform Status", description: "Monitor connectivity and health." },
+    { href: "/dashboard/email", icon: Mail, title: "Bulk Email", description: "Send an email to all users." },
 ];
 
 const AdminLinkItem = ({ link }: { link: AdminLink }) => {

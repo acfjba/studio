@@ -47,6 +47,7 @@ const dashboardLinks = [
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage all school operations.', roles: ['primary-admin', 'system-admin'] },
   { href: '/dashboard/head-teacher', icon: GraduationCap, label: 'Head Teacher', description: 'Oversee teacher submissions and reports.', roles: ['head-teacher', 'assistant-head-teacher', 'system-admin', 'primary-admin'] },
   { href: '/dashboard/teacher-panel', icon: Users, label: 'Teacher Panel', description: 'Access all essential teaching modules.', roles: ['teacher', 'kindergarten'] },
+  { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage system-wide settings.', roles: ['system-admin'] },
 ];
 
 const academicLinks = [
@@ -133,11 +134,9 @@ export function Header() {
           <NavigationMenu>
             <NavigationMenuList>
               <NavigationMenuItem>
-                  <NavigationMenuLink asChild>
-                    <Link href="/" className={navigationMenuTriggerStyle()}>
-                      <Home className="h-4 w-4 mr-2"/> Home
-                    </Link>
-                  </NavigationMenuLink>
+                  <Link href="/" className={navigationMenuTriggerStyle()}>
+                    <Home className="h-4 w-4 mr-2"/> Home
+                  </Link>
               </NavigationMenuItem>
               {accessibleNavMenus.map(menu => (
                   <NavigationMenuItem key={menu.name}>

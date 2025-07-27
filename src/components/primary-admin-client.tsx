@@ -14,8 +14,8 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
-import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase/config';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 type AdminSection = 'overview' | 'userManagement' | 'academicRecords' | 'schoolOperations' | 'dataReports';
 
@@ -43,7 +43,7 @@ const adminSubNavs: Record<AdminSection, AdminSubNavItem[]> = {
   overview: [], 
   userManagement: [
     { label: "Staff Records", href: "/dashboard/staff", icon: Users },
-    { label: "Invite Teachers", href: "/dashboard/user-management", icon: UserPlus },
+    { label: "Invite Teachers", href: "/dashboard/invite-teachers", icon: UserPlus },
     { label: "Teacher List & Ratings", href: "/dashboard/teachers", icon: Users },
   ],
   academicRecords: [
@@ -82,23 +82,10 @@ export function PrimaryAdminClient() {
     setCurrentLastBackup(new Date(mockAdminStats.lastBackup).toLocaleDateString());
   }, []);
 
-  const NavItem = ({ label, section, icon: Icon }: AdminNavItem) => (
-    <div
-      onClick={() => setActiveSection(section)}
-      className={cn(
-        "flex items-center space-x-3 p-3 mb-2 rounded-md cursor-pointer text-foreground transition-colors font-medium",
-        activeSection === section ? "bg-primary/10 text-primary font-semibold shadow-sm" : "hover:bg-muted/50"
-      )}
-    >
-      <Icon className="h-5 w-5" />
-      <span>{label}</span>
-    </div>
-  );
-
   const renderOverviewContent = () => {
     return (
       <section>
-        <PageHeader title="Primary Admin Overview" description="View key statistics and system alerts for your school. Navigate to other sections using the left menu." />
+        <PageHeader title="Primary Admin Overview" description="View key statistics and system alerts for your school." />
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
           <Card className="rounded-lg shadow-md">
             <CardHeader className="pb-2">
@@ -163,33 +150,33 @@ export function PrimaryAdminClient() {
     );
   };
 
-  const renderContent = () => {
-    if (activeSection === 'overview') {
-      return renderOverviewContent();
-    }
-    return renderLinkSection(activeSection);
-  };
-
   return (
     <TooltipProvider>
-        <div className="flex min-h-screen font-body bg-muted/40 text-foreground">
-        <aside 
-            className="w-64 bg-background border-r p-6 flex-col shadow-lg fixed inset-y-0 left-0 print:hidden hidden md:flex" 
-        >
-            <div className="mb-6 text-center">
-            <h2 className="text-2xl font-headline font-bold text-primary pt-4 pb-2">Primary Admin</h2>
-            </div>
-            <nav className="flex-grow space-y-1">
-            {primaryAdminNavItems.map((item) => (
-                <NavItem key={item.section} {...item} />
-            ))}
-            </nav>
-        </aside>
+      <div className="space-y-8">
+        <Tabs value={activeSection} onValueChange={(value) => setActiveSection(value as AdminSection)} className="w-full">
+            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
+                {primaryAdminNavItems.map((item) => (
+                    <TabsTrigger key={item.section} value={item.section}><item.icon className="mr-2 h-4 w-4" />{item.label}</TabsTrigger>
+                ))}
+            </TabsList>
 
-        <main className="flex-1 p-4 sm:p-6 md:p-8 md:ml-64">
-            {renderContent()}
-        </main>
-        </div>
+            <TabsContent value="overview" className="mt-6">
+                {renderOverviewContent()}
+            </TabsContent>
+            <TabsContent value="userManagement" className="mt-6">
+                {renderLinkSection('userManagement')}
+            </TabsContent>
+             <TabsContent value="academicRecords" className="mt-6">
+                {renderLinkSection('academicRecords')}
+            </TabsContent>
+             <TabsContent value="schoolOperations" className="mt-6">
+                {renderLinkSection('schoolOperations')}
+            </TabsContent>
+             <TabsContent value="dataReports" className="mt-6">
+                {renderLinkSection('dataReports')}
+            </TabsContent>
+        </Tabs>
+      </div>
     </TooltipProvider>
   );
 }
