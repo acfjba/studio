@@ -3,9 +3,17 @@
 // from the /data directory. This avoids import resolution issues in client components.
 
 import usersSeedData from '@/data/users.json';
+import schoolData from '@/data/schools.json';
+import staffData from '@/data/staff.json';
+import inventoryData from '@/data/inventory.json';
+import sampleExamResultsData from '@/data/exam-results.json';
 
 
 // Re-exporting all the data so it can be imported from a single, reliable source.
 export {
   usersSeedData,
+  schoolData,
+  staffData,
+  inventoryData,
+  sampleExamResultsData,
 };
