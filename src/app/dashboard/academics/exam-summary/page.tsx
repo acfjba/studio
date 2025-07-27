@@ -43,6 +43,15 @@ async function fetchAllExamResults(): Promise<ExamResult[]> {
   });
 }
 
+interface AggregatedClassResult {
+    yearLevel: string;
+    resultCount: number;
+    averageScore: string;
+    passRate: string;
+    highestScore: number;
+    lowestScore: number;
+}
+
 export default function ExamSummaryPage() {
     const [detailedResults, setDetailedResults] = useState<ExamResult[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -78,7 +87,7 @@ export default function ExamSummaryPage() {
     const { uniqueTerms, uniqueAcademicYears, aggregatedClassData }: {
         uniqueTerms: string[];
         uniqueAcademicYears: string[];
-        aggregatedClassData: any[];
+        aggregatedClassData: AggregatedClassResult[];
     } = useMemo(() => {
         const terms = ['All', ...Array.from(new Set(detailedResults.map(r => r.term)))].sort();
         const academicYears = ['All', ...Array.from(new Set(detailedResults.map(r => r.year)))].sort().reverse();
@@ -112,7 +121,7 @@ export default function ExamSummaryPage() {
                 highestScore,
                 lowestScore,
             };
-        }).filter(Boolean) as any[];
+        }).filter((item): item is AggregatedClassResult => item !== null);
 
         return { uniqueTerms: terms, uniqueAcademicYears: academicYears, aggregatedClassData };
     }, [detailedResults, termFilter, academicYearFilter]);

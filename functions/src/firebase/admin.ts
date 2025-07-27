@@ -1,3 +1,4 @@
+
 // functions/src/firebase/admin.ts
 import { config } from 'dotenv';
 import path from 'path';
@@ -48,5 +49,3 @@ async function initializeFirebaseAdmin() {
 initializeFirebaseAdmin();
 
 export { adminAuth, adminDb };
-
-    

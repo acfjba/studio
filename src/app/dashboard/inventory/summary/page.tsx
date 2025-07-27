@@ -11,13 +11,13 @@ import { AlertCircle, AlertTriangle } from "lucide-react";
 import type { PrimaryInventoryItem } from '@/lib/schemas/primaryInventory';
 import { PageHeader } from '@/components/layout/page-header';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
-import { collectionGroup, getDocs } from 'firebase/firestore';
+import { collection, getDocs, query, where } from 'firebase/firestore';
 
 
-async function fetchPrimaryInventorySummaryFromBackend(): Promise<PrimaryInventoryItem[]> {
+async function fetchPrimaryInventorySummaryFromBackend(schoolId: string): Promise<PrimaryInventoryItem[]> {
     if (!db) throw new Error("Firestore is not configured.");
-    const inventoryGroup = collectionGroup(db, 'primaryInventory');
-    const snapshot = await getDocs(inventoryGroup);
+    const inventoryCollection = collection(db, 'schools', schoolId, 'primaryInventory');
+    const snapshot = await getDocs(inventoryCollection);
 
     return snapshot.docs.map(doc => {
       const data = doc.data();
@@ -27,6 +27,9 @@ async function fetchPrimaryInventorySummaryFromBackend(): Promise<PrimaryInvento
           quantity: data.quantity || 0,
           value: data.value || 0,
           remarks: data.remarks || '',
+          lastUpdatedBy: data.lastUpdatedBy,
+          updatedAt: data.updatedAt,
+          createdAt: data.createdAt,
       };
     });
 }
@@ -48,8 +51,13 @@ export default function PrimaryInventorySummaryPage() {
           setIsLoading(false);
           return;
         }
+         if (!schoolId) {
+            if (isFirebaseConfigured) setFetchError("School ID not found.");
+            setIsLoading(false);
+            return;
+        }
         try {
-            const summary = await fetchPrimaryInventorySummaryFromBackend();
+            const summary = await fetchPrimaryInventorySummaryFromBackend(schoolId);
             setSummaryData(summary);
         } catch (err) {
             const msg = err instanceof Error ? err.message : "Failed to load summary data.";
@@ -58,7 +66,7 @@ export default function PrimaryInventorySummaryPage() {
         } finally {
             setIsLoading(false);
         }
-    }, [toast]);
+    }, [toast, schoolId]);
 
     useEffect(() => {
         const school = localStorage.getItem('schoolId');

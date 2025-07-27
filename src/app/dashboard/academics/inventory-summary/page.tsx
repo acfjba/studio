@@ -12,21 +12,16 @@ import type { ClassroomInventory } from '@/lib/schemas/classroom-inventory';
 import { cn } from '@/lib/utils';
 import { PageHeader } from '@/components/layout/page-header';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
-import { collectionGroup, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, collectionGroup } from 'firebase/firestore';
 
 
 async function fetchFullInventoryFromBackend(schoolId: string): Promise<ClassroomInventory[]> {
     if (!db) throw new Error("Firestore is not configured.");
-    // This is an advanced query that gets all documents from any subcollection named 'classroomInventory'
-    // It is filtered by the schoolId, which is stored on the parent document. This requires an index.
-    const inventoryGroup = collectionGroup(db, 'classroomInventory');
-    const q = query(inventoryGroup, where('schoolId', '==', schoolId)); // This requires a composite index
-    const snapshot = await getDocs(inventoryGroup);
+    const inventoryGroup = collection(db, `schools/${schoolId}/classroomInventory`);
+    const q = query(inventoryGroup);
+    const snapshot = await getDocs(q);
     
-    // Client-side filter as `where` on parent doc fields is not directly supported in collectionGroup queries
-    const schoolDocPath = `schools/${schoolId}`;
     return snapshot.docs
-      .filter(doc => doc.ref.parent.parent?.path === schoolDocPath)
       .map(doc => doc.data() as ClassroomInventory);
 }
 
