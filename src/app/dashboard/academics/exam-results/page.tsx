@@ -219,7 +219,7 @@ export default function ExamResultsManagementPage() {
         ...data,
         score: data.score === undefined || isNaN(data.score) ? undefined : data.score,
         recordedByUserId: currentUserId,
-        ...(schoolId && { schoolId: schoolId }), 
+        schoolId: schoolId || 'UNKNOWN_SCHOOL_ID', 
     };
 
     try {
@@ -453,3 +453,5 @@ export default function ExamResultsManagementPage() {
     </div>
   );
 }
+
+    

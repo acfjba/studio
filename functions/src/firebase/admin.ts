@@ -1,5 +1,4 @@
 // functions/src/firebase/admin.ts
-import admin from 'firebase-admin';
 import { config } from 'dotenv';
 import path from 'path';
 
@@ -9,29 +8,45 @@ config({ path: path.resolve(process.cwd(), '.env') });
 // This file is for SERVER-SIDE use only.
 // It initializes the Firebase Admin SDK, which provides privileged access.
 
-// Robust singleton pattern for serverless environments.
-// This ensures the app is initialized only once per server instance.
-if (!admin.apps.length) {
-  try {
-    const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+let admin: typeof import('firebase-admin');
+let adminAuth: import('firebase-admin/auth').Auth | null = null;
+let adminDb: import('firebase-admin/firestore').Firestore | null = null;
 
-    if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
-      admin.initializeApp({
-        credential: admin.credential.cert({
-          projectId: FIREBASE_PROJECT_ID,
-          clientEmail: FIREBASE_CLIENT_EMAIL,
-          // Replace escaped newlines before parsing
-          privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
-        }),
-      });
-      console.log("Firebase Admin SDK initialized successfully using environment variables.");
-    } else {
-      console.warn("Firebase Admin SDK not initialized. Missing required environment variables (FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY).");
+// Dynamic import for firebase-admin to support both CJS and ESM environments
+async function initializeFirebaseAdmin() {
+  if (admin && admin.apps.length) {
+    return;
+  }
+  
+  admin = (await import('firebase-admin'));
+
+  if (admin.apps.length === 0) {
+    try {
+      const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+
+      if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+        admin.initializeApp({
+          credential: admin.credential.cert({
+            projectId: FIREBASE_PROJECT_ID,
+            clientEmail: FIREBASE_CLIENT_EMAIL,
+            privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+          }),
+        });
+        console.log("Firebase Admin SDK initialized successfully using environment variables.");
+        adminAuth = admin.auth();
+        adminDb = admin.firestore();
+      } else {
+        console.warn("Firebase Admin SDK not initialized. Missing required environment variables.");
+      }
+    } catch (error) {
+      console.error('Firebase admin initialization error:', error);
     }
-  } catch (error) {
-    console.error('Firebase admin initialization error:', error);
   }
 }
 
-export const adminAuth = admin.apps.length ? admin.auth() : null;
-export const adminDb = admin.apps.length ? admin.firestore() : null;
+// Immediately invoke the async function. The exports will be populated when the promise resolves.
+initializeFirebaseAdmin();
+
+export { adminAuth, adminDb };
+
+    
