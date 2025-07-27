@@ -1,7 +1,7 @@
 
 [
   {
-    "id": "system_admin_user",
+    "id": "systemadmin",
     "email": "systemadmin@system.com",
     "password": "admin12345",
     "displayName": "System Admin",
