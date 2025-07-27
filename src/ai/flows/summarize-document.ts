@@ -43,7 +43,7 @@ const decideInformationToIncludeTool = ai.defineTool(
           'The type of document, such as counselling session notes or staff records.'
         ),
     }),
-    outputSchema: z.any(),
+    outputSchema: z.string().describe("A list of key information to include in the summary."),
   },
   async (input) => {
     // Placeholder: Replace with actual implementation to decide what information to include.
@@ -82,3 +82,5 @@ const summarizeDocumentFlow = ai.defineFlow(
 export async function summarizeDocument(input: SummarizeDocumentInput): Promise<SummarizeDocumentOutput> {
   return summarizeDocumentFlow(input);
 }
+
+    

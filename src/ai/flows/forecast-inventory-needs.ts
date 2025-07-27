@@ -55,7 +55,7 @@ const analyzeInventoryDataTool = ai.defineTool(
         .number()
         .describe('The desired confidence level for the forecast (0-1).'),
     }),
-    outputSchema: z.any(),
+    outputSchema: z.string().describe("A detailed analysis of inventory data."),
   },
   async (input) => {
     // Placeholder implementation for inventory analysis
@@ -96,3 +96,5 @@ const forecastInventoryNeedsFlow = ai.defineFlow(
     return output!;
   }
 );
+
+    

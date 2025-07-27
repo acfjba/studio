@@ -11,7 +11,7 @@ import { AlertCircle, AlertTriangle } from "lucide-react";
 import type { PrimaryInventoryItem } from '@/lib/schemas/primaryInventory';
 import { PageHeader } from '@/components/layout/page-header';
 import { isFirebaseConfigured, db } from '@/lib/firebase/config';
-import { collection, getDocs, query, where } from 'firebase/firestore';
+import { collection, getDocs, query, where, collectionGroup } from 'firebase/firestore';
 
 
 async function fetchPrimaryInventorySummaryFromBackend(schoolId: string): Promise<PrimaryInventoryItem[]> {
@@ -57,6 +57,8 @@ export default function PrimaryInventorySummaryPage() {
             return;
         }
         try {
+            const inventoryGroup = collectionGroup(db, 'primaryInventory');
+            const q = query(inventoryGroup, where('schoolId', '==', schoolId));
             const summary = await fetchPrimaryInventorySummaryFromBackend(schoolId);
             setSummaryData(summary);
         } catch (err) {
@@ -154,3 +156,5 @@ export default function PrimaryInventorySummaryPage() {
         </div>
     );
 }
+
+    

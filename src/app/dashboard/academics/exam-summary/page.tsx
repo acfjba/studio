@@ -1,3 +1,4 @@
+
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -118,7 +119,7 @@ export default function ExamSummaryPage() {
             };
         }).filter((item): item is AggregatedClassResult => item !== null);
 
-        return { uniqueTerms: terms, uniqueAcademicYears: academicYears, aggregatedClassData };
+        return { uniqueTerms: terms, uniqueAcademicYears: academicYears, aggregatedClassData: aggregatedData };
     }, [detailedResults, termFilter, academicYearFilter]);
 
   return (
@@ -218,3 +219,5 @@ export default function ExamSummaryPage() {
       </div>
   );
 }
+
+    
