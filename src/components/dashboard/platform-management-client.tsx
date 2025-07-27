@@ -30,7 +30,7 @@ const platformAdminLinks: AdminLink[] = [
 
 const schoolUserLinks: AdminLink[] = [
     { href: "/dashboard/platform-management/school-management", icon: Building, title: "School Management", description: "View, create, and manage all schools." },
-    { href: "/dashboard/user-management", icon: UserCog, title: "User Management", description: "Invite users and manage roles." },
+    { href: "/dashboard/invite-teachers", icon: UserCog, title: "User Management", description: "Invite users and manage roles." },
     { href: "/dashboard/staff", icon: UsersRound, title: "Staff Records", description: "Manage staff information." },
     { href: "/dashboard/teachers", icon: Star, title: "Teacher Directory", description: "View and rate teachers." },
     { href: "/dashboard/history", icon: History, title: "My Rating History", description: "Review your submitted ratings."},

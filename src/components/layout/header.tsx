@@ -71,7 +71,7 @@ const operationsLinks = [
 
 const platformLinks = [
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
-    { href: '/dashboard/user-management', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
+    { href: '/dashboard/invite-teachers', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/email', icon: Mail, label: 'Bulk Email', description: 'Send an email to all users.', roles: ['system-admin'] },
 ];
 
