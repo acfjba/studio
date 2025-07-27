@@ -35,6 +35,7 @@ import {
   Wifi,
   LogIn,
   Mail,
+  Home,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -130,6 +131,13 @@ export function Header() {
         {userRole && (
           <NavigationMenu>
             <NavigationMenuList>
+              <NavigationMenuItem>
+                  <Link href="/" legacyBehavior passHref>
+                      <NavigationMenuLink className={navigationMenuTriggerStyle()}>
+                          <Home className="h-4 w-4 mr-2"/> Home
+                      </NavigationMenuLink>
+                  </Link>
+              </NavigationMenuItem>
               {accessibleNavMenus.map(menu => (
                   <NavigationMenuItem key={menu.name}>
                       <NavigationMenuTrigger>{menu.name}</NavigationMenuTrigger>
