@@ -59,11 +59,11 @@ const analyzeInventoryDataTool = ai.defineTool(
       .describe(
         'A detailed analysis of the inventory data including projected needs, reorder recommendations, and potential cost savings.'
       ),
-    async execute(input) {
-      // Placeholder implementation for inventory analysis
-      // In a real application, this would involve more sophisticated calculations
-      return `Detailed analysis of inventory data for ${input.forecastMonths} months with a confidence level of ${input.desiredConfidenceLevel}.`;
-    },
+  },
+  async (input) => {
+    // Placeholder implementation for inventory analysis
+    // In a real application, this would involve more sophisticated calculations
+    return `Detailed analysis of inventory data for ${input.forecastMonths} months with a confidence level of ${input.desiredConfidenceLevel}.`;
   }
 );
 

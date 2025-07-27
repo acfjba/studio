@@ -45,10 +45,10 @@ const decideInformationToIncludeTool = ai.defineTool(
     outputSchema: z
       .string()
       .describe('A list of specific key information to include'),
-    async execute(input) {
-      // Placeholder: Replace with actual implementation to decide what information to include.
-      return `List of key information based on document type ${input.documentType} and content: ${input.documentContent}`;
-    },
+  },
+  async (input) => {
+    // Placeholder: Replace with actual implementation to decide what information to include.
+    return `List of key information based on document type ${input.documentType} and content: ${input.documentContent}`;
   }
 );
 
