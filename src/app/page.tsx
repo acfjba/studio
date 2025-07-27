@@ -101,7 +101,7 @@ export default function LoginPage() {
                             <CardContent className="space-y-4">
                                 <div>
                                     <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
+                                    <Input id="email" type="email" placeholder="systemadmin@system.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                                 </div>
                                 <div>
                                     <Label htmlFor="password">Password</Label>
@@ -138,13 +138,6 @@ export default function LoginPage() {
                      <p className="text-lg text-foreground mb-8 text-center max-w-3xl mx-auto">An integrated platform that provides tools for every role, from teachers to system administrators, ensuring efficient data management and insightful analytics.</p>
                      <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
                         <div className="flex items-start">
-                            <Wand2 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
-                            <div>
-                                <p className="font-semibold">AI-Powered Tools</p>
-                                <p className="text-muted-foreground text-sm">Leverage generative AI to summarize documents, forecast inventory needs, and generate complete, standards-aligned lesson plans, saving valuable time for educators and administrators.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start">
                             <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
                             <div>
                                 <p className="font-semibold">Interactive Dashboards</p>
@@ -163,6 +156,13 @@ export default function LoginPage() {
                             <div>
                                 <p className="font-semibold">Secure Access Control</p>
                                 <p className="text-muted-foreground text-sm">Implement a secure, role-based access control system to ensure only authorized users can access sensitive data like API keys, counselling notes, and staff records, maintaining privacy and security.</p>
+                            </div>
+                        </div>
+                         <div className="flex items-start">
+                            <FileText className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Comprehensive Record-Keeping</p>
+                                <p className="text-muted-foreground text-sm">Manage everything from disciplinary and counselling records to OHS incidents and library loans in a single, centralized system.</p>
                             </div>
                         </div>
                     </div>
