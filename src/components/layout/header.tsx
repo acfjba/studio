@@ -37,6 +37,7 @@ import {
   LogIn,
   Mail,
   Home,
+  Settings,
 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { UserNav } from '@/components/layout/user-nav';
@@ -135,7 +136,7 @@ export function Header() {
             <NavigationMenuList>
               <NavigationMenuItem>
                   <Link href="/" className={navigationMenuTriggerStyle()}>
-                    <Home className="h-4 w-4 mr-2"/> Home
+                      <Home className="h-4 w-4 mr-2"/> Home
                   </Link>
               </NavigationMenuItem>
               {accessibleNavMenus.map(menu => (
