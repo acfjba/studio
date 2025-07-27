@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { 
     BarChart2, UserCog, Users, Building, DatabaseZap, Settings, Bot, Mail,
     GraduationCap, Warehouse, ShieldCheck, Contact, FileText, BookOpen, Boxes, Library,
-    UsersRound, MailPlus, ClipboardCheck, Gavel, HeartHandshake, BarChart3, Star, History
+    UsersRound, MailPlus, ClipboardCheck, Gavel, HeartHandshake, BarChart3, Star, History, Wifi
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
