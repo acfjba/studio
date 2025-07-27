@@ -43,9 +43,7 @@ const decideInformationToIncludeTool = ai.defineTool(
           'The type of document, such as counselling session notes or staff records.'
         ),
     }),
-    outputSchema: z
-      .string()
-      .describe('A list of specific key information to include'),
+    outputSchema: z.any(),
   },
   async (input) => {
     // Placeholder: Replace with actual implementation to decide what information to include.

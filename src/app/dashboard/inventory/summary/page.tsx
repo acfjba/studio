@@ -28,8 +28,8 @@ async function fetchPrimaryInventorySummaryFromBackend(schoolId: string): Promis
           value: data.value || 0,
           remarks: data.remarks || '',
           lastUpdatedBy: data.lastUpdatedBy,
-          updatedAt: data.updatedAt,
-          createdAt: data.createdAt,
+          updatedAt: data.updatedAt.toDate().toISOString(),
+          createdAt: data.createdAt.toDate().toISOString(),
       };
     });
 }
@@ -71,8 +71,13 @@ export default function PrimaryInventorySummaryPage() {
     useEffect(() => {
         const school = localStorage.getItem('schoolId');
         setSchoolId(school);
-        loadData();
-    }, [loadData]);
+    }, []);
+
+    useEffect(() => {
+       if (schoolId) {
+         loadData();
+       }
+    }, [schoolId, loadData]);
 
 
     const chartData = useMemo(() => {

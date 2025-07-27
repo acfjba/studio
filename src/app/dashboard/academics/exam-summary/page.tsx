@@ -1,4 +1,3 @@
-
 "use client";
 
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
@@ -84,11 +83,7 @@ export default function ExamSummaryPage() {
     }, [loadData]);
 
 
-    const { uniqueTerms, uniqueAcademicYears, aggregatedClassData }: {
-        uniqueTerms: string[];
-        uniqueAcademicYears: string[];
-        aggregatedClassData: AggregatedClassResult[];
-    } = useMemo(() => {
+    const { uniqueTerms, uniqueAcademicYears, aggregatedClassData } = useMemo(() => {
         const terms = ['All', ...Array.from(new Set(detailedResults.map(r => r.term)))].sort();
         const academicYears = ['All', ...Array.from(new Set(detailedResults.map(r => r.year)))].sort().reverse();
         
@@ -100,7 +95,7 @@ export default function ExamSummaryPage() {
 
         const studentYears = [...new Set(filteredByTermAndYear.map(r => r.studentYear))].sort((a,b) => parseInt(a, 10) - parseInt(b, 10));
 
-        const aggregatedData = studentYears.map(year => {
+        const aggregatedData: AggregatedClassResult[] = studentYears.map(year => {
             const yearResults = filteredByTermAndYear.filter(r => r.studentYear === year);
             const scores = yearResults.map(r => Number(r.score)).filter(s => !isNaN(s));
             
