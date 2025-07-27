@@ -231,5 +231,4 @@ export default function AcademicReportsPage() {
             </Card>
         </div>
     );
-
-    
+}
