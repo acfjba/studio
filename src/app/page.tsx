@@ -29,14 +29,14 @@ const Slide = ({ children, className }: { children: React.ReactNode, className?:
     </section>
 );
 
-const MOCK_USERS: { [key in Role]: { schoolId: string } } = {
-    'system-admin': { schoolId: 'global' },
-    'primary-admin': { schoolId: '2009' },
-    'head-teacher': { schoolId: '2009' },
-    'assistant-head-teacher': { schoolId: '2009' },
-    'teacher': { schoolId: '2009' },
-    'kindergarten': { schoolId: '2009' },
-    'librarian': { schoolId: '2009' },
+const MOCK_USERS: { [key in Role]: { schoolId: string, email: string } } = {
+    'system-admin': { schoolId: 'global', email: 'systemadmin@system.com' },
+    'primary-admin': { schoolId: '2009', email: 'navolaudistrictschool@yahoo.com' },
+    'head-teacher': { schoolId: '2009', email: 'rosabatina3@gmail.com' },
+    'assistant-head-teacher': { schoolId: '2009', email: 'asst.head@example.com' },
+    'teacher': { schoolId: '2009', email: 'lureqeleticia@gmail.com' },
+    'kindergarten': { schoolId: '2009', email: 'kinder.teacher@example.com' },
+    'librarian': { schoolId: '2009', email: 'librarian@example.com' },
 };
 
 
@@ -45,6 +45,12 @@ export default function LoginPage() {
     const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [selectedRole, setSelectedRole] = useState<Role>('system-admin');
+    const [email, setEmail] = useState(MOCK_USERS['system-admin'].email);
+
+    const handleRoleChange = (role: Role) => {
+        setSelectedRole(role);
+        setEmail(MOCK_USERS[role].email);
+    };
     
     const handleLogin = (e: React.FormEvent) => {
         e.preventDefault();
@@ -95,15 +101,15 @@ export default function LoginPage() {
                             <CardContent className="space-y-4">
                                 <div>
                                     <Label htmlFor="email">Email</Label>
-                                    <Input id="email" type="email" placeholder="user@example.com" defaultValue="demo@schooldata.com" />
+                                    <Input id="email" type="email" placeholder="user@example.com" value={email} onChange={(e) => setEmail(e.target.value)} />
                                 </div>
                                 <div>
                                     <Label htmlFor="password">Password</Label>
-                                    <Input id="password" type="password" placeholder="••••••••" defaultValue="password123" />
+                                    <Input id="password" type="password" placeholder="••••••••" defaultValue="admin12345" />
                                 </div>
                                 <div>
                                     <Label htmlFor="role-select">Select Role (for Demo)</Label>
-                                     <Select value={selectedRole} onValueChange={(value) => setSelectedRole(value as Role)}>
+                                     <Select value={selectedRole} onValueChange={(value) => handleRoleChange(value as Role)}>
                                         <SelectTrigger id="role-select">
                                             <SelectValue placeholder="Select a role to simulate" />
                                         </SelectTrigger>

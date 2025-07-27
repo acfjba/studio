@@ -40,6 +40,8 @@ export default function ProfilePage() {
       let name = "Valued User";
       let email = "user@example.com";
 
+      // This logic provides placeholder data for the demo.
+      // In a real application, this would be fetched from a user context or API.
       if (storedRole) {
         switch (storedRole) {
           case 'teacher':
@@ -59,8 +61,8 @@ export default function ProfilePage() {
             email = "primaryadmin@example.com";
             break;
           case 'system-admin':
-            name = "Logged-in System Admin";
-            email = "systemadmin@example.com";
+            name = "System Admin";
+            email = "systemadmin@system.com";
             break;
           case 'librarian':
             name = "Logged-in Librarian";
