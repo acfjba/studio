@@ -103,6 +103,9 @@ export async function seedDatabase(): Promise<SeedReport> {
   ];
 
   for (const collection of collectionsToSeed) {
+    if (!adminDb) {
+      throw new Error("Firestore Admin DB is not initialized.");
+    }
     if (collection.data.length > 0) {
       const batch = adminDb.batch();
       collection.data.forEach((item: any) => {
