@@ -1,115 +1,67 @@
 
 // functions/src/firebase/seed.ts
-import { doc } from 'firebase/firestore';
-import { adminDb, adminAuth, projectId } from './admin';
-import { 
-  usersSeedData, 
-  schoolData, 
-  staffData, 
-  inventoryData,
-  sampleExamResultsData,
-  libraryBooksData,
-  disciplinaryRecordsData,
-  counsellingRecordsData,
-  ohsRecordsData
-} from '../data';
+import { adminDb, adminAuth } from './admin';
+import authUsers from '../data/auth_users.json';
+import firestoreSeed from '../data/firestore_seed.json';
 
 /**
- * Seeds the database with essential user data from users.json.
- * This function is idempotent: it will update existing users or create
- * them if they don't exist, ensuring Auth and Firestore are in sync.
+ * Seeds Firebase Authentication with users from a JSON file.
  */
-export async function seedDatabase() {
-  console.log(`Starting database seed process for project: ${projectId || 'Default Project'}...`);
-
-  // --- Users + Auth Claims ---
-  if (!usersSeedData || usersSeedData.length === 0) {
-    console.log("No users found in src/data/users.json. Skipping user seeding.");
-  } else {
-    console.log(`Processing ${usersSeedData.length} user(s)...`);
-    for (const u of usersSeedData) {
-      try {
-        const { id, email, password, displayName, role, schoolId } = u;
-
-        if (!id || !email || !password || !displayName || !role) {
-          console.error(`Skipping invalid user entry: ${JSON.stringify(u)}`);
-          continue;
-        }
-        
-        // 1. Create or Update user in Firebase Authentication
-        let userRecord;
-        try {
-          userRecord = await adminAuth.getUser(id);
-          await adminAuth.updateUser(userRecord.uid, {
-            email: email,
-            password: password,
-            displayName: displayName,
-          });
-          console.log(`✅ Updated Auth user: ${email} (UID: ${userRecord.uid})`);
-        } catch (error: any) {
-          if (error.code === 'auth/user-not-found') {
-            userRecord = await adminAuth.createUser({ 
-              uid: id,
-              email: email, 
-              password: password,
-              displayName: displayName,
-            });
-            console.log(`✅ Created Auth user: ${email} (UID: ${userRecord.uid})`);
-          } else {
-            throw error;
-          }
-        }
-
-        // 2. Set Custom Claims for Role-Based Access Control
-        const claims = { role, schoolId: schoolId ?? null };
-        await adminAuth.setCustomUserClaims(userRecord.uid, claims);
-        console.log(`   - Set custom claims for ${email}:`, claims);
-        
-        // 3. Set the user document in the top-level 'users' collection
-        const userDocRef = doc(adminDb, 'users', id);
-        const userDocPayload = {
-          email: email,
-          displayName: displayName,
-          role: role,
-          schoolId: schoolId ?? null,
-        };
-        
-        await adminDb.collection("users").doc(id).set(userDocPayload);
-        console.log(`   - Set Firestore document in /users/${id}`);
-
-      } catch (error) {
-        console.error(`❌ Error processing user ${u.email}:`, error);
+async function seedAuth() {
+  console.log("Seeding Authentication...");
+  if (!adminAuth) {
+    console.error("✘ Firebase Auth not initialized. Skipping auth seeding.");
+    return;
+  }
+  for (const user of authUsers) {
+    try {
+      // Ensure UID is provided, as it's required by the createUser method
+      const { uid, ...restOfUser } = user;
+       if (!uid) {
+        console.error(`✘ Skipping user with email ${user.email} due to missing UID.`);
+        continue;
+      }
+      await adminAuth.createUser({ uid, ...restOfUser });
+      console.log(`✔ Auth user created: ${user.email}`);
+    } catch (err: any) {
+      if (err.code === 'auth/uid-already-exists') {
+        console.log(`✔ Auth user already exists: ${user.email}`);
+      } else {
+        console.error(`✘ Failed to create auth user ${user.email}:`, err.message);
       }
     }
-    console.log('\nUser seeding process complete!');
   }
+}
 
-  // --- Other Collections ---
-  const collectionsToSeed = [
-    { name: 'schools', data: schoolData },
-    { name: 'staff', data: staffData },
-    { name: 'inventory', data: inventoryData },
-    { name: 'examResults', data: sampleExamResultsData },
-    { name: 'libraryBooks', data: libraryBooksData },
-    { name: 'disciplinaryRecords', data: disciplinaryRecordsData },
-    { name: 'counsellingRecords', data: counsellingRecordsData },
-    { name: 'ohsRecords', data: ohsRecordsData }
-  ];
-
-  for (const collection of collectionsToSeed) {
-    if (collection.data.length > 0) {
-      console.log(`Seeding ${collection.name}...`);
-      const batch = adminDb.batch();
-      collection.data.forEach((item: any) => {
-        const docRef = doc(adminDb, collection.name, item.id);
-        batch.set(docRef, item);
-      });
-      await batch.commit();
-      console.log(`✅ Seeded ${collection.data.length} documents into ${collection.name}.`);
-    } else {
-      console.log(`No data for ${collection.name}. Skipping.`);
+/**
+ * Seeds Firestore with data from a JSON file.
+ */
+async function seedFirestore() {
+  console.log("Seeding Firestore...");
+  if (!adminDb) {
+    console.error("✘ Firestore not initialized. Skipping Firestore seeding.");
+    return;
+  }
+  for (const entry of firestoreSeed) {
+    try {
+      if (!entry.collection || !entry.doc || !entry.data) {
+          console.error(`✘ Skipping invalid Firestore entry:`, entry);
+          continue;
+      }
+      await adminDb.collection(entry.collection).doc(entry.doc).set(entry.data);
+      console.log(`✔ Firestore doc created/updated: ${entry.collection}/${entry.doc}`);
+    } catch (err: any) {
+      console.error(`✘ Failed to create Firestore doc ${entry.collection}/${entry.doc}:`, err.message);
     }
   }
+}
 
-  console.log('\nFull database seeding process complete!');
+/**
+ * Main function to run the seeding process for both Auth and Firestore.
+ */
+export async function seedDatabase() {
+  console.log("Starting database seed process...");
+  await seedAuth();
+  await seedFirestore();
+  console.log("📦 Seeding complete.");
 }
