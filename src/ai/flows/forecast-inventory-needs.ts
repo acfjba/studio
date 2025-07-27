@@ -43,7 +43,6 @@ export async function forecastInventoryNeeds(input: ForecastInventoryNeedsInput)
 }
 
 const analyzeInventoryDataTool = ai.defineTool(
-  'analyzeInventoryDataTool',
   {
     name: 'analyzeInventoryData',
     description:

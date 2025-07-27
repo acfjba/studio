@@ -29,7 +29,6 @@ const SummarizeDocumentOutputSchema = z.object({
 export type SummarizeDocumentOutput = z.infer<typeof SummarizeDocumentOutputSchema>;
 
 const decideInformationToIncludeTool = ai.defineTool(
-  'decideInformationToIncludeTool',
   {
     name: 'decideInformationToInclude',
     description: 'Decides what information to include in the summary.',
