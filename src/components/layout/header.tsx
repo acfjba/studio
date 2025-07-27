@@ -178,10 +178,8 @@ export function Header() {
         </SheetContent>
       </Sheet>
       <div className="flex w-full items-center gap-4 md:ml-auto md:gap-2 lg:gap-4">
-        {userRole ? (
-          <form className="ml-auto flex-1 sm:flex-initial">
-          </form>
-        ) : null}
+        <form className="ml-auto flex-1 sm:flex-initial">
+        </form>
         {userRole ? (
           <UserNav />
         ) : (

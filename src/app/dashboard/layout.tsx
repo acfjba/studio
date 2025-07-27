@@ -16,20 +16,12 @@ export default function DashboardLayout({
 
   useEffect(() => {
     // This check replaces a real authentication provider for the prototype.
-    // --- LOGIN BYPASS ---
-    // We'll default to system-admin for development purposes.
     const userRole = localStorage.getItem('userRole');
-    if (!userRole) {
-        localStorage.setItem('userRole', 'system-admin');
-        localStorage.setItem('schoolId', 'global');
+    if (userRole) {
+      setIsAuthenticated(true);
+    } else {
+      router.push('/'); // Redirect to login if no role is found
     }
-    setIsAuthenticated(true);
-    // Original logic is commented out below:
-    // if (userRole) {
-    //   setIsAuthenticated(true);
-    // } else {
-    //   router.push('/'); // Redirect to login if no role is found
-    // }
   }, [router]);
   
   if (!isAuthenticated) {
