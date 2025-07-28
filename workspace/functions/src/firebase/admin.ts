@@ -1,39 +1,40 @@
+
 // functions/src/firebase/admin.ts
-import admin from 'firebase-admin';
-import type { ServiceAccount } from 'firebase-admin';
-import fs from 'fs';
+import { config } from 'dotenv';
 import path from 'path';
+import admin from 'firebase-admin';
 
-// This file is for SERVER-SIDE use only.
-// It initializes the Firebase Admin SDK, which provides privileged access.
+// Load environment variables from the root .env file
+config({ path: path.resolve(process.cwd(), '.env') });
 
-let projectId: string | undefined;
+let adminAuth: admin.auth.Auth | null = null;
+let adminDb: admin.firestore.Firestore | null = null;
 
-// Robust singleton pattern for serverless environments.
-// This ensures the app is initialized only once per server instance.
-if (!admin.apps.length) {
-  try {
-    // Check if the serviceAccountKey.json file exists for local development
-    const serviceAccountPath = path.resolve(process.cwd(), 'serviceAccountKey.json');
-    if (fs.existsSync(serviceAccountPath)) {
-        // Correctly require the service account using the resolved absolute path
-        const serviceAccount = require(serviceAccountPath) as ServiceAccount;
-        admin.initializeApp({
-            credential: admin.credential.cert(serviceAccount)
-        });
-        projectId = serviceAccount.project_id;
-        console.log(`Firebase Admin SDK initialized with local service account key for project: ${projectId}.`);
+try {
+  if (admin.apps.length === 0) {
+    const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
+
+    if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+      admin.initializeApp({
+        credential: admin.credential.cert({
+          projectId: FIREBASE_PROJECT_ID,
+          clientEmail: FIREBASE_CLIENT_EMAIL,
+          privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
+        }),
+      });
+      console.log("Firebase Admin SDK initialized successfully using environment variables.");
+      adminAuth = admin.auth();
+      adminDb = admin.firestore();
     } else {
-        // Otherwise, use default credentials provided by the App Hosting environment
-        admin.initializeApp();
-        projectId = process.env.GCLOUD_PROJECT;
-        console.log(`Firebase Admin SDK initialized with default App Hosting credentials for project: ${projectId}.`);
+      console.warn("Firebase Admin SDK not initialized. Missing required environment variables.");
     }
-  } catch (error) {
-    console.error('Firebase admin initialization error', error);
+  } else {
+     // If already initialized, just get the instances
+    adminAuth = admin.auth();
+    adminDb = admin.firestore();
   }
+} catch (error) {
+  console.error('Firebase admin initialization error:', error);
 }
 
-export const adminAuth = admin.auth();
-export const adminDb = admin.firestore();
-export { projectId };
+export { adminAuth, adminDb };
