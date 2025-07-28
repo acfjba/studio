@@ -1,11 +1,12 @@
-// functions/src/firebase/seed-script.ts
-import { seedDatabase } from './seed';
+// functions/seed-script.ts
 
 /**
  * This script is for command-line seeding for testing and development purposes.
  * It directly invokes the seedDatabase function.
  * To run this script, use the command: `npm run db:seed`
  */
+import { seedDatabase } from './src/firebase/seed';
+
 (async () => {
   try {
     console.log('--- Starting Database Seed via Command Line ---');

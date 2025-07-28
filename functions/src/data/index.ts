@@ -1,4 +1,3 @@
-
 // functions/src/data/index.ts
 export { default as usersSeedData } from './users.json';
 export { default as schoolData } from './schools.json';

@@ -10,7 +10,7 @@ import {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData
-} from '../data';
+} from './../data';
 
 interface SeedReport {
     users: string[];
