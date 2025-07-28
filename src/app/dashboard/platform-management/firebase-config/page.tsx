@@ -99,6 +99,45 @@ export default function FirebaseConfigPage() {
         }
     };
     
+    const handleSeedDatabase = async () => {
+        setIsSeeding(true);
+        toast({ title: 'Database Seeding Started...', description: 'This may take a moment. Please wait.' });
+        try {
+            const response = await fetch('/api/seed', { method: 'POST' });
+            const result = await response.json();
+
+            if (!response.ok) {
+                throw new Error(result.details || 'Failed to seed database.');
+            }
+
+            setSeedReport(result.report);
+            toast({
+                title: 'Database Seeded Successfully!',
+                description: 'The sample data has been loaded into Firestore.',
+            });
+
+        } catch (error) {
+            console.error("Seeding failed:", error);
+            const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+            toast({
+                variant: "destructive",
+                title: "Database Seeding Failed",
+                description: errorMessage,
+            });
+        } finally {
+            setIsSeeding(false);
+        }
+    };
+
+    const copyToClipboard = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            toast({ title: 'Copied to clipboard!' });
+        } catch (err) {
+            toast({ variant: 'destructive', title: 'Failed to copy' });
+        }
+    };
+
     const firestoreUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/firestore/databases` : '#';
     const authUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/authentication/users` : '#';
     const functionsUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/functions` : '#';
@@ -157,16 +196,19 @@ export default function FirebaseConfigPage() {
                         </CardHeader>
                          <CardContent>
                              <Alert>
-                                <AlertTitle>Seed Database via Command Line</AlertTitle>
+                                <AlertTitle>Seed Database</AlertTitle>
                                 <AlertDescription>
-                                    To populate your database with initial users, schools, and sample data, please run the following command in your terminal:
-                                    <div className="mt-2 p-2 bg-muted rounded-md">
-                                        <code className="font-mono text-sm">npm run db:seed</code>
-                                    </div>
+                                    Click the button below to populate your database with initial users, schools, and sample data.
                                     This action is idempotent, meaning you can run it multiple times without creating duplicate entries.
                                 </AlertDescription>
                             </Alert>
                          </CardContent>
+                         <CardFooter>
+                            <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured}>
+                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <DatabaseZap className="mr-2 h-4 w-4" />}
+                                {isSeeding ? 'Seeding...' : 'Seed Database'}
+                            </Button>
+                         </CardFooter>
                     </Card>
                     
                     <Alert variant="destructive">
@@ -214,3 +256,4 @@ export default function FirebaseConfigPage() {
         </div>
     );
 }
+
