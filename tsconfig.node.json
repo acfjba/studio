@@ -8,5 +8,5 @@
     "esModuleInterop": true,
     "resolveJsonModule": true
   },
-  "include": ["functions/**/*.ts", "seed-script.ts"]
+  "include": ["functions/**/*.ts"]
 }

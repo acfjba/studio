@@ -10,7 +10,7 @@ import {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData
-} from './../data';
+} from '../data';
 
 interface SeedReport {
     users: string[];
@@ -27,8 +27,7 @@ interface SeedReport {
 /**
  * Seeds the database with essential data from JSON files.
  * This function is idempotent: it will update existing entries or create
- * them if they don't exist. It NO LONGER sets claims, which should be
- * handled by a separate script.
+ * them if they don't exist.
  * @returns A report of all actions taken.
  */
 export async function seedDatabase(): Promise<SeedReport> {
@@ -51,21 +50,18 @@ export async function seedDatabase(): Promise<SeedReport> {
   };
 
   // --- Users ---
-  if (!usersSeedData || usersSeedData.length === 0) {
-    console.log("No users found in src/data/users.json. Skipping user seeding.");
-  } else {
+  // Auth user creation needs to be done one by one, not in a batch.
+  if (usersSeedData.length > 0) {
     console.log(`Processing ${usersSeedData.length} user(s)...`);
     for (const u of usersSeedData) {
       try {
         const { id, email, password, displayName, role, schoolId } = u;
-
         if (!id || !email || !password || !displayName || !role) {
-          console.error(`Skipping invalid user entry: ${JSON.stringify(u)}`);
+          report.users.push(`Skipping invalid user entry: ${JSON.stringify(u)}`);
           continue;
         }
         
         try {
-          // Check if user exists before trying to create.
           await adminAuth.getUser(id);
           report.users.push(`Auth user already exists: ${email}`);
         } catch (error: any) {
@@ -73,8 +69,7 @@ export async function seedDatabase(): Promise<SeedReport> {
             await adminAuth.createUser({ uid: id, email, password, displayName });
             report.users.push(`Created Auth user: ${email}`);
           } else {
-            // Re-throw other auth errors
-            throw error;
+            throw error; // Re-throw other auth errors
           }
         }
         
@@ -82,13 +77,15 @@ export async function seedDatabase(): Promise<SeedReport> {
         await adminDb.collection("users").doc(id).set({ id, email, displayName, role, schoolId: schoolId || null });
         report.users.push(`-> Set/updated Firestore document for ${email}`);
         
-      } catch (error) {
-        console.error(`❌ Error processing user ${u.email}:`, error);
+      } catch (error: any) {
+        report.users.push(`❌ Error processing user ${u.email}: ${error.message}`);
       }
     }
+  } else {
+    console.log("No users found to seed.");
   }
 
-  // --- Other Collections ---
+  // --- Other Collections (batched) ---
   const collectionsToSeed = [
     { name: 'schools', data: schoolData, reportKey: 'schools' as keyof SeedReport },
     { name: 'staff', data: staffData, reportKey: 'staff' as keyof SeedReport },
@@ -100,24 +97,28 @@ export async function seedDatabase(): Promise<SeedReport> {
     { name: 'ohsRecords', data: ohsRecordsData, reportKey: 'ohsRecords' as keyof SeedReport }
   ];
 
+  const batch = adminDb.batch();
+
   for (const collection of collectionsToSeed) {
-    if (!adminDb) {
-      throw new Error("Firestore Admin DB is not initialized.");
-    }
     if (collection.data.length > 0) {
-      const batch = adminDb.batch();
       collection.data.forEach((item: any) => {
         if(item.id) { // Ensure items have an ID to be seeded
             const docRef = adminDb.collection(collection.name).doc(item.id);
             batch.set(docRef, item);
-            (report[collection.reportKey] as string[]).push(`Seeded ${item.id} into ${collection.name}`);
+            (report[collection.reportKey] as string[]).push(`Queued ${item.id} for ${collection.name}`);
         }
       });
-      await batch.commit();
-      console.log(`✅ Seeded ${collection.data.length} documents into ${collection.name}.`);
+      console.log(`Queued ${collection.data.length} documents for ${collection.name}.`);
     } else {
       console.log(`No data for ${collection.name}. Skipping.`);
     }
+  }
+
+  try {
+    await batch.commit();
+    console.log('✅ Firestore batch commit successful!');
+  } catch (error: any) {
+    console.error('❌ Firestore batch commit failed:', error.message);
   }
 
   console.log('\nFull database seeding process complete!');
