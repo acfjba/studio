@@ -1,4 +1,3 @@
-
 // functions/src/firebase/seed.ts
 import { adminDb, adminAuth } from './admin';
 import { 
@@ -11,7 +10,7 @@ import {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData
-} from '../data';
+} from './../data';
 
 interface SeedReport {
     users: string[];
