@@ -47,18 +47,17 @@ export default function PrimaryInventorySummaryPage() {
         setIsLoading(true);
         setFetchError(null);
         setLastUpdated(new Date().toLocaleString());
-        if (!isFirebaseConfigured) {
+        if (!isFirebaseConfigured || !db) { // Added check for db
           setIsLoading(false);
+          setFetchError("Firebase is not configured.");
           return;
         }
          if (!schoolId) {
-            if (isFirebaseConfigured) setFetchError("School ID not found.");
+            setFetchError("School ID not found.");
             setIsLoading(false);
             return;
         }
         try {
-            const inventoryGroup = collectionGroup(db, 'primaryInventory');
-            const q = query(inventoryGroup, where('schoolId', '==', schoolId));
             const summary = await fetchPrimaryInventorySummaryFromBackend(schoolId);
             setSummaryData(summary);
         } catch (err) {
