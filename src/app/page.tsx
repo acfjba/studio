@@ -86,7 +86,7 @@ export default function LoginPage() {
                 <Slide>
                     <div className="text-center">
                         <h1 className="text-6xl font-headline font-bold text-primary mb-4">School Data Insights</h1>
-                        <p className="text-2xl text-foreground">AI-Powered School Management for the Modern Era.</p>
+                        <p className="text-2xl text-foreground">School Management for the Modern Era.</p>
                         <p className="text-muted-foreground mt-4">A Comprehensive, Data-Driven Solution for Fijian Schools</p>
                     </div>
                 </Slide>
