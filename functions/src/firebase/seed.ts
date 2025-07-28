@@ -1,6 +1,6 @@
 
 // functions/src/firebase/seed.ts
-import { initializeFirebaseAdmin, adminDb, adminAuth } from './admin';
+import { adminDb, adminAuth } from './admin';
 import { 
   usersSeedData, 
   schoolData, 
@@ -34,7 +34,6 @@ interface SeedReport {
  */
 export async function seedDatabase(): Promise<SeedReport> {
   console.log("Starting database seed process...");
-  await initializeFirebaseAdmin(); // Ensure admin is initialized
   
   if (!adminAuth || !adminDb) {
     throw new Error("Firebase Admin SDK not initialized. Cannot seed database.");
@@ -125,5 +124,3 @@ export async function seedDatabase(): Promise<SeedReport> {
   console.log('\nFull database seeding process complete!');
   return report;
 }
-
-    
