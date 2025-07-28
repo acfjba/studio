@@ -5,7 +5,7 @@ import React from 'react';
 import Link from 'next/link';
 import { 
     BarChart2, UserCog, Building, DatabaseZap, Settings, Mail,
-    History, Wifi
+    History, Wifi, Box
 } from 'lucide-react';
 import { PageHeader } from '@/components/layout/page-header';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,6 +23,7 @@ const managementLinks: AdminLink[] = [
     { href: "/dashboard/invite-teachers", icon: UserCog, title: "User Management", description: "Invite users and manage roles." },
     { href: "/dashboard/platform-management/app-settings", icon: Settings, title: "App Settings", description: "Configure system-wide settings." },
     { href: "/dashboard/platform-management/firebase-config", icon: DatabaseZap, title: "Firebase Config", description: "View Firebase status and manage data." },
+    { href: "/dashboard/platform-management/hosting-info", icon: Box, title: "Hosting Info", description: "Learn about App Hosting vs. Hosting." },
     { href: "/dashboard/history", icon: History, title: "Rating History", description: "Review your submitted ratings." },
     { href: "/dashboard/settings", icon: Settings, title: "Settings", description: "View application settings." },
     { href: "/dashboard/platform-management/platform-status", icon: Wifi, title: "Platform Status", description: "Monitor connectivity and health." },
