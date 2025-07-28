@@ -16,10 +16,11 @@ let adminDb: admin.firestore.Firestore | null = null;
 // Initialize Firebase Admin SDK
 try {
   if (admin.apps.length === 0) {
-    console.log("Initializing Firebase Admin SDK using Application Default Credentials.");
+    console.log("Initializing Firebase Admin SDK...");
     admin.initializeApp({
         credential: applicationDefault(),
     });
+     console.log("Firebase Admin SDK initialized successfully.");
   }
   
   // Get instances after initialization (or if already initialized)
@@ -30,7 +31,7 @@ try {
 
 } catch (error) {
   console.error('Firebase admin initialization error:', error);
-  console.log('Please ensure you have set up your GOOGLE_APPLICATION_CREDENTIALS environment variable.');
+  console.log('Please ensure you have set up your GOOGLE_APPLICATION_CREDENTIALS environment variable to point to your service account key file.');
 }
 
 export { adminAuth, adminDb };

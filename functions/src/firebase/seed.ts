@@ -10,7 +10,7 @@ import {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData
-} from './../data';
+} from '../data/index';
 
 interface SeedReport {
     users: string[];
@@ -92,15 +92,14 @@ export async function seedDatabase(): Promise<SeedReport> {
     { name: 'inventory', data: inventoryData, reportKey: 'inventory' as keyof SeedReport },
     { name: 'examResults', data: sampleExamResultsData, reportKey: 'examResults' as keyof SeedReport },
     { name: 'libraryBooks', data: libraryBooksData, reportKey: 'libraryBooks' as keyof SeedReport },
-    { name: 'disciplinaryRecords', data: disciplinaryRecordsData, reportKey: 'disciplinaryRecords' as keyof SeedReport },
-    { name: 'counsellingRecords', data: counsellingRecordsData, reportKey: 'counsellingRecords' as keyof SeedReport },
-    { name: 'ohsRecords', data: ohsRecordsData, reportKey: 'ohsRecords' as keyof SeedReport }
+    { name: 'disciplinary', data: disciplinaryRecordsData, reportKey: 'disciplinaryRecords' as keyof SeedReport },
+    { name: 'counselling', data: counsellingRecordsData, reportKey: 'counsellingRecords' as keyof SeedReport },
+    { name: 'ohs', data: ohsRecordsData, reportKey: 'ohsRecords' as keyof SeedReport }
   ];
-
-  const batch = adminDb.batch();
 
   for (const collection of collectionsToSeed) {
     if (collection.data.length > 0) {
+      const batch = adminDb.batch();
       collection.data.forEach((item: any) => {
         if(item.id) { // Ensure items have an ID to be seeded
             const docRef = adminDb.collection(collection.name).doc(item.id);
@@ -109,16 +108,11 @@ export async function seedDatabase(): Promise<SeedReport> {
         }
       });
       console.log(`Queued ${collection.data.length} documents for ${collection.name}.`);
+      await batch.commit();
+      console.log(`✅ Firestore batch commit successful for ${collection.name}!`);
     } else {
       console.log(`No data for ${collection.name}. Skipping.`);
     }
-  }
-
-  try {
-    await batch.commit();
-    console.log('✅ Firestore batch commit successful!');
-  } catch (error: any) {
-    console.error('❌ Firestore batch commit failed:', error.message);
   }
 
   console.log('\nFull database seeding process complete!');
