@@ -23,5 +23,4 @@ export async function POST() {
     return NextResponse.json({ message: `Seeding failed: ${errorMessage}` }, { status: 500 });
   }
 }
-
     
