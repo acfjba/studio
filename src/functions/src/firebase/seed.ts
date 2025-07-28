@@ -1,4 +1,3 @@
-
 // functions/src/firebase/seed.ts
 import { adminDb, adminAuth } from './admin';
 import { 
@@ -11,7 +10,7 @@ import {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData
-} from '../data';
+} from '@/data/data';
 
 interface SeedReport {
     users: string[];
@@ -102,6 +101,9 @@ export async function seedDatabase(): Promise<SeedReport> {
   ];
 
   for (const collection of collectionsToSeed) {
+    if (!adminDb) {
+      throw new Error("Firestore Admin DB is not initialized.");
+    }
     if (collection.data.length > 0) {
       const batch = adminDb.batch();
       collection.data.forEach((item: any) => {
