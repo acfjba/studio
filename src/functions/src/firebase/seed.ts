@@ -1,3 +1,4 @@
+
 // functions/src/firebase/seed.ts
 import { adminDb, adminAuth } from './admin';
 import { 
@@ -10,7 +11,7 @@ import {
   disciplinaryRecordsData,
   counsellingRecordsData,
   ohsRecordsData
-} from '@/data/data';
+} from '../data';
 
 interface SeedReport {
     users: string[];
@@ -123,3 +124,4 @@ export async function seedDatabase(): Promise<SeedReport> {
   console.log('\nFull database seeding process complete!');
   return report;
 }
+
