@@ -48,7 +48,6 @@ const dashboardLinks = [
   { href: '/dashboard/primary-admin', icon: UserCog, label: 'Primary Admin', description: 'Manage all school operations.', roles: ['primary-admin', 'system-admin'] },
   { href: '/dashboard/head-teacher', icon: GraduationCap, label: 'Head Teacher', description: 'Oversee teacher submissions and reports.', roles: ['head-teacher', 'assistant-head-teacher', 'system-admin', 'primary-admin'] },
   { href: '/dashboard/teacher-panel', icon: Users, label: 'Teacher Panel', description: 'Access all essential teaching modules.', roles: ['teacher', 'kindergarten'] },
-  { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage system-wide settings.', roles: ['system-admin'] },
 ];
 
 const academicLinks = [
@@ -74,6 +73,7 @@ const operationsLinks = [
 ];
 
 const platformLinks = [
+    { href: '/dashboard/platform-management', icon: Settings, label: 'Platform Management', description: 'Manage system-wide settings.', roles: ['system-admin'] },
     { href: '/dashboard/reporting', icon: BarChart2, label: 'Reporting', description: 'Generate and view reports.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/invite-teachers', icon: Users, label: 'User Management', description: 'Invite users and manage roles.', roles: ['head-teacher', 'assistant-head-teacher', 'primary-admin', 'system-admin'] },
     { href: '/dashboard/email', icon: Mail, label: 'Bulk Email', description: 'Send an email to all users.', roles: ['system-admin'] },

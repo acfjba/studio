@@ -1,182 +1,92 @@
 
 "use client";
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { cn } from '@/lib/utils';
 import { 
-  LayoutGrid, UserCog, GraduationCap, Settings2, DatabaseZap, Home,
-  Users, UserPlus, ClipboardList, ClipboardCheck, Gavel, HeartPulse, ShieldAlert, Library as LibraryIcon, LineChartIcon, FileText, HelpCircle, Building2, BookOpen
+  Users, BookOpen, BarChart2, ShieldCheck, UserCog, MailPlus, Gavel, HeartHandshake,
+  Warehouse, Library, FileText, TrendingUp, ShieldAlert
 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { PageHeader } from '@/components/layout/page-header';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
-
-type AdminSection = 'overview' | 'userManagement' | 'academicRecords' | 'schoolOperations' | 'dataReports';
-
-interface AdminNavItem {
-  label: string;
-  section: AdminSection;
-  icon: React.ElementType;
-}
-
-interface AdminSubNavItem {
-  label: string;
+interface AdminActionCardProps {
   href: string;
   icon: React.ElementType;
+  title: string;
+  description: string;
 }
 
-const primaryAdminNavItems: AdminNavItem[] = [
-  { label: "Overview", section: "overview", icon: LayoutGrid },
-  { label: "User Management", section: "userManagement", icon: UserCog },
-  { label: "Academic Records", section: "academicRecords", icon: GraduationCap },
-  { label: "School Operations", section: "schoolOperations", icon: Settings2 },
-  { label: "Data & Reports", section: "dataReports", icon: DatabaseZap },
-];
-
-const adminSubNavs: Record<AdminSection, AdminSubNavItem[]> = {
-  overview: [], 
-  userManagement: [
-    { label: "Staff Records", href: "/dashboard/staff", icon: Users },
-    { label: "Invite Teachers", href: "/dashboard/invite-teachers", icon: UserPlus },
-    { label: "Teacher List & Ratings", href: "/dashboard/teachers", icon: Users },
-  ],
-  academicRecords: [
-    { label: "AI Workbook Plan", href: "/dashboard/workbook-plan", icon: ClipboardList },
-    { label: "Lesson Planner", href: "/dashboard/lesson-planner", icon: BookOpen },
-    { label: "Exam Results Management", href: "/dashboard/academics/exam-results", icon: ClipboardCheck },
-    { label: "Disciplinary Records", href: "/dashboard/disciplinary", icon: Gavel },
-  ],
-  schoolOperations: [
-    { label: "Health & Safety", href: "/dashboard/health-safety", icon: ShieldAlert },
-    { label: "Library Service", href: "/dashboard/library", icon: LibraryIcon },
-    { label: "Primary School Inventory", href: "/dashboard/inventory", icon: Building2 },
-  ],
-  dataReports: [
-    { label: "KPI Reports", href: "/dashboard/reporting/kpi", icon: LineChartIcon },
-    { label: "Upload Data", href: "/dashboard/upload-data", icon: DatabaseZap },
-  ]
-};
-
-const mockAdminStats = {
-  totalStudents: 1250,
-  totalStaff: 150,
-  activeWorkbookSubmissions: 35,
-  openDisciplinaryCases: 5,
-  systemHealth: "Optimal",
-  lastBackup: "2024-07-01T10:00:00.000Z", 
-};
+const AdminActionCard: React.FC<AdminActionCardProps> = ({ href, icon: Icon, title, description }) => (
+  <Card className="shadow-lg hover:shadow-xl transition-shadow rounded-lg flex flex-col">
+    <CardHeader>
+      <CardTitle className="font-headline text-xl text-primary flex items-center">
+        <Icon className="mr-3 h-6 w-6" />
+        {title}
+      </CardTitle>
+    </CardHeader>
+    <CardContent className="flex flex-col flex-grow">
+      <p className="text-sm text-muted-foreground mb-4 flex-grow">{description}</p>
+      <Link href={href} className="mt-auto">
+        <Button className="w-full">Manage {title}</Button>
+      </Link>
+    </CardContent>
+  </Card>
+);
 
 export function PrimaryAdminClient() {
-  const [activeSection, setActiveSection] = useState<AdminSection>('overview');
-  const [currentLastBackup, setCurrentLastBackup] = useState("Loading date...");
-  const router = useRouter();
-  const { toast } = useToast();
-
-  useEffect(() => {
-    setCurrentLastBackup(new Date(mockAdminStats.lastBackup).toLocaleDateString());
-  }, []);
-
-  const renderOverviewContent = () => {
-    return (
-      <section>
-        <PageHeader title="Primary Admin Overview" description="View key statistics and system alerts for your school." />
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-          <Card className="rounded-lg shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-headline text-primary">Total Students</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">{mockAdminStats.totalStudents}</p>
-            </CardContent>
-          </Card>
-          <Card className="rounded-lg shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-headline text-primary">Total Staff</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-4xl font-bold text-foreground">{mockAdminStats.totalStaff}</p>
-            </CardContent>
-          </Card>
-          <Card className="rounded-lg shadow-md">
-            <CardHeader className="pb-2">
-              <CardTitle className="text-lg font-headline text-primary">Last Backup</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <p className="text-3xl font-bold text-muted-foreground">{currentLastBackup}</p>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-    );
-  };
-
-  const renderLinkSection = (section: AdminSection) => {
-    const subItems = adminSubNavs[section];
-    const sectionTitle = primaryAdminNavItems.find(nav => nav.section === section)?.label || "Section";
-    if (!subItems || subItems.length === 0) return <p>No actions available in this section.</p>;
-
-    return (
-      <section>
-        <PageHeader title={sectionTitle} description={`This section provides quick links to all pages related to ${sectionTitle}. Click a card to navigate.`} />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {subItems.map(item => {
-            const ItemIcon = item.icon;
-            return (
-              <Card key={item.href} className="shadow-lg hover:shadow-xl transition-shadow rounded-lg border-muted">
-                <CardHeader>
-                  <CardTitle className="font-headline text-xl text-primary flex items-center">
-                    <ItemIcon className="mr-2 h-6 w-6" />
-                    {item.label}
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <Link href={item.href}>
-                    <Button className="w-full">
-                      Go to {item.label}
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            );
-          })}
-        </div>
-      </section>
-    );
-  };
+  
+  const adminLinks: AdminActionCardProps[] = [
+    {
+      href: "/dashboard/staff",
+      icon: Users,
+      title: "Staff Records",
+      description: "Manage teacher roles, including Head and Assistant Head Teachers."
+    },
+    {
+      href: "/dashboard/invite-teachers",
+      icon: MailPlus,
+      title: "Invite Users",
+      description: "Invite new teachers and administrative staff to the platform."
+    },
+    {
+      href: "/dashboard/head-teacher",
+      icon: BookOpen,
+      title: "Academic Oversight",
+      description: "Review workbook plans and lesson submissions from teachers."
+    },
+    {
+      href: "/dashboard/reporting",
+      icon: BarChart2,
+      title: "School-wide Reports",
+      description: "Access comprehensive reports on school performance."
+    },
+    {
+      href: "/dashboard/health-safety",
+      icon: ShieldAlert,
+      title: "Health & Safety",
+      description: "Manage school safety protocols and incident reports."
+    },
+    {
+      href: "/dashboard/inventory",
+      icon: Warehouse,
+      title: "School Inventory",
+      description: "Oversee the school's primary assets and inventory."
+    }
+  ];
 
   return (
-    <TooltipProvider>
-      <div className="space-y-8">
-        <Tabs value={activeSection} onValueChange={(value) => setActiveSection(value as AdminSection)} className="w-full">
-            <TabsList className="grid w-full grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-                {primaryAdminNavItems.map((item) => (
-                    <TabsTrigger key={item.section} value={item.section}><item.icon className="mr-2 h-4 w-4" />{item.label}</TabsTrigger>
-                ))}
-            </TabsList>
-
-            <TabsContent value="overview" className="mt-6">
-                {renderOverviewContent()}
-            </TabsContent>
-            <TabsContent value="userManagement" className="mt-6">
-                {renderLinkSection('userManagement')}
-            </TabsContent>
-             <TabsContent value="academicRecords" className="mt-6">
-                {renderLinkSection('academicRecords')}
-            </TabsContent>
-             <TabsContent value="schoolOperations" className="mt-6">
-                {renderLinkSection('schoolOperations')}
-            </TabsContent>
-             <TabsContent value="dataReports" className="mt-6">
-                {renderLinkSection('dataReports')}
-            </TabsContent>
-        </Tabs>
+    <div className="space-y-8">
+      <PageHeader
+        title="Primary Admin Dashboard"
+        description="Oversee all administrative tasks and school operations from this central hub."
+      />
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {adminLinks.map(link => (
+          <AdminActionCard key={link.href} {...link} />
+        ))}
       </div>
-    </TooltipProvider>
+    </div>
   );
 }
