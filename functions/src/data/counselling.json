@@ -1,2 +1,18 @@
 
-[]
+[
+    {
+        "id": "cr-001",
+        "sessionDate": "2024-05-10",
+        "studentName": "Jone Doe",
+        "studentId": "S12348",
+        "studentDob": "2009-08-20",
+        "studentYear": "8",
+        "counsellingType": "Peer Conflict",
+        "sessionDetails": "Jone reported feeling isolated after a disagreement with a friend. We discussed communication strategies.",
+        "actionPlan": "Follow up in one week. Encourage joining a school club.",
+        "parentsContacted": "No",
+        "counsellorName": "Rosa Batina",
+        "schoolId": "2009",
+        "userId": "headteacher_rosabatina3"
+    }
+]

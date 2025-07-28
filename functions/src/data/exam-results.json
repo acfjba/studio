@@ -1,2 +1,35 @@
 
-[]
+[
+    {
+        "id": "er-001",
+        "studentId": "S12345",
+        "studentName": "Ratu Penaia",
+        "studentYear": "8",
+        "examType": "Mid-Term",
+        "subject": "Mathematics",
+        "score": 88,
+        "grade": "A+",
+        "examDate": "2024-06-01",
+        "term": "2",
+        "year": "2024",
+        "comments": "Excellent work, particularly in algebra.",
+        "recordedByUserId": "teacher_eshitaprasad028",
+        "schoolId": "2009"
+    },
+    {
+        "id": "er-002",
+        "studentId": "S12346",
+        "studentName": "Sereana Vula",
+        "studentYear": "8",
+        "examType": "Mid-Term",
+        "subject": "English",
+        "score": 75,
+        "grade": "A",
+        "examDate": "2024-06-02",
+        "term": "2",
+        "year": "2024",
+        "comments": "Good comprehension skills, needs to work on grammar.",
+        "recordedByUserId": "teacher_lureqeleticia",
+        "schoolId": "2009"
+    }
+]

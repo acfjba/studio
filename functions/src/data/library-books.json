@@ -1,2 +1,23 @@
 
-[]
+[
+    {
+        "id": "lb-001",
+        "title": "The Adventures of Tom Sawyer",
+        "author": "Mark Twain",
+        "category": "Fiction",
+        "isbn": "978-0143039563",
+        "totalCopies": 5,
+        "availableCopies": 5,
+        "schoolId": "2009"
+    },
+    {
+        "id": "lb-002",
+        "title": "Introduction to Algebra",
+        "author": "Richard Rusczyk",
+        "category": "Textbook",
+        "isbn": "978-1934124147",
+        "totalCopies": 10,
+        "availableCopies": 10,
+        "schoolId": "2009"
+    }
+]

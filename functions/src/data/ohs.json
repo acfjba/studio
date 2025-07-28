@@ -1,2 +1,15 @@
 
-[]
+[
+    {
+        "id": "ohs-001",
+        "incidentDate": "2024-05-20",
+        "reportedBy": "Kolovani Meiwaga",
+        "compiledBy": "Rosa Batina",
+        "notifiedTo": ["Ministry of Health"],
+        "ambulanceCalled": false,
+        "headReport": "Student slipped on a wet floor near the library. Minor scrape on the knee.",
+        "actionTaken": "First aid administered. 'Wet Floor' sign placed. Janitor notified to dry the area.",
+        "parentsNotified": "Yes",
+        "schoolId": "2009"
+    }
+]

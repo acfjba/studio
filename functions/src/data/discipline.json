@@ -1,2 +1,18 @@
 
-[]
+[
+    {
+        "id": "dr-001",
+        "incidentDate": "2024-05-12",
+        "studentName": "Adi Litia",
+        "studentId": "S12347",
+        "studentDob": "2010-02-15",
+        "studentYear": "8",
+        "issues": ["Absent"],
+        "comments": "Student was absent without a note from parents.",
+        "raisedBy": "Eshita Prasad",
+        "parentsInformed": "Yes",
+        "actionComments": "Verbal warning given. Record filed.",
+        "schoolId": "2009",
+        "userId": "teacher_eshitaprasad028"
+    }
+]

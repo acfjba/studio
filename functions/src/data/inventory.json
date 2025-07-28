@@ -1,2 +1,35 @@
 
-[]
+[
+  {
+    "id": "inv-001",
+    "itemName": "Desks",
+    "quantity": 50,
+    "value": 75.50,
+    "remarks": "Standard classroom desks",
+    "schoolId": "2009"
+  },
+  {
+    "id": "inv-002",
+    "itemName": "Chairs",
+    "quantity": 100,
+    "value": 30.00,
+    "remarks": "Standard classroom chairs",
+    "schoolId": "2009"
+  },
+  {
+    "id": "inv-003",
+    "itemName": "Whiteboards",
+    "quantity": 10,
+    "value": 150.00,
+    "remarks": "For main classrooms",
+    "schoolId": "2009"
+  },
+  {
+    "id": "inv-004",
+    "itemName": "Projector",
+    "quantity": 2,
+    "value": 450.00,
+    "remarks": "For AV room",
+    "schoolId": "2009"
+  }
+]
