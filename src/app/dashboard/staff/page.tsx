@@ -47,7 +47,7 @@ async function getStaffListFromFirestore(schoolId: string): Promise<StaffMember[
     });
 }
 
-async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt'>, schoolId: string): Promise<StaffMember> {
+async function addStaffToFirestore(staffData: Omit<StaffMember, 'id' | 'createdAt' | 'updatedAt' | 'schoolId'>, schoolId: string): Promise<StaffMember> {
     if (!db) throw new Error("Firestore is not configured.");
     const staffCollectionRef = collection(db, 'staff');
     const fullStaffData = {
@@ -314,7 +314,25 @@ export default function StaffRecordsPage() {
         )}
 
         <Card className="shadow-xl rounded-lg">
-          <CardContent className="pt-6">
+          <CardHeader>
+             <div className="flex flex-col sm:flex-row gap-4 justify-between">
+                <div>
+                    <CardTitle>Staff List</CardTitle>
+                    <CardDescription>A directory of all staff members in your school.</CardDescription>
+                </div>
+                <div className="relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                    <Input
+                        id="search-staff"
+                        placeholder="Search by name or role..."
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                        className="pl-10 w-full sm:w-80"
+                    />
+                </div>
+            </div>
+          </CardHeader>
+          <CardContent>
             {isLoading ? (
               <div className="space-y-2">
                 {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-12 w-full" />)}
@@ -370,5 +388,3 @@ export default function StaffRecordsPage() {
       </div>
   );
 }
-
-    
