@@ -3,6 +3,7 @@
 import { config } from 'dotenv';
 import path from 'path';
 import admin from 'firebase-admin';
+import { applicationDefault } from 'firebase-admin/app';
 
 // Load environment variables from the root .env file
 config({ path: path.resolve(process.cwd(), '.env') });
@@ -18,7 +19,9 @@ try {
   if (admin.apps.length === 0) {
     const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
 
+    // Prioritize explicit env vars, but fall back to applicationDefault (which uses GOOGLE_APPLICATION_CREDENTIALS)
     if (FIREBASE_PROJECT_ID && FIREBASE_CLIENT_EMAIL && FIREBASE_PRIVATE_KEY) {
+      console.log("Initializing Firebase Admin SDK using explicit environment variables.");
       admin.initializeApp({
         credential: admin.credential.cert({
           projectId: FIREBASE_PROJECT_ID,
@@ -26,9 +29,11 @@ try {
           privateKey: FIREBASE_PRIVATE_KEY.replace(/\\n/g, '\n'),
         }),
       });
-      console.log("Firebase Admin SDK initialized successfully using environment variables.");
     } else {
-      console.warn("Firebase Admin SDK not initialized. Missing required environment variables.");
+        console.log("Initializing Firebase Admin SDK using Application Default Credentials.");
+        admin.initializeApp({
+            credential: applicationDefault(),
+        });
     }
   }
   
@@ -40,6 +45,7 @@ try {
 
 } catch (error) {
   console.error('Firebase admin initialization error:', error);
+  console.log('Please ensure you have set up your GOOGLE_APPLICATION_CREDENTIALS environment variable or provided the specific FIREBASE_... variables in your .env file.');
 }
 
 export { adminAuth, adminDb };

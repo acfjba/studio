@@ -1,17 +1,14 @@
+
 // 🔐 Firebase Admin script to fetch Auth users + Firestore user docs
 
 const admin = require("firebase-admin");
 const fs = require("fs");
 const path = require("path");
 
-// Load service account key from local path
-// IMPORTANT: You must create this file and paste your service account key JSON into it.
-const serviceAccount = require("./serviceAccountKey.json");
-
-// Initialize Admin SDK
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+// Initialize Admin SDK using Application Default Credentials
+// This will automatically use the service account key from the
+// GOOGLE_APPLICATION_CREDENTIALS environment variable.
+admin.initializeApp();
 
 const auth = admin.auth();
 const db = admin.firestore();

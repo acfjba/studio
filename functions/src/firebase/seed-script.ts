@@ -1,3 +1,4 @@
+
 // functions/src/firebase/seed-script.ts
 
 /**
@@ -14,16 +15,6 @@ config({ path: path.resolve(__dirname, '../../../../.env') });
 
 async function runSeed() {
   console.log('--- Starting Database Seed via Command Line ---');
-
-  // Check for necessary environment variables to connect to Firebase Admin
-  const { FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, FIREBASE_PRIVATE_KEY } = process.env;
-
-  if (!FIREBASE_PROJECT_ID || !FIREBASE_CLIENT_EMAIL || !FIREBASE_PRIVATE_KEY) {
-      console.error('\nERROR: Firebase Admin credentials not found in .env file.');
-      console.error('For local seeding, please ensure FIREBASE_PROJECT_ID, FIREBASE_CLIENT_EMAIL, and FIREBASE_PRIVATE_KEY are set in your .env file.');
-      console.log('You can get these values from your project\'s service account JSON key file in the Firebase Console.');
-      process.exit(1);
-  }
   
   try {
     await seedDatabase();
@@ -32,7 +23,11 @@ async function runSeed() {
   } catch (error) {
     console.error('\n--- Database Seeding Failed ---');
     console.error('An error occurred during the seeding process:');
-    console.error(error);
+    if (error instanceof Error && error.message.includes('Could not load the default credentials')) {
+        console.error('Hint: Make sure your GOOGLE_APPLICATION_CREDENTIALS environment variable is set correctly and points to your service account key file.');
+    } else {
+        console.error(error);
+    }
     process.exit(1);
   }
 }

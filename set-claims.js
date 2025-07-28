@@ -1,11 +1,12 @@
+
 // set-claims.js
 const admin = require("firebase-admin");
-// IMPORTANT: You must create this file and paste your service account key JSON into it.
-const serviceAccount = require("./serviceAccountKey.json");
 
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+// Initialize Admin SDK using Application Default Credentials
+// This will automatically use the service account key from the
+// GOOGLE_APPLICATION_CREDENTIALS environment variable.
+admin.initializeApp();
+
 
 async function grantAdmin() {
   // This UID must match the 'id' field in your users.json for the system admin.

@@ -1,14 +1,12 @@
+
 // firestore-loader.js
 const admin = require("firebase-admin");
 const fs = require("fs");
 
-// Initialize Firebase Admin
-// IMPORTANT: You must create this file and paste your service account key JSON into it.
-const serviceAccount = require("./serviceAccountKey.json");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount)
-});
+// Initialize Admin SDK using Application Default Credentials
+// This will automatically use the service account key from the
+// GOOGLE_APPLICATION_CREDENTIALS environment variable.
+admin.initializeApp();
 
 const db = admin.firestore();
 
