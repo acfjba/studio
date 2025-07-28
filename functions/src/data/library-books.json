@@ -19,5 +19,25 @@
         "totalCopies": 10,
         "availableCopies": 10,
         "schoolId": "2009"
+    },
+    {
+        "id": "lb-003",
+        "title": "Charlotte's Web",
+        "author": "E.B. White",
+        "category": "Fiction",
+        "isbn": "978-0064400558",
+        "totalCopies": 8,
+        "availableCopies": 8,
+        "schoolId": "2009"
+    },
+    {
+        "id": "lb-004",
+        "title": "National Geographic Kids Almanac 2024",
+        "author": "National Geographic Kids",
+        "category": "Reference",
+        "isbn": "978-1426374116",
+        "totalCopies": 3,
+        "availableCopies": 3,
+        "schoolId": "2009"
     }
 ]

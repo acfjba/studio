@@ -11,5 +11,17 @@
         "actionTaken": "First aid administered. 'Wet Floor' sign placed. Janitor notified to dry the area.",
         "parentsNotified": "Yes",
         "schoolId": "2009"
+    },
+    {
+        "id": "ohs-002",
+        "incidentDate": "2024-05-28",
+        "reportedBy": "Lureqe Leticia",
+        "compiledBy": "Rosa Batina",
+        "notifiedTo": [],
+        "ambulanceCalled": false,
+        "headReport": "A beehive was discovered in a tree near the Year 3 classroom. No one was stung.",
+        "actionTaken": "Area was cordoned off immediately. A professional beekeeper was called and safely removed the hive after school hours.",
+        "parentsNotified": "No",
+        "schoolId": "2009"
     }
 ]

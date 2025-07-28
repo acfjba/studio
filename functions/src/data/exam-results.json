@@ -31,5 +31,37 @@
         "comments": "Good comprehension skills, needs to work on grammar.",
         "recordedByUserId": "teacher_lureqeleticia",
         "schoolId": "2009"
+    },
+    {
+        "id": "er-003",
+        "studentId": "S12347",
+        "studentName": "Adi Litia",
+        "studentYear": "8",
+        "examType": "Mid-Term",
+        "subject": "Basic Science",
+        "score": 65,
+        "grade": "B",
+        "examDate": "2024-06-03",
+        "term": "2",
+        "year": "2024",
+        "comments": "Good understanding of concepts, but needs to improve on diagrams.",
+        "recordedByUserId": "teacher_kolovanimeiwaga",
+        "schoolId": "2009"
+    },
+    {
+        "id": "er-004",
+        "studentId": "S12345",
+        "studentName": "Ratu Penaia",
+        "studentYear": "8",
+        "examType": "Mid-Term",
+        "subject": "English",
+        "score": 92,
+        "grade": "A+",
+        "examDate": "2024-06-02",
+        "term": "2",
+        "year": "2024",
+        "comments": "Exceptional work on the literature component.",
+        "recordedByUserId": "teacher_lureqeleticia",
+        "schoolId": "2009"
     }
 ]

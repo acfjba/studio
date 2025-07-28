@@ -14,5 +14,20 @@
         "actionComments": "Verbal warning given. Record filed.",
         "schoolId": "2009",
         "userId": "teacher_eshitaprasad028"
+    },
+    {
+        "id": "dr-002",
+        "incidentDate": "2024-05-20",
+        "studentName": "Pio Tama",
+        "studentId": "S12350",
+        "studentDob": "2009-11-05",
+        "studentYear": "8",
+        "issues": ["Bullying", "Disrespect"],
+        "comments": "Pio was reported by two students for repeatedly teasing and pushing a younger student during recess. Was disrespectful to the teacher on duty when confronted.",
+        "raisedBy": "Lureqe Leticia",
+        "parentsInformed": "Yes",
+        "actionComments": "Parents called in for a meeting. Student is suspended from recess for one week and must write an apology letter. Referred to counselling.",
+        "schoolId": "2009",
+        "userId": "teacher_lureqeleticia"
     }
 ]

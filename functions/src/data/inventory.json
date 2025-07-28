@@ -2,7 +2,7 @@
 [
   {
     "id": "inv-001",
-    "itemName": "Desks",
+    "itemName": "Student Desks",
     "quantity": 50,
     "value": 75.50,
     "remarks": "Standard classroom desks",
@@ -10,7 +10,7 @@
   },
   {
     "id": "inv-002",
-    "itemName": "Chairs",
+    "itemName": "Student Chairs",
     "quantity": 100,
     "value": 30.00,
     "remarks": "Standard classroom chairs",
@@ -30,6 +30,14 @@
     "quantity": 2,
     "value": 450.00,
     "remarks": "For AV room",
+    "schoolId": "2009"
+  },
+  {
+    "id": "inv-005",
+    "itemName": "First Aid Kits",
+    "quantity": 5,
+    "value": 55.00,
+    "remarks": "Located in office and staff room",
     "schoolId": "2009"
   }
 ]
