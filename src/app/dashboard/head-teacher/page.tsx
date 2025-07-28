@@ -1,6 +1,5 @@
-
-import { HeadTeacherClient } from "@/components/dashboard/head-teacher-client";
+import { HeadTeacherClient } from '@/components/dashboard/head-teacher-client';
 
 export default function HeadTeacherPage() {
-    return <HeadTeacherClient />;
+  return <HeadTeacherClient />;
 }

@@ -1,4 +1,3 @@
-
 {
   "name": "nextn",
   "version": "0.1.0",
@@ -9,7 +8,7 @@
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit",
-    "db:seed": "ts-node --project tsconfig.functions.json functions/seed-script.ts",
+    "db:seed": "ts-node --project tsconfig.functions.json functions/src/firebase/seed-script.ts",
     "db:set-claims": "node set-claims.js",
     "fetch:users": "node fetch-users.js"
   },
