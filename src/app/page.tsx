@@ -91,7 +91,42 @@ export default function LoginPage() {
                     </div>
                 </Slide>
                 
-                 <section id="login-section" className="h-screen w-full flex flex-col items-center justify-center p-8 snap-start">
+                 <Slide>
+                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Core Features</h2>
+                     <p className="text-lg text-foreground mb-8 text-center max-w-3xl mx-auto">An integrated platform that provides tools for every role, from teachers to system administrators, ensuring efficient data management and insightful analytics.</p>
+                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
+                        <div className="flex items-start">
+                            <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Interactive Dashboards</p>
+                                <p className="text-muted-foreground text-sm">Visualize key metrics with role-based dashboards. Monitor academic performance, inventory levels, and KPI reports in an intuitive, easy-to-understand format for data-driven decision making.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Advanced Search & Filtering</p>
+                                <p className="text-muted-foreground text-sm">Quickly find the information you need with powerful search and filtering capabilities across all modules, including contacts, staff records, and inventory management.</p>
+                            </div>
+                        </div>
+                        <div className="flex items-start">
+                            <ShieldCheck className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Secure Access Control</p>
+                                <p className="text-muted-foreground text-sm">Implement a secure, role-based access control system to ensure only authorized users can access sensitive data like API keys, counselling notes, and staff records, maintaining privacy and security.</p>
+                            </div>
+                        </div>
+                         <div className="flex items-start">
+                            <FileText className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
+                            <div>
+                                <p className="font-semibold">Comprehensive Record-Keeping</p>
+                                <p className="text-muted-foreground text-sm">Manage everything from disciplinary and counselling records to OHS incidents and library loans in a single, centralized system.</p>
+                            </div>
+                        </div>
+                    </div>
+                </Slide>
+                
+                <section id="login-section" className="h-screen w-full flex flex-col items-center justify-center p-8 snap-start">
                     <Card className="w-full max-w-md bg-background shadow-2xl">
                         <CardHeader className="text-center">
                             <CardTitle className="text-2xl font-headline">Welcome Back</CardTitle>
@@ -132,48 +167,6 @@ export default function LoginPage() {
                         </form>
                     </Card>
                 </section>
-
-                <Slide>
-                    <h2 className="text-4xl font-headline font-bold text-accent mb-6 text-center">Core Features</h2>
-                     <p className="text-lg text-foreground mb-8 text-center max-w-3xl mx-auto">An integrated platform that provides tools for every role, from teachers to system administrators, ensuring efficient data management and insightful analytics.</p>
-                     <div className="grid md:grid-cols-2 gap-x-8 gap-y-6 text-base">
-                        <div className="flex items-start">
-                            <BarChart3 className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
-                            <div>
-                                <p className="font-semibold">Interactive Dashboards</p>
-                                <p className="text-muted-foreground text-sm">Visualize key metrics with role-based dashboards. Monitor academic performance, inventory levels, and KPI reports in an intuitive, easy-to-understand format for data-driven decision making.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start">
-                            <CheckCircle className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
-                            <div>
-                                <p className="font-semibold">Advanced Search & Filtering</p>
-                                <p className="text-muted-foreground text-sm">Quickly find the information you need with powerful search and filtering capabilities across all modules, including contacts, staff records, and inventory management.</p>
-                            </div>
-                        </div>
-                        <div className="flex items-start">
-                            <ShieldCheck className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
-                            <div>
-                                <p className="font-semibold">Secure Access Control</p>
-                                <p className="text-muted-foreground text-sm">Implement a secure, role-based access control system to ensure only authorized users can access sensitive data like API keys, counselling notes, and staff records, maintaining privacy and security.</p>
-                            </div>
-                        </div>
-                         <div className="flex items-start">
-                            <FileText className="h-8 w-8 text-primary mr-4 mt-1 shrink-0" />
-                            <div>
-                                <p className="font-semibold">Comprehensive Record-Keeping</p>
-                                <p className="text-muted-foreground text-sm">Manage everything from disciplinary and counselling records to OHS incidents and library loans in a single, centralized system.</p>
-                            </div>
-                        </div>
-                    </div>
-                </Slide>
-
-                <Slide>
-                    <div className="text-center">
-                        <h2 className="text-5xl font-headline font-bold text-primary mb-6">Thank You</h2>
-                        <p className="text-xl text-foreground mb-8">Streamlining school operations, one click at a time.</p>
-                    </div>
-                </Slide>
             </div>
         </div>
     );
