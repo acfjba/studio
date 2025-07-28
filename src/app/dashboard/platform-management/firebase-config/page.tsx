@@ -99,39 +99,6 @@ export default function FirebaseConfigPage() {
         }
     };
     
-     const handleSeedDatabase = async () => {
-        if (!isFirebaseConfigured) {
-            toast({ variant: 'destructive', title: 'Action Failed', description: 'Firebase is not configured.' });
-            return;
-        }
-        setIsSeeding(true);
-        setSeedReport(null);
-        toast({ title: 'Database Seeding Started', description: 'This may take a moment...' });
-        
-        try {
-            const response = await fetch('/api/seed', { method: 'POST' });
-            const data = await response.json();
-            
-            if (!response.ok) {
-                throw new Error(data.message || 'An unknown error occurred.');
-            }
-            
-            toast({ title: 'Database Seeded Successfully!', description: 'Your database has been populated with sample data.' });
-            setSeedReport(data.report);
-        } catch (error) {
-            const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred.";
-            toast({ variant: 'destructive', title: 'Database Seeding Failed', description: errorMessage });
-        } finally {
-            setIsSeeding(false);
-        }
-    };
-    
-    const copyToClipboard = (text: string) => {
-        if(!text || text === 'Not Set' || text.includes('Hidden')) return;
-        navigator.clipboard.writeText(text);
-        toast({ title: "Copied to clipboard!" });
-    };
-    
     const firestoreUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/firestore/databases` : '#';
     const authUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/authentication/users` : '#';
     const functionsUrl = connectionKeys.projectId ? `https://console.firebase.google.com/project/${connectionKeys.projectId}/functions` : '#';
@@ -190,40 +157,18 @@ export default function FirebaseConfigPage() {
                         </CardHeader>
                          <CardContent>
                              <Alert>
-                                <AlertTitle>Seed Database</AlertTitle>
+                                <AlertTitle>Seed Database via Command Line</AlertTitle>
                                 <AlertDescription>
-                                    Click the button below to populate your database with initial users, schools, and sample data. This action is idempotent, meaning you can run it multiple times without creating duplicate entries.
+                                    To populate your database with initial users, schools, and sample data, please run the following command in your terminal:
+                                    <div className="mt-2 p-2 bg-muted rounded-md">
+                                        <code className="font-mono text-sm">npm run db:seed</code>
+                                    </div>
+                                    This action is idempotent, meaning you can run it multiple times without creating duplicate entries.
                                 </AlertDescription>
                             </Alert>
                          </CardContent>
-                         <CardFooter>
-                            <Button onClick={handleSeedDatabase} disabled={isSeeding || !isFirebaseConfigured} className="w-full">
-                                {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin"/> : <DatabaseZap className="mr-2 h-4 w-4" />}
-                                {isSeeding ? "Seeding..." : "Seed Database"}
-                            </Button>
-                        </CardFooter>
                     </Card>
                     
-                    {seedReport && (
-                        <Card>
-                             <CardHeader>
-                                <CardTitle className="flex items-center gap-2 font-headline">
-                                    <ListChecks className="w-5 h-5 text-primary" /> Seeding Report
-                                </CardTitle>
-                                <CardDescription>Summary of the data synchronization process.</CardDescription>
-                            </CardHeader>
-                            <CardContent className="space-y-2 text-sm">
-                                {Object.entries(seedReport).map(([key, value]) => (
-                                    <div key={key} className="flex justify-between items-center p-2 rounded-md bg-muted/50">
-                                        <span className="capitalize font-medium text-foreground">{key.replace(/([A-Z])/g, ' $1')}</span>
-                                        <span className="font-bold text-primary">{Array.isArray(value) ? value.length : 'N/A'} records</span>
-                                    </div>
-                                ))}
-                            </CardContent>
-                        </Card>
-                    )}
-
-
                     <Alert variant="destructive">
                         <AlertTitle>Important: One-Time Setup Required</AlertTitle>
                         <AlertDescription>
