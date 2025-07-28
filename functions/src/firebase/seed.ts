@@ -154,7 +154,7 @@ export async function seedDatabase(): Promise<SeedReport> {
       col.data.forEach(item => {
         if (item.id) {
           const ref = db.collection(col.name).doc(item.id);
-          batch.set(ref, item, { merge: false });
+          batch.set(ref, item, { merge: true }); // Use merge: true to avoid overwriting existing fields unintentionally
           (report[col.reportKey] as string[]).push(`Queued ${item.id} for ${col.name}`);
         }
       });
