@@ -1,4 +1,3 @@
-
 // functions/src/firebase/seed.ts
 import { adminDb, adminAuth } from './admin';
 import { 
