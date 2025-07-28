@@ -1,3 +1,4 @@
+
 // src/lib/data.ts
 // This file acts as a centralized module to import and export all mock/seed data
 // from the /data directory. This avoids import resolution issues in client components.

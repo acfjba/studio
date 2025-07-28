@@ -124,4 +124,3 @@ export async function seedDatabase(): Promise<SeedReport> {
   console.log('\nFull database seeding process complete!');
   return report;
 }
-
